@@ -10,7 +10,9 @@ This project aims to try to find out how much published molecular interaction da
 This a list of the different approaches we will take, in no particular order, with a brief comment. Some of these will not provide with potential interactiosn to curate, but just help ranking lists generated with other approaches. 
 
 * Reactome inferred pairs: We already have an R workflow that builts a big file with over 600000 potential interactions inferred from Reactome, along with referenced PMIDs. The file probably needs cleaning an updating and the workflow is not fully automated. 
-* FpClass: Interaction prediction tool from Igor Jurisica's lab, does not provide potential PMIDs. 
+* FpClass: Interaction prediction tool from Igor Jurisica's lab, does not provide potential PMIDs.
+  * We have a sub-project using FpClass to try and identify potential curation errors.
+  * There is an FpClass-generated human interactome from May 2015, needs updating. 
 * Text-mining strategies: To different approaches here.
   * EMPC (Senay Kafkas) approach: Produces as output a list of UniProtKB accessions for pairs of genes/proteins co-occurring in the same sentence where a particular term (selected from a pre-made list) was found. The PMIDs where they were found are indicated, but no score measuring reliability, only the number of PMIDs.
     * Question: does it search through full text or abstracts only? 
