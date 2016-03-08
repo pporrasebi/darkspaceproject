@@ -15,7 +15,7 @@ This a list of the different approaches we will take, in no particular order, wi
   * There is an FpClass-generated human interactome from May 2015, needs updating. 
   * A new predictive database has been put together by Igor's group, IID (http://dcv.uhnres.utoronto.ca/iid/), but no full download is available for now. 
   * Igor's lab has been contacted to try to get a link to full, updated versions of FpClass-predicted interactomes or IID predicted part. 
-* Text-mining strategies: To different approaches here.
+* Text-mining strategies: Two different approaches here.
   * EMPC (Senay Kafkas) approach: Produces as output a list of UniProtKB accessions for pairs of genes/proteins co-occurring in the same sentence where a particular term (selected from a pre-made list) was found. The PMIDs where they were found are indicated, but no score measuring reliability, only the number of PMIDs.
     * The search is done through the full text when the paper is open access (PMC) or only abstract otherwise. 
   * Laitor/PESCADOR/MedLine Ranker: Similar to the approach above, but uses text mining tools that allow more sophisticated ranking of the term co-occurrences. 
