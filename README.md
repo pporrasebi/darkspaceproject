@@ -20,12 +20,12 @@ This a list of the different approaches considered in order to get an estimation
     * The search is done through the full text when the paper is open access (PMC) or only abstract otherwise. 
     * The dataset comprises almost 740000 potential pairs, along with the PMIDs for the papers from which they were inferred. 
 
-#### Strategies we are considering, but have not been implemented yet
+#### Strategies we are planning, but have not been implemented yet
 
 * BioGrid data: We need to identify how much information is curated in BioGrid as well, since any predicted interaction will be prioritized down if it is already curated there. 
 * Laitor/PESCADOR/MedLine Ranker: (Miguel Andrade and Adriano Barbosa) Text mining tools that allow ranking of the term co-occurrences.
 * GO IPIs: 'Inferred from Protein Interaction' annotations made by GO curators. Available through a new PSICQUIC server (EBI-GOA-nonIntAct).
-* Denes interaction map.
+* OmniPath: Meta-database of pathway associations derived from the literature (Dénes Türei).
 * STRING database predictions.
 * UniProtKB CC subunit lines: They detail complexes internal interactions that might not be curated by IMEx. 
 * Structure predictions using LAMs (Local Approximate Models)
@@ -33,3 +33,4 @@ This a list of the different approaches considered in order to get an estimation
   * DOMINE (http://domine.utdallas.edu/cgi-bin/Domine)
   * 3did (http://3did.irbbarcelona.org)
 * Genetic interactions: Although the overlap between protein and genetic interactions is negligible, it might help identifying those predicted interactions that have higher biological interest. 
+* Negatome (http://mips.helmholtz-muenchen.de/proj/ppi/negatome/), a database of verified negative interactions, can also be used to filter out spurious associations. 
