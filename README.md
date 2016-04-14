@@ -34,3 +34,13 @@ This a list of the different approaches considered in order to get an estimation
   * 3did (http://3did.irbbarcelona.org)
 * Genetic interactions: Although the overlap between protein and genetic interactions is negligible, it might help identifying those predicted interactions that have higher biological interest. 
 * Negatome (http://mips.helmholtz-muenchen.de/proj/ppi/negatome/), a database of verified negative interactions, can also be used to filter out spurious associations. 
+
+### Technical reports
+
+To read specific information about how each dataset has been handled and integrated, please use the following links:
+
+* IMEx dataset: https://github.com/pporrasebi/darkspaceproject/blob/master/IMEx/IMEx_dsgen.md
+* Reactome associations dataset: https://github.com/pporrasebi/darkspaceproject/blob/master/reactome_interactions/reactome_vs_imex_lean.md
+* IID predictions dataset: https://github.com/pporrasebi/darkspaceproject/blob/master/iid_predictions/iid_vs_imex.md
+* EPMC text-mining dataset: https://github.com/pporrasebi/darkspaceproject/blob/master/epmc_text_mining/tm_epmc_tr.md
+* Comparison between IMEx and the other datasets: https://github.com/pporrasebi/darkspaceproject/blob/master/dsp_comparison/dsp_comparison.md

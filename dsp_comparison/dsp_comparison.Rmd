@@ -23,7 +23,7 @@ I select only purely human interactions here (interactions where both proteins a
 system("Rscript ./scripts/IMEx_ds_generator.R --save")
 ```
 ```{r warning=FALSE,message=FALSE}
-imex_full <- read.delim("./results/imex_full.txt", header=T, sep="\t",colClasses="character")
+imex_full <- read.delim("../IMEx/results/imex_full.txt", header=T, sep="\t",colClasses="character")
 imex_human <- unique(subset(imex_full,taxid_a=="9606" & taxid_b=="9606"))
 library(dplyr)
 imex_human$imex <- 1
@@ -32,6 +32,8 @@ imex_pairs <- unique(select(imex_human,pair_id=pair_id_clean,imex))
 imex_pmids <- unique(select(imex_human,pmid=pubid,imex))
 ```
 
+The dataset contains `r nrow(imex_pairs)` protein interactions recorded in `r nrow(imex_pmids)` publications.
+
 #### Reactome data
 
 ```{r}
@@ -39,6 +41,8 @@ reactome_pairs_pmids <- read.csv(gzfile("../reactome_interactions/results/pairs_
 reactome_pairs <- unique(select(reactome_pairs_pmids,pair_id,reactome))
 reactome_pmids <- unique(select(reactome_pairs_pmids,pmid,reactome))
 ```
+
+The reactome dataset contains `r nrow(reactome_pairs)` protein associations recorded in `r nrow(reactome_pmids)` publications. 
 
 #### Text-mining EPMC data
 
@@ -49,11 +53,15 @@ tm_pairs <- unique(select(tm_pairs_pmids,pair_id,tm_epmc=tm))
 tm_pmids <- unique(select(tm_pairs_pmids,pmid,tm_epmc=tm))
 ```
 
+The text-mining EPMC dataset contains `r nrow(tm_pairs)` protein associations recorded in `r nrow(tm_pmids)` publications.
+
 #### IID predictions data
 
 ```{r}
 iid_pred_pairs <- read.csv("../iid_predictions/results/pairs_iid_pred.txt",header=T,sep="\t",colClasses=c("character","numeric"))
 ```
+
+The IID-predictions dataset contains `r nrow(iid_pred_pairs)` protein associations.
 
 ### Part 2: Generating comparison dataset at the pair level
 

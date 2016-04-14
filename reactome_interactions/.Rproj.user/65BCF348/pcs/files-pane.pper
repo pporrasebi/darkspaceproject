@@ -1,0 +1,9 @@
+{
+    "path" : "~/Documents/Projects/darkspaceproject/reactome_interactions",
+    "sortOrder" : [
+        {
+            "ascending" : true,
+            "columnIndex" : 2
+        }
+    ]
+}

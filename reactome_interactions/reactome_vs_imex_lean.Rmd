@@ -101,8 +101,6 @@ I finally add the PMID information to each pair of associations and I check if t
 rr_pairs_pmid_all <- unique(merge(rr_pairs, rr_pmids_human, by="rr_id",all=F))
 ```
 
-Finally I end up with a list of `r nrow(rr_pairs_pmid_all)` valid associations extracted from Reactome in human. 
-
 ### Part 4: Final formatting steps for generation of the Reactome dataset
 
 I generate a unique pair identifier per line and save the Reactome pairs associated with the PMIDs as a text file for further comparison with other datasets.
@@ -119,3 +117,4 @@ write.table(reactome_pairs_pmid,"./results/pairs_pmid_reactome.txt",col.names=T,
 system("gzip ./results/pairs_pmid_reactome.txt")
 ```
 
+After collapsing redundant pairs, I end up with a list of `r nrow(reactome_pairs_pmid)` unique protein pair-publication associations extracted from Reactome in human. 

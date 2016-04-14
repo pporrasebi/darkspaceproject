@@ -23,7 +23,7 @@ system("Rscript ./scripts/IMEx_ds_generator.R --save")
 ```
 
 ```r
-imex_full <- read.delim("./results/imex_full.txt", header=T, sep="\t",colClasses="character")
+imex_full <- read.delim("../IMEx/results/imex_full.txt", header=T, sep="\t",colClasses="character")
 imex_human <- unique(subset(imex_full,taxid_a=="9606" & taxid_b=="9606"))
 library(dplyr)
 imex_human$imex <- 1
@@ -31,6 +31,8 @@ imex_human_sel <- unique(select(imex_human,pair_id=pair_id_clean,pmid=pubid,imex
 imex_pairs <- unique(select(imex_human,pair_id=pair_id_clean,imex))
 imex_pmids <- unique(select(imex_human,pmid=pubid,imex))
 ```
+
+The dataset contains 115787 protein interactions recorded in 8538 publications.
 
 #### Reactome data
 
@@ -40,6 +42,8 @@ reactome_pairs_pmids <- read.csv(gzfile("../reactome_interactions/results/pairs_
 reactome_pairs <- unique(select(reactome_pairs_pmids,pair_id,reactome))
 reactome_pmids <- unique(select(reactome_pairs_pmids,pmid,reactome))
 ```
+
+The reactome dataset contains 323725 protein associations recorded in 10864 publications. 
 
 #### Text-mining EPMC data
 
@@ -51,12 +55,16 @@ tm_pairs <- unique(select(tm_pairs_pmids,pair_id,tm_epmc=tm))
 tm_pmids <- unique(select(tm_pairs_pmids,pmid,tm_epmc=tm))
 ```
 
+The text-mining EPMC dataset contains 738950 protein associations recorded in 350423 publications.
+
 #### IID predictions data
 
 
 ```r
 iid_pred_pairs <- read.csv("../iid_predictions/results/pairs_iid_pred.txt",header=T,sep="\t",colClasses=c("character","numeric"))
 ```
+
+The IID-predictions dataset contains 707917 protein associations.
 
 ### Part 2: Generating comparison dataset at the pair level
 
@@ -71,9 +79,10 @@ comp_table <- Reduce(function(...) merge(..., all=TRUE), all_df)
 comp_table_final <- comp_table
 comp_table_final[is.na(comp_table_final <- comp_table)] <- 0
 write.table(comp_table_final,"./results/comp_table_final.txt",col.names=T,row.names=F,sep="\t",quote=F)
+system("gzip ./results/comp_table_final.txt")
 ```
 
-The comparison set gives a total number of 1713527 potentially interacting pairs, of which 1597266 (93.22%) are not curated in IMEx. 
+The comparison set gives a total number of 1741741 potentially interacting pairs, of which 1625954 (93.35%) are not curated in IMEx. 
 
 I produce a plot with the summary of the overlap between the different datasets evaluated. 
 
@@ -98,9 +107,10 @@ pubcomp_table <- Reduce(function(...) merge(..., all=TRUE), allpub_df)
 pubcomp_table_final <- pubcomp_table
 pubcomp_table_final[is.na(pubcomp_table_final <- pubcomp_table)] <- 0
 write.table(pubcomp_table_final,"./results/pubcomp_table_final.txt",col.names=T,row.names=F,sep="\t",quote=F)
+system("gzip ./results/pubcomp_table_final.txt")
 ```
 
-The comparison set gives a total number of 364125 publications, of which 355549 (97.64%) are not curated in IMEx. 
+The comparison set gives a total number of 364101 publications, of which 355563 (97.66%) are not curated in IMEx. 
 
 I produce a plot with the summary of the overlap between the different datasets evaluated. 
 
