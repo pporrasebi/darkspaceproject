@@ -1,0 +1,77 @@
+Return-Path: <orchard@ebi.ac.uk>
+Received: from imap01.ebi.ac.uk ([unix socket])
+	 by imap01.ebi.ac.uk (Cyrus v2.3.7-Invoca-RPM-2.3.7-12.el5_7.2) with LMTPA;
+	 Mon, 22 Jun 2015 14:01:16 +0100
+X-Sieve: CMU Sieve 2.3
+Received: from smtp01.ebi.ac.uk (smtp01.ebi.ac.uk [172.28.241.1])
+	by imap01.ebi.ac.uk (8.13.8/8.13.8) with ESMTP id t5MD1GCw009857
+	for <pporras@imap01.ebi.ac.uk>; Mon, 22 Jun 2015 14:01:16 +0100
+Received: from hx-mx1.ebi.ac.uk (mx1.ebi.ac.uk [193.62.195.238])
+	by smtp01.ebi.ac.uk (8.13.8/8.13.8) with ESMTP id t5MD1GtE028349;
+	Mon, 22 Jun 2015 14:01:16 +0100
+Received: from hx-mx1.ebi.ac.uk (localhost.localdomain [127.0.0.1])
+	by localhost (Email Security Appliance) with SMTP id 3B47122F1C6_588071CB;
+	Mon, 22 Jun 2015 13:01:16 +0000 (GMT)
+Received: from [172.22.68.87] (unknown [172.22.68.87])
+	(using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
+	(Client did not present a certificate)
+	by hx-mx1.ebi.ac.uk (Sophos Email Appliance) with ESMTPSA id 5341F22D223_588071BF;
+	Mon, 22 Jun 2015 13:01:15 +0000 (GMT)
+Message-ID: <5588075C.4080502@ebi.ac.uk>
+Date: Mon, 22 Jun 2015 14:02:20 +0100
+From: Sandra Orchard <orchard@ebi.ac.uk>
+User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:7.0.1) Gecko/20110929 Thunderbird/7.0.1
+MIME-Version: 1.0
+To: =?UTF-8?B?xZ5lbmF5IEthZmthcw==?= <kafkas@ebi.ac.uk>
+CC: Johanna McEntyre <MCENTYRE@ebi.ac.uk>, Pablo Porras <pporras@ebi.ac.uk>
+Subject: Re: Human PPIs
+References: <5587FC5B.6070207@ebi.ac.uk> <55880570.7010501@ebi.ac.uk>
+In-Reply-To: <55880570.7010501@ebi.ac.uk>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+
+Hi Senay
+
+Would 2pm on Thursday work for you? We assume we only need about 20-30 
+minutes of your time. We are in Office 29 in the new building (top 
+level, right at the back, on the right hand side as you walk in the 
+front door).
+
+Sandra
+
+On 22/06/2015 13:54, Şenay Kafkas wrote:
+> Hi Sandra,
+>
+> Is it possible to meet thursday afternoon or friday afternoon?
+>
+> Cheers,
+> Senay
+>
+> On 22/06/15 13:15, Sandra Orchard wrote:
+>> Hi Senay
+>>
+>> We are interested in following up your suggestions for mining PPIs 
+>> that we are missing, or have under-represented in the current IntAct 
+>> network. Would you be free to pop over one day to discuss it further 
+>> with us.
+>>
+>> Sandra
+>>
+>
+>
+
+
+-- 
+Sandra Orchard
+Molecular Interactions Team Leader
+European Bioinformatics Institute (EMBL-EBI)
+European Molecular Biology Laboratory
+Wellcome Trust Genome Campus
+Hinxton
+Cambridge CB10 1SD
+United Kingdom
+
+phone: 01223 494675
+fax: 01223 494468
+email: orchard@ebi.ac.uk
+
