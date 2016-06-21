@@ -130,6 +130,17 @@ tm_full$Nof.co.occr.in.Body <- as.numeric(tm_full$Nof.co.occr.in.Body)
 tm_full <- tm_full[order(as.numeric(tm_full$Nof.Docs),decreasing=T),]
 ```
 
+I check out how many publications could be screened in full (not only the abstract).
+
+```{r message=FALSE,warning=FALSE}
+pub_nobody <- unique(subset(tm_full,is.na(Nof.co.occr.in.Body), select=c("PMCIDs")))
+library(dplyr)
+pub_total <- unique(select(tm_full,PMCIDs))
+
+```
+
+It was possible to check the body of the text in `r round((nrow(pub_total)-nrow(pub_nobody))*100/nrow(pub_total),2)`% of the total number of publications reported. 
+
 Now I generate the pair ids for the text-mined datset.
 
 ```{r,cache=TRUE}

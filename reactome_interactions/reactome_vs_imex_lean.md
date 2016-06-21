@@ -19,6 +19,7 @@ The files used for this analysis were supplied by Antonio Fabregat at Reactome a
 ```r
 system("perl ./scripts/reactome_prot_cleaner.pl ./source_files/rr.proteins.txt ./processed_files/rr.proteins.clean.txt")
 rr_prots <- read.delim("./processed_files/rr.proteins.clean.txt", header = F, sep = "\t", colClasses = "character")
+system("rm ./processed_files/rr.proteins.clean.txt")
 colnames(rr_prots) <- c("upac","upac_clean","rr_id", "type")
 library(dplyr)
 
@@ -107,8 +108,6 @@ I finally add the PMID information to each pair of associations and I check if t
 rr_pairs_pmid_all <- unique(merge(rr_pairs, rr_pmids_human, by="rr_id",all=F))
 ```
 
-Finally I end up with a list of 11972485 valid associations extracted from Reactome in human. 
-
 ### Part 4: Final formatting steps for generation of the Reactome dataset
 
 I generate a unique pair identifier per line and save the Reactome pairs associated with the PMIDs as a text file for further comparison with other datasets.
@@ -123,5 +122,7 @@ rr_pairs_pmid_all$pair_id <- apply(rr_pairs_pmid_all[,2:3], 1,function(i){
 reactome_pairs_pmid <- unique(select(rr_pairs_pmid_all, pair_id, pmid))
 reactome_pairs_pmid$reactome <- 1
 write.table(reactome_pairs_pmid,"./results/pairs_pmid_reactome.txt",col.names=T,row.names=F,quote=F,sep="\t")
+system("gzip ./results/pairs_pmid_reactome.txt")
 ```
 
+After collapsing redundant pairs, I end up with a list of 5180082 unique protein pair-publication associations extracted from Reactome in human. 
