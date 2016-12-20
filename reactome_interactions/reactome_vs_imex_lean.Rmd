@@ -21,7 +21,7 @@ The files used for this analysis were supplied by Antonio Fabregat at Reactome a
 system("perl ./scripts/reactome_prot_cleaner.pl ./source_files/rr.proteins.txt ./processed_files/rr.proteins.clean.txt")
 rr_prots <- read.delim("./processed_files/rr.proteins.clean.txt", header = F, sep = "\t", colClasses = "character")
 system("rm ./processed_files/rr.proteins.clean.txt")
-colnames(rr_prots) <- c("upac","upac_clean","rr_id", "type")
+colnames(rr_prots) <- c("upac","upac_clean","type", "rr_id")
 library(dplyr)
 
 rr_prots <- unique(select(rr_prots,upac=upac_clean,rr_id,type))
@@ -75,9 +75,9 @@ First I classify the human proteins in reactome using their types, in order to c
 
 
 ```{r eval=TRUE}
-rr_p_h_input <- data.frame(rr_prots_human[rr_prots_human$type == "INPUT",1:2])
-rr_p_h_output <- data.frame(rr_prots_human[rr_prots_human$type == "OUTPUT",1:2])
-rr_p_h_catalyst <- data.frame(rr_prots_human[rr_prots_human$type == "CATALYST",1:2])
+rr_p_h_input <- data.frame(rr_prots_human[rr_prots_human$type == "input",c(1,3)])
+rr_p_h_output <- data.frame(rr_prots_human[rr_prots_human$type == "output",c(1,3)])
+rr_p_h_catalyst <- data.frame(rr_prots_human[rr_prots_human$type == "catalystActivity",c(1,3)])
 ```
 
 I generate the pairs of potential interactions, following these rules:
