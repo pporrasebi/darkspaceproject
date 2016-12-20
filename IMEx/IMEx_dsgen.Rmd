@@ -34,10 +34,10 @@ I incorporate the data from DIP as well, taking the latest available release the
 Then I clean up the data as I did with the IntAct dataset. 
 
 ```{r eval=FALSE,message=FALSE, warning=FALSE}
-system("perl ./scripts/MITAB25extractor_v12.pl ./source_files/dip20160114.txt ./processed_files/dip20160114_pairs.txt")
+system("perl ./scripts/MITAB25extractor_v12.pl ./source_files/dip20160731.txt ./processed_files/dip20160731_pairs.txt")
 ```
 ```{r}
-dip_full <- read.delim("./processed_files/dip20160114_pairs.txt", header = T, sep = "\t", colClasses = "character")
+dip_full <- read.delim("./processed_files/dip20160731_pairs.txt", header = T, sep = "\t", colClasses = "character")
 ```
 
 #### Merge IntAct and DIP data to create an IMEx dataset
