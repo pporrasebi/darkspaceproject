@@ -132,7 +132,8 @@ $(document).ready(function () {
 <p>IMPORTANT: This set of scripts assume the different referenced datasets have been freshly updated. If you need to update results of this set, please re-run the corresponding source as well.</p>
 <div id="required-libraries" class="section level4">
 <h4>Required libraries</h4>
-<pre class="r"><code>library(dplyr)
+<pre class="r"><code>library(plyr)
+library(dplyr)
 library(data.table)
 library(UpSetR)
 library(splitstackshape)</code></pre>
@@ -157,7 +158,7 @@ imex_pmids &lt;- unique(select(imex_human,pmid=pubid,imex))</code></pre>
 system(&quot;gunzip -k pairs_pmid_reactome.txt.gz&quot;)
 reactome_pairs_pmids &lt;- fread(&quot;pairs_pmid_reactome.txt&quot;,header=T,sep=&quot;\t&quot;,colClasses=c(&quot;character&quot;,&quot;character&quot;,&quot;numeric&quot;),data.table = F)</code></pre>
 <pre><code>## 
-Read 89.3% of 4984136 rows
+Read 88.9% of 4984136 rows
 Read 4984136 rows and 3 (of 3) columns from 0.115 GB file in 00:00:03</code></pre>
 <pre class="r"><code>system(&quot;rm pairs_pmid_reactome.txt&quot;)
 setwd(&quot;../../dsp_comparison/&quot;)
@@ -310,8 +311,30 @@ lhf_pmids &lt;- unique(select(lhf,pmid))
 
 write.table(lhf,&quot;./results/lhf_list.txt&quot;,col.names=T,row.names = F,sep=&quot;\t&quot;,quote=F)</code></pre>
 <p>There are 426 pairs recorded in 190 publications that are not curated in IMEx but are found in the other datasets.</p>
-<hr />
 </div>
+</div>
+<div id="part-7-test-sets-for-reactome-and-text-mined-datasets" class="section level3">
+<h3>Part 7: Test sets for Reactome and text-mined datasets</h3>
+<p>I generate a couple of random samples from the subset of the text-mined and Reactome datasets that is not represented in IMEx. These samples are to be checked by curators to estimate what is the percentage of true/false positives in these datasets. I decide to just provide the PMIDs and request curators to check if the PMID contains interactors and identify the proteins if that’s so.</p>
+<pre class="r"><code>pubpairs_not_imex &lt;- pubpaircomp_table_final[pubpaircomp_table_final$imex==0 &amp; pubpaircomp_table_final$pair_id != &quot;&quot;,]
+pubpairs_not_imex_sel &lt;- unique(select(pubpairs_not_imex,pmid,pair_id))
+
+publs_not_imex &lt;- unique(select(pubpairs_not_imex,pmid,imex,reactome,tm_epmc,iid_pred,noncur_prot))
+
+set.seed(88)
+
+reactpubl_not_imex &lt;- publs_not_imex[publs_not_imex$reactome==1,]
+reactpubl_sample &lt;- reactpubl_not_imex[sample(1:nrow(reactpubl_not_imex),100),]
+react_sample &lt;- unique(merge(reactpubl_sample,pubpairs_not_imex_sel,by=&quot;pmid&quot;))
+
+tmpubl_not_imex &lt;- publs_not_imex[publs_not_imex$tm_epmc==1,]
+tmpubl_sample &lt;- tmpubl_not_imex[sample(1:nrow(tmpubl_not_imex),100),]
+tm_sample &lt;- unique(merge(tmpubl_sample,pubpairs_not_imex_sel,by=&quot;pmid&quot;))
+
+write.table(reactpubl_sample,&quot;./results/reactpubl_sample.txt&quot;,col.names = T,row.names = F,sep=&quot;\t&quot;,quote=F)
+write.table(tmpubl_sample,&quot;./results/tmpubl_sample.txt&quot;,col.names = T,row.names = F,sep=&quot;\t&quot;,quote=F)</code></pre>
+<p>Low-hanging fruit and Reactome/TM evaluation lists can be checked and accessed at <a href="https://docs.google.com/spreadsheets/d/1tL1HtVD3-BxHxKuXbIYhcFjmCptGVEOD5aFJCZw6CZk/edit?usp=sharing" class="uri">https://docs.google.com/spreadsheets/d/1tL1HtVD3-BxHxKuXbIYhcFjmCptGVEOD5aFJCZw6CZk/edit?usp=sharing</a>.</p>
+<hr />
 </div>
 </div>
 
