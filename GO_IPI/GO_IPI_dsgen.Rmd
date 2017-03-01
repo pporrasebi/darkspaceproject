@@ -1,0 +1,150 @@
+---
+output: 
+  html_document: 
+    keep_md: yes
+---
+GO IPI, Gene Ontology - Inferred from Physical Interaction - dataset generator
+========================================================
+
+#### Load Gene Ontology
+
+```{r echo=FALSE}
+GO_date <- date()
+suppressPackageStartupMessages({
+        library(data.table)
+        library(VennDiagram)
+        library(downloader)
+        library(R.utils)
+        })
+```
+
+I download the latest version of the GO annotations (UniProt KnowledgeBase (UniProtKB), IntAct protein complexes, and RNAcentral identifiers - multispecies) data from geneontology.org. Current file was downloaded on `r GO_date`. 
+
+```{r message=FALSE, warning=FALSE}
+if(!file.exists("./source_files/goa_uniprot_all_noiea.gaf.gz")){
+        GO_url = "http://geneontology.org/gene-associations/goa_uniprot_all_noiea.gaf.gz"
+        download(GO_url, destfile = "./source_files/goa_uniprot_all_noiea.gaf.gz")
+}
+gunzip(filename = "./source_files/goa_uniprot_all_noiea.gaf.gz", destname = "./source_files/goa_uniprot_all_noiea.gaf", remove = F)
+readLines("./source_files/goa_uniprot_all_noiea.gaf", n = 10)
+```
+Format description - http://www.geneontology.org/page/go-annotation-file-format-20.
+
+Reading and filtering GO by evidence code "IPI" - Inferred from Physical Interaction (http://www.geneontology.org/page/ipi-inferred-physical-interaction).
+
+```{r message=FALSE, warning=FALSE}
+GO = fread("./source_files/goa_uniprot_all_noiea.gaf", skip = 11, header = F, sep = "\t", colClasses = "character")
+GO_IPI = unique(GO[V7 == "IPI",])
+unlink(c("./source_files/goa_uniprot_all_noiea.gaf"))
+```
+
+Below you can see how many of GO IPI annotations originate from each source database.
+
+```{r source_db_for_GO}
+GO_IPI[,table(V15)]
+```
+
+Generating a list of PMIDs that have been curated into GO IPI annotations
+
+```{r pmids}
+GO_IPI_publications = GO_IPI[,.(GO_IPI_pmids = unique(gsub("^PMID:", "", V6)))]
+
+write.table(GO_IPI_publications, "./results/GO_IPI_pmids.txt", quote=F, sep ="\t", row.names = F, col.names = T)
+```
+
+`r nrow(GO_IPI_publications)` publications are curated into GO IPI annotations 
+
+#### Compare GO IPI publications to IMEx 
+
+```{r GO_IPI_vs_imex_pmids, message=FALSE, warning=FALSE, fig.width=4, fig.height=2}
+imex = fread("https://raw.githubusercontent.com/pporrasebi/darkspaceproject/master/IMEx/results/imex_full.txt", header = T, sep = "\t", colClasses = "character")
+N_pubid_imex = length(imex[,unique(pubid)])
+N_pubid_GO_IPI = length(GO_IPI_publications$GO_IPI_pmids)
+N_pubid_overlap = sum(!is.na(match(GO_IPI_publications$GO_IPI_pmids, imex[,unique(pubid)])))
+
+venn.d = draw.pairwise.venn(area1 = N_pubid_imex, area2 = N_pubid_GO_IPI, cross.area = N_pubid_overlap, category = c("IMEx", "GO_IPI"), 
+                          lty = rep("blank", 2), 
+                          fill = c("blue", "red"), 
+                          alpha = rep(0.5, 2), cat.pos = c(0, 135), 
+                          cat.dist = rep(0.035, 2), 
+                          cat.cex = c(1,1), scaled = TRUE, euler.d = TRUE,  margin = 0.05,
+                          direct.area = TRUE,
+                          cex = 1)
+
+```
+
+
+Transforming the data to get interacting pairs, and save the table of interacting pairs, publication IDs and GO IPI tag.
+
+```{r pairs, message=FALSE, warning=FALSE}
+GO_IPI_pairs = GO_IPI[,.(ida = V2, idb = V8, pubid = V6, GO_IPI = 1)]
+GO_IPI_pairs = GO_IPI_pairs[, data.table(ida = ida, idb = GO_IPI_pairs[,melt(tstrsplit(x = as.character(idb), split = "|",fixed = TRUE))]$value, pubid = pubid, GO_IPI = GO_IPI), by = paste0(ida,idb)]
+GO_IPI_pairs[, idb := gsub("^[[:alpha:]]+:","",idb)]
+GO_IPI_pairs[, paste0 := NULL]
+GO_IPI_pairs[, unique_interactions := apply(data.table(ida,idb,stringsAsFactors = F), 1,
+                                               function(a) { z = sort(a)
+                                               paste0(z[1],"_",z[2]) })]
+#biogrid_from_mentha = fread("./processed_files/biogrid_pairs.txt", header = T, sep = "\t", colClasses = "character")
+#fwrite(x = unique(biogrid_from_mentha[, .(pair_id_clean, pubid, biogrid = rep(1, .N))]), 
+#       file = "./results/pairs_pmids_biogrid.txt", sep = "\t")
+#N_biogrid = length(biogrid_from_mentha[,unique(pair_id_clean)])
+```
+
+The BioGRID dataset contains `r #N_biogrid` interacting pairs. 
+
+#### Compare BioGRID interactions and publications to IMEx 
+
+I calculate how many interactions in BioGRID match to IMEx.
+
+```{r biogrid_vs_imex, message=FALSE, warning=FALSE, fig.width=4, fig.height=2}
+#imex = fread("https://raw.githubusercontent.com/pporrasebi/darkspaceproject/master/IMEx/results/imex_full.txt", header = T, sep = "\t", colClasses = "character")
+#N_imex = length(imex[,unique(pair_id_clean)])
+#N_biogrid = length(biogrid_from_mentha[,unique(pair_id_clean)])
+#N_overlap = sum(!is.na(match(biogrid_from_mentha[,unique(pair_id_clean)], imex[,unique(pair_id_clean)])))
+
+#venn.d = draw.pairwise.venn(area1 = N_imex, area2 = N_biogrid, cross.area = N_overlap, category = c("IMEx", "BioGRID"), 
+#                          lty = rep("blank", 2), 
+#                          fill = c("blue", "red"), 
+#                          alpha = rep(0.5, 2), cat.pos = c(0, 135), 
+#                          cat.dist = rep(0.035, 2), 
+#                          cat.cex = c(1,1), scaled = TRUE, euler.d = TRUE,  margin = 0.05,
+#                          direct.area = TRUE,
+#                          cex = 1)
+
+```
+
+I calculate how many publications in BioGRID match to IMEx.
+
+```{r biogrid_vs_imex_pub, message=FALSE, warning=FALSE, fig.width=4, fig.height=2}
+#N_pubid_imex = length(imex[,unique(pubid)])
+#N_pubid_biogrid = length(biogrid_from_mentha[,unique(pubid)])
+#N_pubid_overlap = sum(!is.na(match(biogrid_from_mentha[,unique(pubid)], imex[,unique(pubid)])))
+
+#venn.d = draw.pairwise.venn(area1 = N_pubid_imex, area2 = N_pubid_biogrid, cross.area = N_pubid_overlap, category = c("IMEx", "BioGRID"), 
+#                          lty = rep("blank", 2), 
+#                          fill = c("blue", "red"), 
+#                          alpha = rep(0.5, 2), cat.pos = c(0, 135), 
+#                          cat.dist = rep(0.035, 2), 
+#                          cat.cex = c(1,1), scaled = TRUE, euler.d = TRUE,  margin = 0.05,
+#                          direct.area = TRUE,
+#                          cex = 1)
+
+```
+
+I calculate how many interactions published in specific articles (the same interaction can come from different publications) in BioGRID match to IMEx.
+
+```{r biogrid_vs_imex_pub_inter, message=FALSE, warning=FALSE, fig.width=4, fig.height=2}
+#N_pub_int_imex = length(imex[,unique(paste0(pubid,"_",pair_id_clean))])
+#N_pub_int_biogrid = length(biogrid_from_mentha[,unique(paste0(pubid,"_",pair_id_clean))])
+#N_pub_int_overlap = sum(!is.na(match(biogrid_from_mentha[,unique(paste0(pubid,"_",pair_id_clean))], imex[,unique(paste0(pubid,"_",pair_id_clean))])))
+
+#venn.d = draw.pairwise.venn(area1 = N_pub_int_imex, area2 = N_pub_int_biogrid, cross.area = N_pub_int_overlap, category = c("IMEx", "BioGRID"), 
+#                          lty = rep("blank", 2), 
+#                          fill = c("blue", "red"), 
+#                          alpha = rep(0.5, 2), cat.pos = c(0, 135), 
+#                          cat.dist = rep(0.035, 2), 
+#                          cat.cex = c(1,1), scaled = TRUE, euler.d = TRUE,  margin = 0.05,
+#                          direct.area = TRUE,
+#                          cex = 1)
+
+```
