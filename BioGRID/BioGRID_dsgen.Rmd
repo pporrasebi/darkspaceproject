@@ -18,7 +18,7 @@ suppressPackageStartupMessages({
         })
 ```
 
-I download the latest version of the BioGRID data from mentha using PSICQUIC. The file was downloaded on `r BioGRID_mentha_date`. 
+I download the latest version of the BioGRID data from mentha website. I have tried using PSICQUIC, however, downloading whole mentha using PSICQUIC takes too much time. Now, however, the link should be updated manually to get the latest mentha release. Current file was downloaded on `r BioGRID_mentha_date`. 
 
 ```{r message=FALSE, warning=FALSE}
 if(!file.exists("./source_files/2017-02-27_MITAB-2.5.zip")){

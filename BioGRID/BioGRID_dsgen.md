@@ -5,7 +5,7 @@ BioGRID dataset generator
 
 
 
-I download the latest version of the BioGRID data from mentha using PSICQUIC. The file was downloaded on Wed Mar  1 14:59:52 2017. 
+I download the latest version of the BioGRID data from mentha website. I have tried using PSICQUIC, however, downloading whole mentha using PSICQUIC takes too much time. Now, however, the link should be updated manually to get the latest mentha release. Current file was downloaded on Wed Mar  1 15:06:04 2017. 
 
 
 ```r
@@ -32,8 +32,8 @@ mentha = fread("./source_files/2017-02-27_MITAB-2.5", header = F, sep = "\t", co
 ```
 ## 
 Read 39.8% of 1105301 rows
-Read 71.5% of 1105301 rows
-Read 93.2% of 1105301 rows
+Read 73.3% of 1105301 rows
+Read 95.9% of 1105301 rows
 Read 1105301 rows and 15 (of 15) columns from 0.325 GB file in 00:00:05
 ```
 
