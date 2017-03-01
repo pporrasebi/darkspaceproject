@@ -123,7 +123,7 @@ $(document).ready(function () {
 <h1>BioGRID dataset generator</h1>
 <div id="load-biogrid-data" class="section level4">
 <h4>Load BioGRID data</h4>
-<p>I download the latest version of the BioGRID data from mentha website. I have tried using PSICQUIC, however, downloading whole mentha using PSICQUIC takes too much time. Now, however, the link should be updated manually to get the latest mentha release. Current file was downloaded on Wed Mar 1 15:06:04 2017.</p>
+<p>I download the latest version of the BioGRID data from mentha website. I have tried using PSICQUIC, however, downloading whole mentha using PSICQUIC takes too much time. Now, however, the link should be updated manually to get the latest mentha release. Current file was downloaded on Wed Mar 1 15:20:46 2017.</p>
 <pre class="r"><code>if(!file.exists(&quot;./source_files/2017-02-27_MITAB-2.5.zip&quot;)){
         mentha_url = &quot;http://mentha.uniroma2.it/dumps/2017-02-27_MITAB-2.5.zip&quot;
         # httr::GET(http://mentha.uniroma2.it/doDownload.php?file=2017-02-27_MITAB-2.5.zip) - this is how I got the direct link
@@ -139,8 +139,8 @@ unzip(&quot;./source_files/2017-02-27_MITAB-2.5.zip&quot;, exdir = &quot;./sourc
 <pre class="r"><code>mentha = fread(&quot;./source_files/2017-02-27_MITAB-2.5&quot;, header = F, sep = &quot;\t&quot;, colClasses = &quot;character&quot;)</code></pre>
 <pre><code>## 
 Read 39.8% of 1105301 rows
-Read 73.3% of 1105301 rows
-Read 95.9% of 1105301 rows
+Read 70.6% of 1105301 rows
+Read 91.4% of 1105301 rows
 Read 1105301 rows and 15 (of 15) columns from 0.325 GB file in 00:00:05</code></pre>
 <pre class="r"><code>biogrid_from_mentha = mentha[V13 == &quot;psi-mi:\&quot;MI:0463\&quot;(biogrid)&quot;,]
 fwrite(x = biogrid_from_mentha, file = &quot;./processed_files/biogrid_mitab25.txt&quot;,sep = &quot;\t&quot;)
@@ -149,8 +149,9 @@ unlink(c(&quot;./source_files/2017-02-27_MITAB-2.5&quot;,&quot;./processed_files
 <p>I save a table of interacting pairs, publication IDs and BioGRID tag.</p>
 <pre class="r"><code>biogrid_from_mentha = fread(&quot;./processed_files/biogrid_pairs.txt&quot;, header = T, sep = &quot;\t&quot;, colClasses = &quot;character&quot;)
 fwrite(x = unique(biogrid_from_mentha[, .(pair_id_clean, pubid, biogrid = rep(1, .N))]), 
-       file = &quot;./results/pairs_pmids_biogrid.txt&quot;, sep = &quot;\t&quot;)</code></pre>
-<p>The BioGRID dataset contains 464514 interacting pairs.</p>
+       file = &quot;./results/pairs_pmids_biogrid.txt&quot;, sep = &quot;\t&quot;)
+N_biogrid = length(biogrid_from_mentha[,unique(pair_id_clean)])</code></pre>
+<p>The BioGRID dataset contains 341408 interacting pairs.</p>
 <p>I create a list of PMIDs that have been curated by them.</p>
 <pre class="r"><code>biogrid_pmids &lt;- data.frame(unique(biogrid_from_mentha$pubid))
 

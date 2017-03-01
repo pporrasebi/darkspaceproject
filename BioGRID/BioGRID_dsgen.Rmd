@@ -50,9 +50,10 @@ I save a table of interacting pairs, publication IDs and BioGRID tag.
 biogrid_from_mentha = fread("./processed_files/biogrid_pairs.txt", header = T, sep = "\t", colClasses = "character")
 fwrite(x = unique(biogrid_from_mentha[, .(pair_id_clean, pubid, biogrid = rep(1, .N))]), 
        file = "./results/pairs_pmids_biogrid.txt", sep = "\t")
+N_biogrid = length(biogrid_from_mentha[,unique(pair_id_clean)])
 ```
 
-The BioGRID dataset contains `r nrow(biogrid_from_mentha)` interacting pairs. 
+The BioGRID dataset contains `r N_biogrid` interacting pairs. 
 
 I create a list of PMIDs that have been curated by them.
 

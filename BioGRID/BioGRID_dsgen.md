@@ -5,7 +5,7 @@ BioGRID dataset generator
 
 
 
-I download the latest version of the BioGRID data from mentha website. I have tried using PSICQUIC, however, downloading whole mentha using PSICQUIC takes too much time. Now, however, the link should be updated manually to get the latest mentha release. Current file was downloaded on Wed Mar  1 15:06:04 2017. 
+I download the latest version of the BioGRID data from mentha website. I have tried using PSICQUIC, however, downloading whole mentha using PSICQUIC takes too much time. Now, however, the link should be updated manually to get the latest mentha release. Current file was downloaded on Wed Mar  1 15:20:46 2017. 
 
 
 ```r
@@ -32,8 +32,8 @@ mentha = fread("./source_files/2017-02-27_MITAB-2.5", header = F, sep = "\t", co
 ```
 ## 
 Read 39.8% of 1105301 rows
-Read 73.3% of 1105301 rows
-Read 95.9% of 1105301 rows
+Read 70.6% of 1105301 rows
+Read 91.4% of 1105301 rows
 Read 1105301 rows and 15 (of 15) columns from 0.325 GB file in 00:00:05
 ```
 
@@ -51,9 +51,10 @@ I save a table of interacting pairs, publication IDs and BioGRID tag.
 biogrid_from_mentha = fread("./processed_files/biogrid_pairs.txt", header = T, sep = "\t", colClasses = "character")
 fwrite(x = unique(biogrid_from_mentha[, .(pair_id_clean, pubid, biogrid = rep(1, .N))]), 
        file = "./results/pairs_pmids_biogrid.txt", sep = "\t")
+N_biogrid = length(biogrid_from_mentha[,unique(pair_id_clean)])
 ```
 
-The BioGRID dataset contains 464514 interacting pairs. 
+The BioGRID dataset contains 341408 interacting pairs. 
 
 I create a list of PMIDs that have been curated by them.
 
