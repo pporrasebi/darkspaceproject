@@ -1,11 +1,11 @@
 GO IPI, Gene Ontology - Inferred from Physical Interaction - dataset generator
 ========================================================
 
-#### Load BioGRID data
+#### Load Gene Ontology
 
 
 
-I download the latest version of the GO annotations (UniProt KnowledgeBase (UniProtKB), IntAct protein complexes, and RNAcentral identifiers - multispecies) data from geneontology.org. Current file was downloaded on Wed Mar  1 17:20:39 2017. 
+I download the latest version of the GO annotations (UniProt KnowledgeBase (UniProtKB), IntAct protein complexes, and RNAcentral identifiers - multispecies) data from geneontology.org. Current file was downloaded on Thu Mar  2 10:54:03 2017. 
 
 
 ```r
@@ -29,6 +29,7 @@ readLines("./source_files/goa_uniprot_all_noiea.gaf", n = 10)
 ##  [9] "!Generated: 2017-02-13 16:27"                                                                                              
 ## [10] "!GO-version: http://purl.obolibrary.org/obo/go/releases/2017-02-11/go.owl"
 ```
+Format description - http://www.geneontology.org/page/go-annotation-file-format-20.
 
 Reading and filtering GO by evidence code "IPI" - Inferred from Physical Interaction (http://www.geneontology.org/page/ipi-inferred-physical-interaction).
 
@@ -40,7 +41,7 @@ GO = fread("./source_files/goa_uniprot_all_noiea.gaf", skip = 11, header = F, se
 ```
 ## 
 Read 45.6% of 1338386 rows
-Read 85.9% of 1338386 rows
+Read 86.7% of 1338386 rows
 Read 1338386 rows and 17 (of 17) columns from 0.215 GB file in 00:00:04
 ```
 
@@ -49,7 +50,7 @@ GO_IPI = unique(GO[V7 == "IPI",])
 unlink(c("./source_files/goa_uniprot_all_noiea.gaf"))
 ```
 
-Below you can see how many of GO IPI annotations originate from each source database.
+Below you can see how many of GO IPI annotations (not how many interacting pairs) records originate from each source database.
 
 
 ```r
@@ -74,98 +75,7 @@ Generating a list of PMIDs that have been curated into GO IPI annotations
 
 
 ```r
-GO_IPI[,V6 := gsub("^PMID:", "", V6)]
-```
-
-```
-##               V1                  V2                  V3 V4         V5
-##    1:  UniProtKB          A0A024A2C9                 lph    GO:0005515
-##    2:  UniProtKB          A0A024A2C9                 lph    GO:0005515
-##    3:  UniProtKB          A0A024A2C9                 lph    GO:0005515
-##    4:  UniProtKB          A0A024A2C9                 lph    GO:0005515
-##    5:  UniProtKB          A0A024A2C9                 lph    GO:0005515
-##   ---                                                                 
-## 7499:  UniProtKB              X2KN52              X2KN52    GO:0097677
-## 7500:  UniProtKB              X2KN52              X2KN52    GO:0097677
-## 7501:  UniProtKB              X2KN52              X2KN52    GO:0097677
-## 7502:  UniProtKB              X2KN52              X2KN52    GO:1990782
-## 7503: RNAcentral URS00006F9B91_11676 URS00006F9B91_11676    GO:0008134
-##             V6  V7
-##    1: 24835392 IPI
-##    2: 26538390 IPI
-##    3: 26538390 IPI
-##    4: 26538390 IPI
-##    5: 26538390 IPI
-##   ---             
-## 7499: 25379383 IPI
-## 7500: 25379383 IPI
-## 7501: 25379383 IPI
-## 7502: 25379383 IPI
-## 7503: 25116364 IPI
-##                                                                                         V8
-##    1:                                                                     UniProtKB:P08603
-##    2:                                                                     UniProtKB:P04004
-##    3:                                                                     UniProtKB:P04004
-##    4:                                                                     UniProtKB:P08603
-##    5:                                                                     UniProtKB:P08603
-##   ---                                                                                     
-## 7499:                                                                     UniProtKB:A7LH49
-## 7500:                                                                     UniProtKB:B5X3E8
-## 7501:                                                                     UniProtKB:C7EY83
-## 7502: UniProtKB:S5R2L7|UniProtKB:S5R5H7|UniProtKB:S5RA51|UniProtKB:S5RNB2|UniProtKB:S5RRC4
-## 7503:                                                                     UniProtKB:P04608
-##       V9
-##    1:  F
-##    2:  F
-##    3:  F
-##    4:  F
-##    5:  F
-##   ---   
-## 7499:  F
-## 7500:  F
-## 7501:  F
-## 7502:  F
-## 7503:  F
-##                                                                          V10
-##    1:                                                 Lipoprotein binding FH
-##    2:                                                 Lipoprotein binding FH
-##    3:                                                 Lipoprotein binding FH
-##    4:                                                 Lipoprotein binding FH
-##    5:                                                 Lipoprotein binding FH
-##   ---                                                                       
-## 7499:                       Signal transducer and activator of transcription
-## 7500:                       Signal transducer and activator of transcription
-## 7501:                       Signal transducer and activator of transcription
-## 7502:                       Signal transducer and activator of transcription
-## 7503: Human immunodeficiency virus 1 Trans-activation response element (TAR)
-##                                             V11     V12         V13
-##    1: A0A024A2C9_HAEIF|lph|tbp2|ERS515279_00376 protein   taxon:727
-##    2: A0A024A2C9_HAEIF|lph|tbp2|ERS515279_00376 protein   taxon:727
-##    3: A0A024A2C9_HAEIF|lph|tbp2|ERS515279_00376 protein   taxon:727
-##    4: A0A024A2C9_HAEIF|lph|tbp2|ERS515279_00376 protein   taxon:727
-##    5: A0A024A2C9_HAEIF|lph|tbp2|ERS515279_00376 protein   taxon:727
-##   ---                                                              
-## 7499:                              X2KN52_SALSA protein  taxon:8030
-## 7500:                              X2KN52_SALSA protein  taxon:8030
-## 7501:                              X2KN52_SALSA protein  taxon:8030
-## 7502:                              X2KN52_SALSA protein  taxon:8030
-## 7503:                                             miRNA taxon:11676
-##            V14              V15                              V16 V17
-##    1: 20170213           IntAct                                     
-##    2: 20160817           AgBase positively_regulates(GO:0050840)    
-##    3: 20170213           IntAct                                     
-##    4: 20160817           AgBase                                     
-##    5: 20170213           IntAct                                     
-##   ---                                                               
-## 7499: 20160315           AgBase                                     
-## 7500: 20160315           AgBase                                     
-## 7501: 20160315           AgBase                                     
-## 7502: 20160315           AgBase                                     
-## 7503: 20160607 ParkinsonsUK-UCL
-```
-
-```r
-GO_IPI_publications = GO_IPI[,.(GO_IPI_pmids = unique(V6))]
+GO_IPI_publications = GO_IPI[,.(GO_IPI_pmids = unique(gsub("^PMID:", "", V6)))]
 
 write.table(GO_IPI_publications, "./results/GO_IPI_pmids.txt", quote=F, sep ="\t", row.names = F, col.names = T)
 ```
@@ -194,71 +104,78 @@ venn.d = draw.pairwise.venn(area1 = N_pubid_imex, area2 = N_pubid_GO_IPI, cross.
 ![](GO_IPI_dsgen_files/figure-html/GO_IPI_vs_imex_pmids-1.png)<!-- -->
 
 
-I save a table of interacting pairs, publication IDs and BioGRID tag.
+Transforming the data to get interacting pairs, and save the table of interacting pairs, publication IDs and GO IPI tag.
 
 
 ```r
-#biogrid_from_mentha = fread("./processed_files/biogrid_pairs.txt", header = T, sep = "\t", colClasses = "character")
-#fwrite(x = unique(biogrid_from_mentha[, .(pair_id_clean, pubid, biogrid = rep(1, .N))]), 
-#       file = "./results/pairs_pmids_biogrid.txt", sep = "\t")
-#N_biogrid = length(biogrid_from_mentha[,unique(pair_id_clean)])
+# selecting necessary columns
+GO_IPI_pairs = GO_IPI[,.(ida = V2, idb = V8, pubid = V6, GO_IPI = 1)]
+# expanding frow/with column (for the cases when frow/with column contains more that 1 identifier) to get pairs of interactions
+idbz = GO_IPI_pairs[, tstrsplit(x = as.character(idb), split = "|",fixed = TRUE)]
+GO_IPI_pairs = GO_IPI_pairs[, data.table(ida = ida, idbz, pubid = pubid, GO_IPI = GO_IPI)]
+GO_IPI_pairs = melt(GO_IPI_pairs,measure.vars = c("V1","V2","V3","V4","V5","V6"), value.name = "idb", na.rm = T)
+GO_IPI_pairs[, variable := NULL]
+# Cleaning idb of the database of origin
+GO_IPI_pairs[, idb := gsub("^[[:alpha:]]+:","",idb)]
+# Cleaning publication identifiers of "PMID:"
+GO_IPI_pairs[, pubid := gsub("^PMID:", "", pubid)]
+# generating interacting pairs
+GO_IPI_pairs[, pair_id := apply(data.table(ida,idb,stringsAsFactors = F), 1,
+                                               function(a) { z = sort(a)
+                                               paste0(z[1],"_",z[2]) })]
+# cleaning ids of isoform information
+GO_IPI_pairs[, ida_clean := gsub("-[[:digit:]]+$","",ida)]
+GO_IPI_pairs[, idb_clean := gsub("-[[:digit:]]+$","",idb)]
+# generating interacting pairs without isoform information
+GO_IPI_pairs[, pair_id_clean := apply(data.table(ida_clean,idb_clean,stringsAsFactors = F), 1,
+                                               function(a) { z = sort(a)
+                                               paste0(z[1],"_",z[2]) })]
+GO_IPI_pairs = GO_IPI_pairs[,.(ida, idb, pair_id, ida_clean, idb_clean, pair_id_clean, pubid, GO_IPI)]
+fwrite(x = unique(GO_IPI_pairs), 
+       file = "./processed_files/pairs_pmids_GO_IPI.txt", sep = "\t")
+N_GO_IPI = length(GO_IPI_pairs[,unique(pair_id_clean)])
 ```
 
-The BioGRID dataset contains  interacting pairs. 
+The GO IPI dataset contains 4246 interacting pairs. 
 
 #### Compare BioGRID interactions and publications to IMEx 
 
-I calculate how many interactions in BioGRID match to IMEx.
+I calculate how many interactions in GO IPI dataset match to IMEx.
 
 
 ```r
-#imex = fread("https://raw.githubusercontent.com/pporrasebi/darkspaceproject/master/IMEx/results/imex_full.txt", header = T, sep = "\t", colClasses = "character")
-#N_imex = length(imex[,unique(pair_id_clean)])
-#N_biogrid = length(biogrid_from_mentha[,unique(pair_id_clean)])
-#N_overlap = sum(!is.na(match(biogrid_from_mentha[,unique(pair_id_clean)], imex[,unique(pair_id_clean)])))
+N_imex = length(imex[,unique(pair_id_clean)])
+N_GO_IPI = length(GO_IPI_pairs[,unique(pair_id_clean)])
+N_overlap = sum(!is.na(match(GO_IPI_pairs[,unique(pair_id_clean)], imex[,unique(pair_id_clean)])))
 
-#venn.d = draw.pairwise.venn(area1 = N_imex, area2 = N_biogrid, cross.area = N_overlap, category = c("IMEx", "BioGRID"), 
-#                          lty = rep("blank", 2), 
-#                          fill = c("blue", "red"), 
-#                          alpha = rep(0.5, 2), cat.pos = c(0, 135), 
-#                          cat.dist = rep(0.035, 2), 
-#                          cat.cex = c(1,1), scaled = TRUE, euler.d = TRUE,  margin = 0.05,
-#                          direct.area = TRUE,
-#                          cex = 1)
+venn.d = draw.pairwise.venn(area1 = N_imex, area2 = N_GO_IPI, cross.area = N_overlap, category = c("IMEx", "GO_IPI"), 
+                          lty = rep("blank", 2), 
+                          fill = c("blue", "red"), 
+                          alpha = rep(0.5, 2), cat.pos = c(0, 135), 
+                          cat.dist = rep(0.035, 2), 
+                          cat.cex = c(1,1), scaled = TRUE, euler.d = TRUE,  margin = 0.05,
+                          direct.area = TRUE,
+                          cex = 1)
 ```
 
-I calculate how many publications in BioGRID match to IMEx.
+![](GO_IPI_dsgen_files/figure-html/biogrid_vs_imex-1.png)<!-- -->
+
+I calculate how many interactions published in specific articles (the same interaction can come from different publications) in GO IPI dataset match to IMEx.
 
 
 ```r
-#N_pubid_imex = length(imex[,unique(pubid)])
-#N_pubid_biogrid = length(biogrid_from_mentha[,unique(pubid)])
-#N_pubid_overlap = sum(!is.na(match(biogrid_from_mentha[,unique(pubid)], imex[,unique(pubid)])))
+N_pub_int_imex = length(imex[,unique(paste0(pubid,"_",pair_id_clean))])
+N_pub_int_GO_IPI = length(GO_IPI_pairs[,unique(paste0(pubid,"_",pair_id_clean))])
+N_pub_int_overlap = sum(!is.na(match(GO_IPI_pairs[,unique(paste0(pubid,"_",pair_id_clean))], imex[,unique(paste0(pubid,"_",pair_id_clean))])))
 
-#venn.d = draw.pairwise.venn(area1 = N_pubid_imex, area2 = N_pubid_biogrid, cross.area = N_pubid_overlap, category = c("IMEx", "BioGRID"), 
-#                          lty = rep("blank", 2), 
-#                          fill = c("blue", "red"), 
-#                          alpha = rep(0.5, 2), cat.pos = c(0, 135), 
-#                          cat.dist = rep(0.035, 2), 
-#                          cat.cex = c(1,1), scaled = TRUE, euler.d = TRUE,  margin = 0.05,
-#                          direct.area = TRUE,
-#                          cex = 1)
+venn.d = draw.pairwise.venn(area1 = N_pub_int_imex, area2 = N_pub_int_GO_IPI, cross.area = N_pub_int_overlap, category = c("IMEx", "GO_IPI"), 
+                          lty = rep("blank", 2), 
+                          fill = c("blue", "red"), 
+                          alpha = rep(0.5, 2), cat.pos = c(0, 135), 
+                          cat.dist = rep(0.035, 2), 
+                          cat.cex = c(1,1), scaled = TRUE, euler.d = TRUE,  margin = 0.05,
+                          direct.area = TRUE,
+                          cex = 1)
 ```
 
-I calculate how many interactions published in specific articles (the same interaction can come from different publications) in BioGRID match to IMEx.
-
-
-```r
-#N_pub_int_imex = length(imex[,unique(paste0(pubid,"_",pair_id_clean))])
-#N_pub_int_biogrid = length(biogrid_from_mentha[,unique(paste0(pubid,"_",pair_id_clean))])
-#N_pub_int_overlap = sum(!is.na(match(biogrid_from_mentha[,unique(paste0(pubid,"_",pair_id_clean))], imex[,unique(paste0(pubid,"_",pair_id_clean))])))
-
-#venn.d = draw.pairwise.venn(area1 = N_pub_int_imex, area2 = N_pub_int_biogrid, cross.area = N_pub_int_overlap, category = c("IMEx", "BioGRID"), 
-#                          lty = rep("blank", 2), 
-#                          fill = c("blue", "red"), 
-#                          alpha = rep(0.5, 2), cat.pos = c(0, 135), 
-#                          cat.dist = rep(0.035, 2), 
-#                          cat.cex = c(1,1), scaled = TRUE, euler.d = TRUE,  margin = 0.05,
-#                          direct.area = TRUE,
-#                          cex = 1)
-```
+![](GO_IPI_dsgen_files/figure-html/biogrid_vs_imex_pub_inter-1.png)<!-- -->
