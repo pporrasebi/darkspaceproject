@@ -38,9 +38,10 @@ GO_IPI = unique(GO[V7 == "IPI",])
 unlink(c("./source_files/goa_uniprot_all_noiea.gaf"))
 ```
 
-Below you can see how many of GO IPI annotations originate from each source database.
+Below you can see how many of GO IPI annotations (not how many interacting pairs) records originate from each source database.
 
 ```{r source_db_for_GO}
+
 GO_IPI[,table(V15)]
 ```
 
@@ -76,75 +77,71 @@ venn.d = draw.pairwise.venn(area1 = N_pubid_imex, area2 = N_pubid_GO_IPI, cross.
 
 Transforming the data to get interacting pairs, and save the table of interacting pairs, publication IDs and GO IPI tag.
 
-```{r pairs, message=FALSE, warning=FALSE}
+```{r pairs, results='hide', message=FALSE, warning=FALSE}
+# selecting necessary columns
 GO_IPI_pairs = GO_IPI[,.(ida = V2, idb = V8, pubid = V6, GO_IPI = 1)]
-GO_IPI_pairs = GO_IPI_pairs[, data.table(ida = ida, idb = GO_IPI_pairs[,melt(tstrsplit(x = as.character(idb), split = "|",fixed = TRUE))]$value, pubid = pubid, GO_IPI = GO_IPI), by = paste0(ida,idb)]
+# expanding frow/with column (for the cases when frow/with column contains more that 1 identifier) to get pairs of interactions
+idbz = GO_IPI_pairs[, tstrsplit(x = as.character(idb), split = "|",fixed = TRUE)]
+GO_IPI_pairs = GO_IPI_pairs[, data.table(ida = ida, idbz, pubid = pubid, GO_IPI = GO_IPI)]
+GO_IPI_pairs = melt(GO_IPI_pairs,measure.vars = c("V1","V2","V3","V4","V5","V6"), value.name = "idb", na.rm = T)
+GO_IPI_pairs[, variable := NULL]
+# Cleaning idb of the database of origin
 GO_IPI_pairs[, idb := gsub("^[[:alpha:]]+:","",idb)]
-GO_IPI_pairs[, paste0 := NULL]
-GO_IPI_pairs[, unique_interactions := apply(data.table(ida,idb,stringsAsFactors = F), 1,
+# Cleaning publication identifiers of "PMID:"
+GO_IPI_pairs[, pubid := gsub("^PMID:", "", pubid)]
+# generating interacting pairs
+GO_IPI_pairs[, pair_id := apply(data.table(ida,idb,stringsAsFactors = F), 1,
                                                function(a) { z = sort(a)
                                                paste0(z[1],"_",z[2]) })]
-#biogrid_from_mentha = fread("./processed_files/biogrid_pairs.txt", header = T, sep = "\t", colClasses = "character")
-#fwrite(x = unique(biogrid_from_mentha[, .(pair_id_clean, pubid, biogrid = rep(1, .N))]), 
-#       file = "./results/pairs_pmids_biogrid.txt", sep = "\t")
-#N_biogrid = length(biogrid_from_mentha[,unique(pair_id_clean)])
+# cleaning ids of isoform information
+GO_IPI_pairs[, ida_clean := gsub("-[[:digit:]]+$","",ida)]
+GO_IPI_pairs[, idb_clean := gsub("-[[:digit:]]+$","",idb)]
+# generating interacting pairs without isoform information
+GO_IPI_pairs[, pair_id_clean := apply(data.table(ida_clean,idb_clean,stringsAsFactors = F), 1,
+                                               function(a) { z = sort(a)
+                                               paste0(z[1],"_",z[2]) })]
+GO_IPI_pairs = GO_IPI_pairs[,.(ida, idb, pair_id, ida_clean, idb_clean, pair_id_clean, pubid, GO_IPI)]
+fwrite(x = unique(GO_IPI_pairs), 
+       file = "./processed_files/pairs_pmids_GO_IPI.txt", sep = "\t")
+N_GO_IPI = length(GO_IPI_pairs[,unique(pair_id_clean)])
 ```
 
-The BioGRID dataset contains `r #N_biogrid` interacting pairs. 
+The GO IPI dataset contains `r N_GO_IPI` interacting pairs. 
 
 #### Compare BioGRID interactions and publications to IMEx 
 
-I calculate how many interactions in BioGRID match to IMEx.
+I calculate how many interactions in GO IPI dataset match to IMEx.
 
 ```{r biogrid_vs_imex, message=FALSE, warning=FALSE, fig.width=4, fig.height=2}
-#imex = fread("https://raw.githubusercontent.com/pporrasebi/darkspaceproject/master/IMEx/results/imex_full.txt", header = T, sep = "\t", colClasses = "character")
-#N_imex = length(imex[,unique(pair_id_clean)])
-#N_biogrid = length(biogrid_from_mentha[,unique(pair_id_clean)])
-#N_overlap = sum(!is.na(match(biogrid_from_mentha[,unique(pair_id_clean)], imex[,unique(pair_id_clean)])))
+N_imex = length(imex[,unique(pair_id_clean)])
+N_GO_IPI = length(GO_IPI_pairs[,unique(pair_id_clean)])
+N_overlap = sum(!is.na(match(GO_IPI_pairs[,unique(pair_id_clean)], imex[,unique(pair_id_clean)])))
 
-#venn.d = draw.pairwise.venn(area1 = N_imex, area2 = N_biogrid, cross.area = N_overlap, category = c("IMEx", "BioGRID"), 
-#                          lty = rep("blank", 2), 
-#                          fill = c("blue", "red"), 
-#                          alpha = rep(0.5, 2), cat.pos = c(0, 135), 
-#                          cat.dist = rep(0.035, 2), 
-#                          cat.cex = c(1,1), scaled = TRUE, euler.d = TRUE,  margin = 0.05,
-#                          direct.area = TRUE,
-#                          cex = 1)
-
-```
-
-I calculate how many publications in BioGRID match to IMEx.
-
-```{r biogrid_vs_imex_pub, message=FALSE, warning=FALSE, fig.width=4, fig.height=2}
-#N_pubid_imex = length(imex[,unique(pubid)])
-#N_pubid_biogrid = length(biogrid_from_mentha[,unique(pubid)])
-#N_pubid_overlap = sum(!is.na(match(biogrid_from_mentha[,unique(pubid)], imex[,unique(pubid)])))
-
-#venn.d = draw.pairwise.venn(area1 = N_pubid_imex, area2 = N_pubid_biogrid, cross.area = N_pubid_overlap, category = c("IMEx", "BioGRID"), 
-#                          lty = rep("blank", 2), 
-#                          fill = c("blue", "red"), 
-#                          alpha = rep(0.5, 2), cat.pos = c(0, 135), 
-#                          cat.dist = rep(0.035, 2), 
-#                          cat.cex = c(1,1), scaled = TRUE, euler.d = TRUE,  margin = 0.05,
-#                          direct.area = TRUE,
-#                          cex = 1)
+venn.d = draw.pairwise.venn(area1 = N_imex, area2 = N_GO_IPI, cross.area = N_overlap, category = c("IMEx", "GO_IPI"), 
+                          lty = rep("blank", 2), 
+                          fill = c("blue", "red"), 
+                          alpha = rep(0.5, 2), cat.pos = c(0, 135), 
+                          cat.dist = rep(0.035, 2), 
+                          cat.cex = c(1,1), scaled = TRUE, euler.d = TRUE,  margin = 0.05,
+                          direct.area = TRUE,
+                          cex = 1)
 
 ```
 
-I calculate how many interactions published in specific articles (the same interaction can come from different publications) in BioGRID match to IMEx.
+I calculate how many interactions published in specific articles (the same interaction can come from different publications) in GO IPI dataset match to IMEx.
 
 ```{r biogrid_vs_imex_pub_inter, message=FALSE, warning=FALSE, fig.width=4, fig.height=2}
-#N_pub_int_imex = length(imex[,unique(paste0(pubid,"_",pair_id_clean))])
-#N_pub_int_biogrid = length(biogrid_from_mentha[,unique(paste0(pubid,"_",pair_id_clean))])
-#N_pub_int_overlap = sum(!is.na(match(biogrid_from_mentha[,unique(paste0(pubid,"_",pair_id_clean))], imex[,unique(paste0(pubid,"_",pair_id_clean))])))
+N_pub_int_imex = length(imex[,unique(paste0(pubid,"_",pair_id_clean))])
+N_pub_int_GO_IPI = length(GO_IPI_pairs[,unique(paste0(pubid,"_",pair_id_clean))])
+N_pub_int_overlap = sum(!is.na(match(GO_IPI_pairs[,unique(paste0(pubid,"_",pair_id_clean))], imex[,unique(paste0(pubid,"_",pair_id_clean))])))
 
-#venn.d = draw.pairwise.venn(area1 = N_pub_int_imex, area2 = N_pub_int_biogrid, cross.area = N_pub_int_overlap, category = c("IMEx", "BioGRID"), 
-#                          lty = rep("blank", 2), 
-#                          fill = c("blue", "red"), 
-#                          alpha = rep(0.5, 2), cat.pos = c(0, 135), 
-#                          cat.dist = rep(0.035, 2), 
-#                          cat.cex = c(1,1), scaled = TRUE, euler.d = TRUE,  margin = 0.05,
-#                          direct.area = TRUE,
-#                          cex = 1)
+venn.d = draw.pairwise.venn(area1 = N_pub_int_imex, area2 = N_pub_int_GO_IPI, cross.area = N_pub_int_overlap, category = c("IMEx", "GO_IPI"), 
+                          lty = rep("blank", 2), 
+                          fill = c("blue", "red"), 
+                          alpha = rep(0.5, 2), cat.pos = c(0, 135), 
+                          cat.dist = rep(0.035, 2), 
+                          cat.cex = c(1,1), scaled = TRUE, euler.d = TRUE,  margin = 0.05,
+                          direct.area = TRUE,
+                          cex = 1)
 
 ```
