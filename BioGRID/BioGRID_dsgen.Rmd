@@ -71,9 +71,9 @@ I calculate how many interactions in BioGRID match to IMEx.
 
 ```{r biogrid_vs_imex, message=FALSE, warning=FALSE, fig.width=4, fig.height=2}
 imex = fread("https://raw.githubusercontent.com/pporrasebi/darkspaceproject/master/IMEx/results/imex_full.txt", header = T, sep = "\t", colClasses = "character")
-N_imex = length(imex[,unique(pair_id_clean)])
+N_imex = length(imex[taxid_a == "9606" | taxid_b == "9606", unique(pair_id_clean)])
 N_biogrid = length(biogrid_from_mentha[,unique(pair_id_clean)])
-N_overlap = sum(!is.na(match(biogrid_from_mentha[,unique(pair_id_clean)], imex[,unique(pair_id_clean)])))
+N_overlap = sum(!is.na(match(biogrid_from_mentha[,unique(pair_id_clean)], imex[taxid_a == "9606" | taxid_b == "9606", unique(pair_id_clean)])))
 
 venn.d = draw.pairwise.venn(area1 = N_imex, area2 = N_biogrid, cross.area = N_overlap, category = c("IMEx", "BioGRID"), 
                           lty = rep("blank", 2), 
@@ -89,9 +89,9 @@ venn.d = draw.pairwise.venn(area1 = N_imex, area2 = N_biogrid, cross.area = N_ov
 I calculate how many publications in BioGRID match to IMEx.
 
 ```{r biogrid_vs_imex_pub, message=FALSE, warning=FALSE, fig.width=4, fig.height=2}
-N_pubid_imex = length(imex[,unique(pubid)])
+N_pubid_imex = length(imex[taxid_a == "9606" | taxid_b == "9606", unique(pubid)])
 N_pubid_biogrid = length(biogrid_from_mentha[,unique(pubid)])
-N_pubid_overlap = sum(!is.na(match(biogrid_from_mentha[,unique(pubid)], imex[,unique(pubid)])))
+N_pubid_overlap = sum(!is.na(match(biogrid_from_mentha[,unique(pubid)], imex[taxid_a == "9606" | taxid_b == "9606", unique(pubid)])))
 
 venn.d = draw.pairwise.venn(area1 = N_pubid_imex, area2 = N_pubid_biogrid, cross.area = N_pubid_overlap, category = c("IMEx", "BioGRID"), 
                           lty = rep("blank", 2), 
@@ -107,9 +107,9 @@ venn.d = draw.pairwise.venn(area1 = N_pubid_imex, area2 = N_pubid_biogrid, cross
 I calculate how many interactions published in specific articles (the same interaction can come from different publications) in BioGRID match to IMEx.
 
 ```{r biogrid_vs_imex_pub_inter, message=FALSE, warning=FALSE, fig.width=4, fig.height=2}
-N_pub_int_imex = length(imex[,unique(paste0(pubid,"_",pair_id_clean))])
+N_pub_int_imex = length(imex[taxid_a == "9606" | taxid_b == "9606", unique(paste0(pubid,"_",pair_id_clean))])
 N_pub_int_biogrid = length(biogrid_from_mentha[,unique(paste0(pubid,"_",pair_id_clean))])
-N_pub_int_overlap = sum(!is.na(match(biogrid_from_mentha[,unique(paste0(pubid,"_",pair_id_clean))], imex[,unique(paste0(pubid,"_",pair_id_clean))])))
+N_pub_int_overlap = sum(!is.na(match(biogrid_from_mentha[,unique(paste0(pubid,"_",pair_id_clean))], imex[taxid_a == "9606" | taxid_b == "9606", unique(paste0(pubid,"_",pair_id_clean))])))
 
 venn.d = draw.pairwise.venn(area1 = N_pub_int_imex, area2 = N_pub_int_biogrid, cross.area = N_pub_int_overlap, category = c("IMEx", "BioGRID"), 
                           lty = rep("blank", 2), 
