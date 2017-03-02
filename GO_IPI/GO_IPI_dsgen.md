@@ -5,7 +5,7 @@ GO IPI, Gene Ontology - Inferred from Physical Interaction - dataset generator
 
 
 
-I download the latest version of the GO annotations (UniProt KnowledgeBase (UniProtKB), IntAct protein complexes, and RNAcentral identifiers - multispecies) data from geneontology.org. Current file was downloaded on Thu Mar  2 10:54:03 2017. 
+I download the latest version of the GO annotations (UniProt KnowledgeBase (UniProtKB), IntAct protein complexes, and RNAcentral identifiers - multispecies) data from geneontology.org. Current file was downloaded on Thu Mar  2 11:18:39 2017. 
 
 
 ```r
@@ -41,7 +41,7 @@ GO = fread("./source_files/goa_uniprot_all_noiea.gaf", skip = 11, header = F, se
 ```
 ## 
 Read 45.6% of 1338386 rows
-Read 86.7% of 1338386 rows
+Read 87.4% of 1338386 rows
 Read 1338386 rows and 17 (of 17) columns from 0.215 GB file in 00:00:04
 ```
 
@@ -113,7 +113,11 @@ GO_IPI_pairs = GO_IPI[,.(ida = V2, idb = V8, pubid = V6, GO_IPI = 1)]
 # expanding frow/with column (for the cases when frow/with column contains more that 1 identifier) to get pairs of interactions
 idbz = GO_IPI_pairs[, tstrsplit(x = as.character(idb), split = "|",fixed = TRUE)]
 GO_IPI_pairs = GO_IPI_pairs[, data.table(ida = ida, idbz, pubid = pubid, GO_IPI = GO_IPI)]
-GO_IPI_pairs = melt(GO_IPI_pairs,measure.vars = c("V1","V2","V3","V4","V5","V6"), value.name = "idb", na.rm = T)
+GO_IPI_pairs = melt(GO_IPI_pairs,measure.vars = patterns("^V[[:digit:]]+"), value.name = "idb", na.rm = T)
+GO_IPI_pairs[, variable := NULL]
+idbz = GO_IPI_pairs[, tstrsplit(x = as.character(idb), split = ",",fixed = TRUE)]
+GO_IPI_pairs = GO_IPI_pairs[, data.table(ida = ida, idbz, pubid = pubid, GO_IPI = GO_IPI)]
+GO_IPI_pairs = melt(GO_IPI_pairs, measure.vars = patterns("^V[[:digit:]]+"), value.name = "idb", na.rm = T)
 GO_IPI_pairs[, variable := NULL]
 # Cleaning idb of the database of origin
 GO_IPI_pairs[, idb := gsub("^[[:alpha:]]+:","",idb)]
@@ -126,6 +130,9 @@ GO_IPI_pairs[, pair_id := apply(data.table(ida,idb,stringsAsFactors = F), 1,
 # cleaning ids of isoform information
 GO_IPI_pairs[, ida_clean := gsub("-[[:digit:]]+$","",ida)]
 GO_IPI_pairs[, idb_clean := gsub("-[[:digit:]]+$","",idb)]
+# cleaning ids of postprocessing information :PRO_[[:digit:]]+
+GO_IPI_pairs[, ida_clean := gsub(":PRO_[[:digit:]]+$","",ida_clean)]
+GO_IPI_pairs[, idb_clean := gsub(":PRO_[[:digit:]]+$","",idb_clean)]
 # generating interacting pairs without isoform information
 GO_IPI_pairs[, pair_id_clean := apply(data.table(ida_clean,idb_clean,stringsAsFactors = F), 1,
                                                function(a) { z = sort(a)
@@ -136,7 +143,14 @@ fwrite(x = unique(GO_IPI_pairs),
 N_GO_IPI = length(GO_IPI_pairs[,unique(pair_id_clean)])
 ```
 
-The GO IPI dataset contains 4246 interacting pairs. 
+The GO IPI dataset contains 4301 interacting pairs. 
+
+Saving the table of interacting pairs, publication IDs and GO IPI tag.
+
+```r
+fwrite(x = unique(GO_IPI_pairs[, .(pair_id_clean, pubid, GO_IPI)]), 
+       file = "./results/pairs_pmids_GO_IPI.txt", sep = "\t")
+```
 
 #### Compare BioGRID interactions and publications to IMEx 
 
