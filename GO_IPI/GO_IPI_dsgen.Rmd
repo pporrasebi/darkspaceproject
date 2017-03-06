@@ -3,10 +3,10 @@ output:
   html_document: 
     keep_md: yes
 ---
-GO IPI, Gene Ontology - Inferred from Physical Interaction - dataset generator -wrong
+GO IPI, Gene Ontology - Inferred from Physical Interaction - dataset generator
 ========================================================
 
-#### Load Gene Ontology
+#### Load Gene Ontology IPI dataset - EBI_GOA_nonIntAct
 
 ```{r echo=FALSE}
 GO_date <- date()
@@ -15,131 +15,84 @@ suppressPackageStartupMessages({
         library(VennDiagram)
         library(downloader)
         library(R.utils)
+        library(PSICQUIC)
         })
 ```
 
-I download the latest version of the GO annotations (UniProt KnowledgeBase (UniProtKB), IntAct protein complexes, and RNAcentral identifiers - multispecies) data from geneontology.org. Current file was downloaded on `r GO_date`. 
 
+I download the latest version of Gene Ontology IPI dataset - EBI_GOA_nonIntAct - using PSICQUIC service. Current file was downloaded on `r GO_date`. 
 
-## PSICQIUC
 
 ```{r PSICQIUC}
-
-```
-
-```{r message=FALSE, warning=FALSE}
-if(!file.exists("./source_files/goa_uniprot_all_noiea.gaf.gz")){
-        GO_url = "http://geneontology.org/gene-associations/goa_uniprot_all_noiea.gaf.gz"
-        download(GO_url, destfile = "./source_files/goa_uniprot_all_noiea.gaf.gz")
+## Load PSICQUIC functionality
+    psicquic <- PSICQUIC()
+    providers <- providers(psicquic)
+# query EBI-GOA-nonIntAct database		
+database = "EBI-GOA-nonIntAct"
+SPECIES_ID = "9606"
+MITAB = "tab25"
+EBI_GOA_nonIntAct = data.table()
+if(database %in% providers){
+        ## Query for the number of interactions
+        PSICQUIC_query = paste("species:",SPECIES_ID, sep = "")
+        PSICQUIC_query1 = paste0(PSICQUIC_query, "?format=count") 
+        N_interactions <- unlist(rawQuery(psicquic, database, PSICQUIC_query1))
+        
+        if(N_interactions > 0){
+          N_start = 1
+          N_nrows = 2500
+          for(n_starts in seq(from = N_start, to = N_interactions, by = N_nrows)){
+            PSICQUIC_query2 = paste0(PSICQUIC_query, "?format=",MITAB,"&firstResult=", n_starts,"&maxResults=", N_nrows) 
+            SPECIES_ID_interactome_d <- as.data.table(rawQuery(psicquic, database, PSICQUIC_query2))
+            EBI_GOA_nonIntAct <- rbind(EBI_GOA_nonIntAct, SPECIES_ID_interactome_d)
+          }
+        }
 }
-gunzip(filename = "./source_files/goa_uniprot_all_noiea.gaf.gz", destname = "./source_files/goa_uniprot_all_noiea.gaf", remove = F)
-readLines("./source_files/goa_uniprot_all_noiea.gaf", n = 10)
-```
-Format description - http://www.geneontology.org/page/go-annotation-file-format-20.
+fwrite(x = unique(EBI_GOA_nonIntAct), 
+       file = "./source_files/EBI_GOA_nonIntAct_mitab25.txt", sep = "\t")
 
-Reading and filtering GO by evidence code "IPI" - Inferred from Physical Interaction (http://www.geneontology.org/page/ipi-inferred-physical-interaction).
-
-```{r message=FALSE, warning=FALSE}
-GO = fread("./source_files/goa_uniprot_all_noiea.gaf", skip = 11, header = F, sep = "\t", colClasses = "character")
-GO_IPI = unique(GO[V7 == "IPI",])
-unlink(c("./source_files/goa_uniprot_all_noiea.gaf"))
+system("perl ./scripts/MITAB25extractor_v12.pl ./source_files/EBI_GOA_nonIntAct_mitab25.txt ./processed_files/EBI_GOA_nonIntAct_pairs.txt")
 ```
 
-Below you can see how many of GO IPI annotations (not how many interacting pairs) records originate from each source database.
 
-```{r source_db_for_GO}
+Saving a table of interacting pairs, publication IDs and EBI_GOA_nonIntAct tag.
 
-GO_IPI[,table(V15)]
+
+```{r pairs, message=FALSE, warning=FALSE}
+EBI_GOA_nonIntAct = fread("./processed_files/EBI_GOA_nonIntAct_pairs.txt", header = T, sep = "\t", colClasses = "character")
+fwrite(x = unique(EBI_GOA_nonIntAct[, .(pair_id_clean, pubid, EBI_GOA_nonIntAct = rep(1, .N))]), 
+       file = "./results/pairs_pmids_EBI_GOA_nonIntAct.txt", sep = "\t")
+N_EBI_GOA_nonIntAct = length(EBI_GOA_nonIntAct[,unique(pair_id_clean)])
 ```
 
-Generating a list of PMIDs that have been curated into GO IPI annotations
+
+The EBI_GOA_nonIntAct dataset contains `r N_EBI_GOA_nonIntAct` human interacting pairs. 
+
+
+Creating a list of PMIDs that have been curated into GO annotations of human proteins (EBI_GOA_nonIntAct dataset)
+
 
 ```{r pmids}
-GO_IPI_publications = GO_IPI[,.(GO_IPI_pmids = unique(gsub("^PMID:", "", V6)))]
+EBI_GOA_nonIntAct_pmids <- data.frame(unique(EBI_GOA_nonIntAct$pubid))
 
-write.table(GO_IPI_publications, "./results/GO_IPI_pmids.txt", quote=F, sep ="\t", row.names = F, col.names = T)
+write.table(EBI_GOA_nonIntAct_pmids, "./results/biogrid_pmids.txt", quote=F, sep ="\t", row.names = F, col.names = T)
 ```
 
-`r nrow(GO_IPI_publications)` publications are curated into GO IPI annotations 
 
+`r nrow(EBI_GOA_nonIntAct_pmids)` publications (human) are curated into EBI_GOA_nonIntAct dataset 
 
-Transforming the data to get interacting pairs, and save the table of interacting pairs, publication IDs and GO IPI tag.
+#### Compare human EBI_GOA_nonIntAct interactions and publications to IMEx 
 
-```{r pairs, results='hide', message=FALSE, warning=FALSE}
-# selecting necessary columns
-GO_IPI_pairs = GO_IPI[,.(ida = V2, idb = V8, pubid = V6, GO_IPI = 1, taxon = V13)]
-# expanding frow/with column (for the cases when frow/with column contains more that 1 identifier) to get pairs of interactions
-idbz = GO_IPI_pairs[, tstrsplit(x = as.character(idb), split = "|",fixed = TRUE)]
-GO_IPI_pairs = GO_IPI_pairs[, data.table(ida = ida, idbz, pubid = pubid, taxon = taxon, GO_IPI = GO_IPI)]
-GO_IPI_pairs = melt(GO_IPI_pairs,measure.vars = patterns("^V[[:digit:]]+"), value.name = "idb", na.rm = T)
-GO_IPI_pairs[, variable := NULL]
-idbz = GO_IPI_pairs[, tstrsplit(x = as.character(idb), split = ",",fixed = TRUE)]
-GO_IPI_pairs = GO_IPI_pairs[, data.table(ida = ida, idbz, pubid = pubid, taxon = taxon, GO_IPI = GO_IPI)]
-GO_IPI_pairs = melt(GO_IPI_pairs, measure.vars = patterns("^V[[:digit:]]+"), value.name = "idb", na.rm = T)
-GO_IPI_pairs[, variable := NULL]
-# Cleaning idb of the database of origin
-GO_IPI_pairs[, idb := gsub("^[[:alpha:]]+:","",idb)]
-# Cleaning publication identifiers of "PMID:"
-GO_IPI_pairs[, pubid := gsub("^PMID:", "", pubid)]
-# generating interacting pairs
-GO_IPI_pairs[, pair_id := apply(data.table(ida,idb,stringsAsFactors = F), 1,
-                                               function(a) { z = sort(a)
-                                               paste0(z[1],"_",z[2]) })]
-# cleaning ids of isoform information
-GO_IPI_pairs[, ida_clean := gsub("-[[:digit:]]+$","",ida)]
-GO_IPI_pairs[, idb_clean := gsub("-[[:digit:]]+$","",idb)]
-# cleaning ids of postprocessing information :PRO_[[:digit:]]+
-GO_IPI_pairs[, ida_clean := gsub(":PRO_[[:digit:]]+$","",ida_clean)]
-GO_IPI_pairs[, idb_clean := gsub(":PRO_[[:digit:]]+$","",idb_clean)]
-# generating interacting pairs without isoform information
-GO_IPI_pairs[, pair_id_clean := apply(data.table(ida_clean,idb_clean,stringsAsFactors = F), 1,
-                                               function(a) { z = sort(a)
-                                               paste0(z[1],"_",z[2]) })]
-GO_IPI_pairs = GO_IPI_pairs[,.(ida, idb, pair_id, ida_clean, idb_clean, pair_id_clean, pubid, taxon, GO_IPI)]
-# this table includes all taxons
-fwrite(x = unique(GO_IPI_pairs), 
-       file = "./processed_files/pairs_pmids_GO_IPI.txt", sep = "\t")
-N_GO_IPI = length(GO_IPI_pairs[,unique(pair_id_clean)])
-```
-
-The GO IPI dataset contains `r N_GO_IPI` interacting pairs. 
-
-All tables in the results folder are filtered for human data only. Venn Diagrams show human data only.
-Saving the table of interacting pairs, publication IDs and GO IPI tag.
-```{r saving_results}
-fwrite(x = unique(GO_IPI_pairs[taxon == "taxon:9606", .(pair_id_clean, pubid, GO_IPI)]), 
-       file = "./results/pairs_pmids_GO_IPI.txt", sep = "\t")
-```
-
-#### Compare GO IPI publications to IMEx 
-
-```{r GO_IPI_vs_imex_pmids, message=FALSE, warning=FALSE, fig.width=4, fig.height=2}
-imex = fread("https://raw.githubusercontent.com/pporrasebi/darkspaceproject/master/IMEx/results/imex_full.txt", header = T, sep = "\t", colClasses = "character")
-N_pubid_imex = length(imex[taxid_a == "9606" | taxid_b == "9606", unique(pubid)])
-N_pubid_GO_IPI = length(GO_IPI_pairs[taxon == "taxon:9606",unique(pubid)])
-N_pubid_overlap = sum(!is.na(match(GO_IPI_pairs[taxon == "taxon:9606",unique(pubid)], imex[,unique(pubid)])))
-
-venn.d = draw.pairwise.venn(area1 = N_pubid_imex, area2 = N_pubid_GO_IPI, cross.area = N_pubid_overlap, category = c("IMEx", "GO_IPI"), 
-                          lty = rep("blank", 2), 
-                          fill = c("blue", "red"), 
-                          alpha = rep(0.5, 2), cat.pos = c(0, 135), 
-                          cat.dist = rep(0.035, 2), 
-                          cat.cex = c(1,1), scaled = TRUE, euler.d = TRUE,  margin = 0.05,
-                          direct.area = TRUE,
-                          cex = 1)
-
-```
-
-#### Compare GO IPI interactions and publications to IMEx 
-
-I calculate how many interactions in GO IPI dataset match to IMEx.
+I calculate how many interactions in EBI_GOA_nonIntAct dataset match to IMEx.
 
 ```{r biogrid_vs_imex, message=FALSE, warning=FALSE, fig.width=4, fig.height=2}
-N_imex = length(imex[taxid_a == "9606" | taxid_b == "9606",unique(pair_id_clean)])
-N_GO_IPI = length(GO_IPI_pairs[taxon == "taxon:9606",unique(pair_id_clean)])
-N_overlap = sum(!is.na(match(GO_IPI_pairs[taxon == "taxon:9606",unique(pair_id_clean)], imex[taxid_a == "9606" | taxid_b == "9606", unique(pair_id_clean)])))
+imex = fread("https://raw.githubusercontent.com/pporrasebi/darkspaceproject/master/IMEx/results/imex_full.txt", header = T, sep = "\t", colClasses = "character")
+imex_human = imex[taxid_a == "9606" | taxid_b == "9606",]
+N_imex = length(imex_human[, unique(pair_id_clean)])
+N_EBI_GOA_nonIntAct = length(EBI_GOA_nonIntAct[,unique(pair_id_clean)])
+N_overlap = sum(!is.na(match(EBI_GOA_nonIntAct[,unique(pair_id_clean)], imex_human[, unique(pair_id_clean)])))
 
-venn.d = draw.pairwise.venn(area1 = N_imex, area2 = N_GO_IPI, cross.area = N_overlap, category = c("IMEx", "GO_IPI"), 
+venn.d = draw.pairwise.venn(area1 = N_imex, area2 = N_EBI_GOA_nonIntAct, cross.area = N_overlap, category = c("IMEx", "EBI_GOA_nonIntAct"), 
                           lty = rep("blank", 2), 
                           fill = c("blue", "red"), 
                           alpha = rep(0.5, 2), cat.pos = c(0, 135), 
@@ -150,14 +103,32 @@ venn.d = draw.pairwise.venn(area1 = N_imex, area2 = N_GO_IPI, cross.area = N_ove
 
 ```
 
-I calculate how many interactions published in specific articles (the same interaction can come from different publications) in GO IPI dataset match to IMEx.
+I calculate how many publications in EBI_GOA_nonIntAct dataset match to IMEx.
+
+```{r biogrid_vs_imex_pub, message=FALSE, warning=FALSE, fig.width=4, fig.height=2}
+N_pubid_imex = length(imex_human[, unique(pubid)])
+N_pubid_EBI_GOA_nonIntAct = length(EBI_GOA_nonIntAct[,unique(pubid)])
+N_pubid_overlap = sum(!is.na(match(EBI_GOA_nonIntAct[,unique(pubid)], imex_human[, unique(pubid)])))
+
+venn.d = draw.pairwise.venn(area1 = N_pubid_imex, area2 = N_pubid_EBI_GOA_nonIntAct, cross.area = N_pubid_overlap, category = c("IMEx", "EBI_GOA_nonIntAct"), 
+                          lty = rep("blank", 2), 
+                          fill = c("blue", "red"), 
+                          alpha = rep(0.5, 2), cat.pos = c(0, 135), 
+                          cat.dist = rep(0.035, 2), 
+                          cat.cex = c(1,1), scaled = TRUE, euler.d = TRUE,  margin = 0.05,
+                          direct.area = TRUE,
+                          cex = 1)
+
+```
+
+I calculate how many interactions published in specific articles (the same interaction can come from different publications) in EBI_GOA_nonIntAct dataset match to IMEx.
 
 ```{r biogrid_vs_imex_pub_inter, message=FALSE, warning=FALSE, fig.width=4, fig.height=2}
-N_pub_int_imex = length(imex[taxid_a == "9606" | taxid_b == "9606", unique(paste0(pubid,"_",pair_id_clean))])
-N_pub_int_GO_IPI = length(GO_IPI_pairs[,unique(paste0(pubid,"_",pair_id_clean))])
-N_pub_int_overlap = sum(!is.na(match(GO_IPI_pairs[,unique(paste0(pubid,"_",pair_id_clean))], imex[taxid_a == "9606" | taxid_b == "9606", unique(paste0(pubid,"_",pair_id_clean))])))
+N_pub_int_imex = length(imex_human[, unique(paste0(pubid,"_",pair_id_clean))])
+N_pub_int_EBI_GOA_nonIntAct = length(EBI_GOA_nonIntAct[,unique(paste0(pubid,"_",pair_id_clean))])
+N_pub_int_overlap = sum(!is.na(match(EBI_GOA_nonIntAct[,unique(paste0(pubid,"_",pair_id_clean))], imex_human[, unique(paste0(pubid,"_",pair_id_clean))])))
 
-venn.d = draw.pairwise.venn(area1 = N_pub_int_imex, area2 = N_pub_int_GO_IPI, cross.area = N_pub_int_overlap, category = c("IMEx", "GO_IPI"), 
+venn.d = draw.pairwise.venn(area1 = N_pub_int_imex, area2 = N_pub_int_EBI_GOA_nonIntAct, cross.area = N_pub_int_overlap, category = c("IMEx", "EBI_GOA_nonIntAct"), 
                           lty = rep("blank", 2), 
                           fill = c("blue", "red"), 
                           alpha = rep(0.5, 2), cat.pos = c(0, 135), 
