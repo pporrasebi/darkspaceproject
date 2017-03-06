@@ -5,7 +5,7 @@ BioGRID dataset generator
 
 
 
-I download the latest version of the BioGRID data from mentha website. I have tried using PSICQUIC, however, downloading whole mentha using PSICQUIC takes too much time. Now, however, the link should be updated manually to get the latest mentha release. Current file was downloaded on Wed Mar  1 15:20:46 2017. 
+I download the latest version of the BioGRID data from mentha website. I have tried using PSICQUIC, however, downloading whole mentha using PSICQUIC takes too much time. Now, however, the link should be updated manually to get the latest mentha release. Current file was downloaded on Mon Mar  6 16:05:32 2017. 
 
 
 ```r
@@ -22,7 +22,7 @@ unzip("./source_files/2017-02-27_MITAB-2.5.zip", exdir = "./source_files/")
 #                                          database.name = "./source_files/mentha_mitab25.txt", return_data = F, show_summary = F, MITAB = "tab25")
 ```
 
-I need to filter only BioGRID interactions and to clean up the BioGRID file.
+Filtering BioGRID only interactions and cleaning up the BioGRID file.
 
 
 ```r
@@ -31,8 +31,8 @@ mentha = fread("./source_files/2017-02-27_MITAB-2.5", header = F, sep = "\t", co
 
 ```
 ## 
-Read 39.8% of 1105301 rows
-Read 70.6% of 1105301 rows
+Read 38.9% of 1105301 rows
+Read 61.5% of 1105301 rows
 Read 91.4% of 1105301 rows
 Read 1105301 rows and 15 (of 15) columns from 0.325 GB file in 00:00:05
 ```
@@ -44,39 +44,44 @@ system("perl ./scripts/MITAB25extractor_v12.pl ./processed_files/biogrid_mitab25
 unlink(c("./source_files/2017-02-27_MITAB-2.5","./processed_files/biogrid_mitab25.txt"))
 ```
 
-I save a table of interacting pairs, publication IDs and BioGRID tag.
+Saving a table of interacting pairs, publication IDs and BioGRID tag.
 
 
 ```r
 biogrid_from_mentha = fread("./processed_files/biogrid_pairs.txt", header = T, sep = "\t", colClasses = "character")
-fwrite(x = unique(biogrid_from_mentha[, .(pair_id_clean, pubid, biogrid = rep(1, .N))]), 
+biogrid_from_mentha_human = biogrid_from_mentha[taxid_a == "9606" | taxid_b == "9606",]
+fwrite(x = unique(biogrid_from_mentha_human[, .(pair_id_clean, pubid, biogrid = rep(1, .N))]), 
        file = "./results/pairs_pmids_biogrid.txt", sep = "\t")
-N_biogrid = length(biogrid_from_mentha[,unique(pair_id_clean)])
+N_biogrid = length(biogrid_from_mentha_human[,unique(pair_id_clean)])
 ```
 
-The BioGRID dataset contains 341408 interacting pairs. 
+The BioGRID dataset contains 221403 human interacting pairs. 
 
-I create a list of PMIDs that have been curated by them.
+Files in the /processed_files/ contain interactions for all species.
+Files in the /results/ contain interactions for human only.
+
+Creating a list of PMIDs that have been curated into human-human, human-other_species, human-compound interaction
 
 
 ```r
-biogrid_pmids <- data.frame(unique(biogrid_from_mentha$pubid))
+biogrid_pmids <- data.frame(unique(biogrid_from_mentha_human$pubid))
 
 write.table(biogrid_pmids, "./results/biogrid_pmids.txt", quote=F, sep ="\t", row.names = F, col.names = T)
 ```
 
-36936 publications are curated into BioGRID database. 
+25307 publications (human) are curated into BioGRID database. 
 
-#### Compare BioGRID interactions and publications to IMEx 
+#### Compare human BioGRID interactions and publications to IMEx 
 
 I calculate how many interactions in BioGRID match to IMEx.
 
 
 ```r
 imex = fread("https://raw.githubusercontent.com/pporrasebi/darkspaceproject/master/IMEx/results/imex_full.txt", header = T, sep = "\t", colClasses = "character")
-N_imex = length(imex[,unique(pair_id_clean)])
-N_biogrid = length(biogrid_from_mentha[,unique(pair_id_clean)])
-N_overlap = sum(!is.na(match(biogrid_from_mentha[,unique(pair_id_clean)], imex[,unique(pair_id_clean)])))
+imex_human = imex[taxid_a == "9606" | taxid_b == "9606",]
+N_imex = length(imex_human[, unique(pair_id_clean)])
+N_biogrid = length(biogrid_from_mentha_human[,unique(pair_id_clean)])
+N_overlap = sum(!is.na(match(biogrid_from_mentha_human[,unique(pair_id_clean)], imex_human[, unique(pair_id_clean)])))
 
 venn.d = draw.pairwise.venn(area1 = N_imex, area2 = N_biogrid, cross.area = N_overlap, category = c("IMEx", "BioGRID"), 
                           lty = rep("blank", 2), 
@@ -94,9 +99,9 @@ I calculate how many publications in BioGRID match to IMEx.
 
 
 ```r
-N_pubid_imex = length(imex[,unique(pubid)])
-N_pubid_biogrid = length(biogrid_from_mentha[,unique(pubid)])
-N_pubid_overlap = sum(!is.na(match(biogrid_from_mentha[,unique(pubid)], imex[,unique(pubid)])))
+N_pubid_imex = length(imex_human[, unique(pubid)])
+N_pubid_biogrid = length(biogrid_from_mentha_human[,unique(pubid)])
+N_pubid_overlap = sum(!is.na(match(biogrid_from_mentha_human[,unique(pubid)], imex_human[, unique(pubid)])))
 
 venn.d = draw.pairwise.venn(area1 = N_pubid_imex, area2 = N_pubid_biogrid, cross.area = N_pubid_overlap, category = c("IMEx", "BioGRID"), 
                           lty = rep("blank", 2), 
@@ -114,9 +119,9 @@ I calculate how many interactions published in specific articles (the same inter
 
 
 ```r
-N_pub_int_imex = length(imex[,unique(paste0(pubid,"_",pair_id_clean))])
-N_pub_int_biogrid = length(biogrid_from_mentha[,unique(paste0(pubid,"_",pair_id_clean))])
-N_pub_int_overlap = sum(!is.na(match(biogrid_from_mentha[,unique(paste0(pubid,"_",pair_id_clean))], imex[,unique(paste0(pubid,"_",pair_id_clean))])))
+N_pub_int_imex = length(imex_human[, unique(paste0(pubid,"_",pair_id_clean))])
+N_pub_int_biogrid = length(biogrid_from_mentha_human[,unique(paste0(pubid,"_",pair_id_clean))])
+N_pub_int_overlap = sum(!is.na(match(biogrid_from_mentha_human[,unique(paste0(pubid,"_",pair_id_clean))], imex_human[, unique(paste0(pubid,"_",pair_id_clean))])))
 
 venn.d = draw.pairwise.venn(area1 = N_pub_int_imex, area2 = N_pub_int_biogrid, cross.area = N_pub_int_overlap, category = c("IMEx", "BioGRID"), 
                           lty = rep("blank", 2), 

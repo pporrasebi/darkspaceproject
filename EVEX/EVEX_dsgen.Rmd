@@ -16,6 +16,7 @@ suppressPackageStartupMessages({
         library(downloader)
         library(R.utils)
         library(XML)
+        library(UniProt.ws)
         })
 ```
 
@@ -56,11 +57,12 @@ homo_file = grep("Homo", files, value =T)
 gunzip(homo_file, remove = F)
 untar(substr(homo_file, 1, nchar(homo_file)-3), exdir = "./source_files/Homo/")
 unlink(substr(homo_file, 1, nchar(homo_file)-3))
-Homo_sapiens_EVEX_relations = fread("./source_files/Homo/EVEX_relations_9606.tab")
-Homo_sapiens_EVEX_articles = fread("./source_files/Homo/EVEX_articles_9606.tab")
+Homo_sapiens_EVEX_relations = fread("./source_files/Homo/EVEX_relations_9606.tab", colClasses = "character")
+Homo_sapiens_EVEX_articles = fread("./source_files/Homo/EVEX_articles_9606.tab", colClasses = "character")
 ```
 
-EVEX is a text-mining resource which aims to identify interactions of different types from the literature as well as characterize those interactions and measure the confidence of those interactions being true (not an artifact of text-mining). Interactions is identified by a pair of genes (in the network format, there is another data format in EVEX which is not relevant here), characterized by type and polarity, and given a confidence score.
+EVEX is a text-mining resource which aims to identify interactions of different types from the literature as well as segment those interactions by type and measure the confidence of those in interactions being really described in the articles (not an artifact of text-mining).   
+Interactions is identified by a pair of genes (in the network format, there is another data format in EVEX which is not relevant here), segmented by type and polarity, and given a confidence score.
 
 Below you can see how many interactions belong to each type. 
 
@@ -69,48 +71,111 @@ Homo_sapiens_EVEX_relations[,table(coarse_type)]
 Homo_sapiens_EVEX_relations[,table(refined_type,refined_polarity)]
 ```
 
-I need to filter only BioGRID interactions and to clean up the BioGRID file.
+The total number of articles analysed: `r length(unique(Homo_sapiens_EVEX_articles$article_id))`  
 
-```{r message=FALSE, warning=FALSE}
-mentha = fread("./source_files/2017-02-27_MITAB-2.5", header = F, sep = "\t", colClasses = "character")
-biogrid_from_mentha = mentha[V13 == "psi-mi:\"MI:0463\"(biogrid)",]
-fwrite(x = biogrid_from_mentha, file = "./processed_files/biogrid_mitab25.txt",sep = "\t")
-system("perl ./scripts/MITAB25extractor_v12.pl ./processed_files/biogrid_mitab25.txt ./processed_files/biogrid_pairs.txt")
-unlink(c("./source_files/2017-02-27_MITAB-2.5","./processed_files/biogrid_mitab25.txt"))
+```{r unique_pairs, message=FALSE, warning=FALSE, results='hide'}
+pairs_entrezgene_id = Homo_sapiens_EVEX_relations[, as.character(unique(c(source_entrezgene_id, target_entrezgene_id)))]
+# connecting to Uniprot
+ uniprot = UniProt.ws(taxId=9606)
+# getting names of the keys and columns from Uniprot
+# keytypes(uniprot)
+# mapping IDs
+ entrezgene2uniprot_temp <- as.data.table(select(uniprot, 
+               keys = pairs_entrezgene_id, 
+               columns = c("ENTREZ_GENE", "UNIPROTKB"),
+               keytype = "ENTREZ_GENE"))
+ entrezgene2uniprot = copy(entrezgene2uniprot_temp[complete.cases(entrezgene2uniprot_temp),])
+# what is the fraction of matches
+# mean(complete.cases(entrezgene2uniprot_temp)) # 0.9517783
+# what is the fraction of one to many mappings to UNIPROTKB?
+# sum(table(entrezgene2uniprot_comp_temp[, .N , by = ENTREZ_GENE]$N)[-1])/sum(table(entrezgene2uniprot_comp_temp[, .N , by = ENTREZ_GENE]$N)) # 0.5032162
+
+# connecting to ENSEMBL
+# ensembl=useMart("ensembl")
+# ensembl = useDataset("hsapiens_gene_ensembl",mart=ensembl)
+# getting names of the keys and columns from ENSEMBL
+# attributes = listAttributes(ensembl)
+# entrezgene_uniprot_ENSEMBL = data.table()
+# for(i in seq(1,length(pairs_entrezgene_id),500)){
+# entrezgene_temp = as.data.table(getBM(attributes = c('entrezgene', 'uniprot_swissprot',"uniprot_sptrembl"), 
+#               values = pairs_entrezgene_id[i:(i+499)], filters = 'entrezgene',
+#               mart = ensembl))
+# entrezgene_uniprot_ENSEMBL = rbind(entrezgene_uniprot_ENSEMBL, entrezgene_temp)
+# }
+# entrezgene_uniprot_ENSEMBL = unique(entrezgene_uniprot_ENSEMBL)
+
+# what is the fraction of matches?
+# 1-mean(entrezgene_uniprot_ENSEMBL$uniprot_swissprot == "" & entrezgene_uniprot_ENSEMBL$uniprot_sptrembl == "") # 0.9951115
+
+# what is the fraction of one to many mappings to SwissProt+trEMBL?
+# sum(table(entrezgene_uniprot_ENSEMBL[, .N , by = entrezgene]$N)[-1])/sum(table(entrezgene_uniprot_ENSEMBL[, .N , by = entrezgene]$N)) # 0.7543455
+
+# what is the fraction of one to many mappings to SwissProt?
+# entrezgene_uniprot_ENSEMBL_z = unique(entrezgene_uniprot_ENSEMBL[, .(entrezgene, uniprot_swissprot)])
+# sum(table(entrezgene_uniprot_ENSEMBL_z[, .N , by = entrezgene]$N)[-1])/sum(table(entrezgene_uniprot_ENSEMBL_z[, .N , by = entrezgene]$N)) # 0.7310322
+
+Homo_sapiens_EVEX_relations[, source_uniprotkb_id := entrezgene2uniprot$UNIPROTKB[match(source_entrezgene_id, entrezgene2uniprot$ENTREZ_GENE)]]
+Homo_sapiens_EVEX_relations[, target_uniprotkb_id := entrezgene2uniprot$UNIPROTKB[match(target_entrezgene_id, entrezgene2uniprot$ENTREZ_GENE)]]
+# filter out interactions with unmapped source or target id
+Homo_sapiens_EVEX_relations = Homo_sapiens_EVEX_relations[!(is.na(source_uniprotkb_id) | is.na(target_uniprotkb_id)),]
+# filter for interaction types
+interaction_types = c("Binding", "Catalysis of acetylation", "Catalysis of DNA methylation", "Catalysis of glycosylation","Catalysis of hydroxylation", "Catalysis of methylation", "Catalysis of phosphorylation", "Catalysis of ubiquitination")
+EVEX_pairs = Homo_sapiens_EVEX_relations[refined_type %in% interaction_types, 
+                                                          .(general_event_id, ida_clean = source_uniprotkb_id,idb_clean = target_uniprotkb_id, interaction_type = refined_type, interaction_confidence = confidence, taxon = "9606", EVEX = 1)]
+# generating interacting pairs
+EVEX_pairs[, pair_id := apply(data.table(ida_clean,idb_clean,stringsAsFactors = F), 1,
+                                               function(a) { z = sort(a)
+                                               paste0(z[1],"_",z[2]) })]
+
+# Mapping between general_event_id and publicationID
+EVEX_pairs[, pmids_mixed := Homo_sapiens_EVEX_articles$article_id[match(general_event_id, Homo_sapiens_EVEX_articles$general_event_id)]]
+EVEX_pairs[, pmids_mixed := gsub("PMID: ", "",pmids_mixed)]
+EVEX_pairs[, pmids_mixed := gsub("PMCID: ", "",pmids_mixed)]
+# Downloading PMCID to PMID conversion table
+url = "ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/PMC-ids.csv.gz"
+filename = "./source_files/PMC-ids.csv.gz"
+if(!file.exists(filename)) download(url,filename); 
+gunzip(filename, remove = F)
+PMCID_2_PMID = fread(substr(filename,1, nchar(filename)-3), colClasses = "character")
+unlink(substr(filename,1, nchar(filename)-3))
+EVEX_pairs[, pmids := PMCID_2_PMID$PMID[match(pmids_mixed, PMCID_2_PMID$PMCID)]]
+EVEX_pairs[is.na(pmids), pmids := pmids_mixed]
+
+# saving detailed EVEX table with standard columns
+EVEX_pairs = EVEX_pairs[, .(pair_id_clean = pair_id, ida_clean, idb_clean, pubid = pmids, taxon, interaction_type, interaction_confidence, EVEX)]
+fwrite(x = unique(EVEX_pairs), 
+       file = "./results/pairs_pmids_EVEX_detailed.txt", sep = "\t")
+N_EVEX = length(EVEX_pairs[,unique(pair_id_clean)])
+
+# saving detailed EVEX table with standard columns
+EVEX_pairs_s = EVEX_pairs[, .(pair_id_clean, ida_clean, idb_clean, pubid, taxon, EVEX)]
+fwrite(x = unique(EVEX_pairs_s), 
+       file = "./results/pairs_pmids_EVEX_shallow.txt", sep = "\t")
 ```
 
-I save a table of interacting pairs, publication IDs and BioGRID tag.
+The total number of interacting pairs extracted from EVEX:`r N_EVEX`
 
-```{r pairs, message=FALSE, warning=FALSE}
-biogrid_from_mentha = fread("./processed_files/biogrid_pairs.txt", header = T, sep = "\t", colClasses = "character")
-fwrite(x = unique(biogrid_from_mentha[, .(pair_id_clean, pubid, biogrid = rep(1, .N))]), 
-       file = "./results/pairs_pmids_biogrid.txt", sep = "\t")
-N_biogrid = length(biogrid_from_mentha[,unique(pair_id_clean)])
-```
-
-The BioGRID dataset contains `r N_biogrid` interacting pairs. 
-
-I create a list of PMIDs that have been curated by them.
+I create a list of PMIDs that have been mined by them.
 
 ```{r pmids}
-biogrid_pmids <- data.frame(unique(biogrid_from_mentha$pubid))
-
-write.table(biogrid_pmids, "./results/biogrid_pmids.txt", quote=F, sep ="\t", row.names = F, col.names = T)
+EVEX_pmids <- data.frame(unique(EVEX_pairs$pubid))
+write.table(EVEX_pmids, "./results/EVEX_pmids.txt", quote=F, sep ="\t", row.names = F, col.names = T)
 ```
 
-`r nrow(biogrid_pmids)` publications are curated into BioGRID database. 
+`r nrow(EVEX_pmids)` publications are were mined to get interactions in the EVEX database. 
 
-#### Compare BioGRID interactions and publications to IMEx 
+#### Compare EVEX interactions and publications to IMEx 
 
-I calculate how many interactions in BioGRID match to IMEx.
+I calculate how many interactions in EVEX match to IMEx.
 
 ```{r biogrid_vs_imex, message=FALSE, warning=FALSE, fig.width=4, fig.height=2}
 imex = fread("https://raw.githubusercontent.com/pporrasebi/darkspaceproject/master/IMEx/results/imex_full.txt", header = T, sep = "\t", colClasses = "character")
-N_imex = length(imex[,unique(pair_id_clean)])
-N_biogrid = length(biogrid_from_mentha[,unique(pair_id_clean)])
-N_overlap = sum(!is.na(match(biogrid_from_mentha[,unique(pair_id_clean)], imex[,unique(pair_id_clean)])))
+imex_human = imex[taxid_a == "9606" | taxid_b == "9606",]
+N_imex = length(imex_human[,unique(pair_id_clean)])
+N_EVEX = length(EVEX_pairs[,unique(pair_id_clean)])
+N_overlap = sum(!is.na(match(EVEX_pairs[,unique(pair_id_clean)], imex_human[,unique(pair_id_clean)])))
 
-venn.d = draw.pairwise.venn(area1 = N_imex, area2 = N_biogrid, cross.area = N_overlap, category = c("IMEx", "BioGRID"), 
+venn.d = draw.pairwise.venn(area1 = N_imex, area2 = N_EVEX, cross.area = N_overlap, category = c("IMEx", "EVEX"), 
                           lty = rep("blank", 2), 
                           fill = c("blue", "red"), 
                           alpha = rep(0.5, 2), cat.pos = c(0, 135), 
@@ -121,14 +186,14 @@ venn.d = draw.pairwise.venn(area1 = N_imex, area2 = N_biogrid, cross.area = N_ov
 
 ```
 
-I calculate how many publications in BioGRID match to IMEx.
+I calculate how many publications in EVEX match to IMEx.
 
 ```{r biogrid_vs_imex_pub, message=FALSE, warning=FALSE, fig.width=4, fig.height=2}
-N_pubid_imex = length(imex[,unique(pubid)])
-N_pubid_biogrid = length(biogrid_from_mentha[,unique(pubid)])
-N_pubid_overlap = sum(!is.na(match(biogrid_from_mentha[,unique(pubid)], imex[,unique(pubid)])))
+N_pubid_imex = length(imex_human[,unique(pubid)])
+N_pubid_EVEX = length(EVEX_pairs[,unique(pubid)])
+N_pubid_overlap = sum(!is.na(match(EVEX_pairs[,unique(pubid)], imex_human[,unique(pubid)])))
 
-venn.d = draw.pairwise.venn(area1 = N_pubid_imex, area2 = N_pubid_biogrid, cross.area = N_pubid_overlap, category = c("IMEx", "BioGRID"), 
+venn.d = draw.pairwise.venn(area1 = N_pubid_imex, area2 = N_pubid_EVEX, cross.area = N_pubid_overlap, category = c("IMEx", "EVEX"), 
                           lty = rep("blank", 2), 
                           fill = c("blue", "red"), 
                           alpha = rep(0.5, 2), cat.pos = c(0, 135), 
@@ -139,14 +204,14 @@ venn.d = draw.pairwise.venn(area1 = N_pubid_imex, area2 = N_pubid_biogrid, cross
 
 ```
 
-I calculate how many interactions published in specific articles (the same interaction can come from different publications) in BioGRID match to IMEx.
+I calculate how many interactions published in specific articles (the same interaction can come from different publications) in EVEX match to IMEx.
 
 ```{r biogrid_vs_imex_pub_inter, message=FALSE, warning=FALSE, fig.width=4, fig.height=2}
-N_pub_int_imex = length(imex[,unique(paste0(pubid,"_",pair_id_clean))])
-N_pub_int_biogrid = length(biogrid_from_mentha[,unique(paste0(pubid,"_",pair_id_clean))])
-N_pub_int_overlap = sum(!is.na(match(biogrid_from_mentha[,unique(paste0(pubid,"_",pair_id_clean))], imex[,unique(paste0(pubid,"_",pair_id_clean))])))
+N_pub_int_imex = length(imex_human[,unique(paste0(pubid,"_",pair_id_clean))])
+N_pub_int_EVEX = length(EVEX_pairs[,unique(paste0(pubid,"_",pair_id_clean))])
+N_pub_int_overlap = sum(!is.na(match(EVEX_pairs[,unique(paste0(pubid,"_",pair_id_clean))], imex_human[,unique(paste0(pubid,"_",pair_id_clean))])))
 
-venn.d = draw.pairwise.venn(area1 = N_pub_int_imex, area2 = N_pub_int_biogrid, cross.area = N_pub_int_overlap, category = c("IMEx", "BioGRID"), 
+venn.d = draw.pairwise.venn(area1 = N_pub_int_imex, area2 = N_pub_int_EVEX, cross.area = N_pub_int_overlap, category = c("IMEx", "EVEX"), 
                           lty = rep("blank", 2), 
                           fill = c("blue", "red"), 
                           alpha = rep(0.5, 2), cat.pos = c(0, 135), 
