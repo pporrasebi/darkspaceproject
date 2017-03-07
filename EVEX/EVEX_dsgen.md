@@ -5,7 +5,7 @@ EVEX dataset generator
 
 
 
-I download the latest version of the EVEX data from EVEX website: relations table and articles table (which have common General event ID). Current file was downloaded on Mon Mar  6 16:05:28 2017. 
+I download the latest version of the EVEX data from EVEX website: relations table and articles table (which have common General event ID). Current file was downloaded on Tue Mar  7 10:49:36 2017. 
 
 Format rescription:
 
@@ -202,8 +202,13 @@ pairs_entrezgene_id = Homo_sapiens_EVEX_relations[, as.character(unique(c(source
 # entrezgene_uniprot_ENSEMBL_z = unique(entrezgene_uniprot_ENSEMBL[, .(entrezgene, uniprot_swissprot)])
 # sum(table(entrezgene_uniprot_ENSEMBL_z[, .N , by = entrezgene]$N)[-1])/sum(table(entrezgene_uniprot_ENSEMBL_z[, .N , by = entrezgene]$N)) # 0.7310322
 
-Homo_sapiens_EVEX_relations[, source_uniprotkb_id := entrezgene2uniprot$UNIPROTKB[match(source_entrezgene_id, entrezgene2uniprot$ENTREZ_GENE)]]
-Homo_sapiens_EVEX_relations[, target_uniprotkb_id := entrezgene2uniprot$UNIPROTKB[match(target_entrezgene_id, entrezgene2uniprot$ENTREZ_GENE)]]
+Homo_sapiens_EVEX_relations = unique(Homo_sapiens_EVEX_relations)
+entrezgene2uniprot = unique(entrezgene2uniprot)
+Homo_sapiens_EVEX_relations = merge(x = Homo_sapiens_EVEX_relations, y = entrezgene2uniprot, by.x = "source_entrezgene_id", by.y = "ENTREZ_GENE", all.x = T, allow.cartesian=TRUE)
+setnames(Homo_sapiens_EVEX_relations, colnames(Homo_sapiens_EVEX_relations)[ncol(Homo_sapiens_EVEX_relations)], "source_uniprotkb_id")
+Homo_sapiens_EVEX_relations = merge(x = Homo_sapiens_EVEX_relations, y = entrezgene2uniprot, by.x = "target_entrezgene_id", by.y = "ENTREZ_GENE", all.x = T, allow.cartesian=TRUE)
+setnames(Homo_sapiens_EVEX_relations, colnames(Homo_sapiens_EVEX_relations)[ncol(Homo_sapiens_EVEX_relations)], "target_uniprotkb_id")
+
 # filter out interactions with unmapped source or target id
 Homo_sapiens_EVEX_relations = Homo_sapiens_EVEX_relations[!(is.na(source_uniprotkb_id) | is.na(target_uniprotkb_id)),]
 # filter for interaction types
@@ -217,6 +222,7 @@ EVEX_pairs[, pair_id := apply(data.table(ida_clean,idb_clean,stringsAsFactors = 
 
 # Mapping between general_event_id and publicationID
 EVEX_pairs[, pmids_mixed := Homo_sapiens_EVEX_articles$article_id[match(general_event_id, Homo_sapiens_EVEX_articles$general_event_id)]]
+merge(x = EVEX_pairs, y = Homo_sapiens_EVEX_articles, by.x = "general_event_id", by.y = "general_event_id", all.x = T)
 EVEX_pairs[, pmids_mixed := gsub("PMID: ", "",pmids_mixed)]
 EVEX_pairs[, pmids_mixed := gsub("PMCID: ", "",pmids_mixed)]
 # Downloading PMCID to PMID conversion table
@@ -241,7 +247,7 @@ fwrite(x = unique(EVEX_pairs_s),
        file = "./results/pairs_pmids_EVEX_shallow.txt", sep = "\t")
 ```
 
-The total number of interacting pairs extracted from EVEX:116886
+The total number of interacting pairs extracted from EVEX:517258
 
 I create a list of PMIDs that have been mined by them.
 
