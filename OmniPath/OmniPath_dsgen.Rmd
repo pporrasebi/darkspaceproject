@@ -1,0 +1,222 @@
+---
+output: 
+  html_document: 
+    keep_md: yes
+---
+OmniPath dataset generator
+========================================================
+
+#### Load OmniPath data
+
+```{r echo=FALSE}
+OmniPath_date <- date()
+suppressPackageStartupMessages({
+        library(data.table)
+        library(VennDiagram)
+        library(downloader)
+        library(R.utils)
+        library(XML)
+        library(UniProt.ws)
+        })
+```
+
+I download the latest version of the OmniPath data from OmniPath website: interaction table (source-target) and post-translational modifications table (enzyme-substrate). Current file was downloaded on `r OmniPath_date`. PMID: 27898060
+
+```{r download_OmniPath, message=FALSE, warning=FALSE}
+interactions_url = "http://omnipathdb.org/interactions/?fields=sources&fields=references"
+ptm_url = "http://omnipathdb.org/ptms/?fields=sources&fields=references"
+interactions_file = "./source_files/OmniPath_interactions.txt"
+ptm_file = "./source_files/OmniPath_ptms.txt"
+if(!file.exists(interactions_file)) download(interactions_url,interactions_file)
+if(!file.exists(ptm_file)) download(ptm_url,ptm_file)
+```
+
+
+#### Interactions dataset 
+
+Interaction table contains the following information:
+```{r inter_table}
+interactions = fread(interactions_file, colClasses = "character")
+colnames(interactions)
+```
+
+```{r inter_table_directed}
+interactions[,table(is_directed)]
+```
+
+Interaction data comes from these sources:
+
+```{r sources}
+unique(as.character(interactions[, melt(tstrsplit(sources, ";"), na.rm = T)]$value))
+```
+
+```{r OmniPath_interactions, results= 'hide',message=FALSE, warning=FALSE}
+# generating interacting pairs
+interactions[, pair_id_clean := apply(data.table(source,target,stringsAsFactors = F), 1,
+                                               function(a) { z = sort(a)
+                                               paste0(z[1],"_",z[2]) })]
+# extracting references
+interactions = unique(interactions)
+interactions = interactions[, .(pair_id_clean, source, target, unlist(strsplit(references, ";")), sources, is_directed, is_stimulation, is_inhibition, taxon = "9606", OmniPath_interactions = 1), by = paste0(source,target)]
+interactions[,paste0 := NULL]
+setnames(interactions, colnames(interactions)[4],"pubid")
+setnames(interactions, colnames(interactions)[c(2,3)],c("ida_clean","idb_clean"))
+interactions = unique(interactions)
+# filtering our interactions coming from IntAct, DIP, HPRD, STRING, InnateDB, MatrixDB and BioGRID
+interactions = interactions[-unique(c(grep("BioGRID",sources), grep("IntAct",sources), grep("DIP",sources), grep("HPRD",sources), grep("STRING",sources), grep("InnateDB",sources), grep("MatrixDB",sources))),]
+# saving detailed OmniPath_interactions table with standard columns
+fwrite(x = interactions, 
+       file = "./results/pairs_pmids_OmniPath_interactions_detailed.txt", sep = "\t")
+# saving minimal OmniPath_interactions table with standard columns
+interactions_s = interactions[, .(pair_id_clean, ida_clean, idb_clean, pubid, taxon, OmniPath_interactions)]
+fwrite(x = unique(interactions_s), 
+       file = "./results/pairs_pmids_OmniPath_interactions_minimal.txt", sep = "\t")
+```
+
+The total number of interacting pairs in the filtered by database interaction dataset: `r length(unique(interactions$pair_id_clean))`
+
+The total number of articles where evidence comes from (in the filtered by database interaction dataset): `r length(unique(interactions$pubid))`  
+
+#### Post-translational modifications dataset
+
+Post-translational modification data comes from these sources:
+
+```{r ptm_sources}
+ptm = fread(ptm_file, colClasses = "character")
+unique(as.character(ptm[, melt(tstrsplit(sources, ";"), na.rm = T)]$value))
+```
+
+Post-translational modifications table contains the following information:
+```{r ptm_table}
+colnames(ptm)
+```
+
+```{r ptm_table_directed}
+ptm[,table(modification)]
+```
+
+
+```{r OmniPath_ptm, results= 'hide',message=FALSE, warning=FALSE}
+# generating ptm pairs
+ptm[, pair_id_clean := apply(data.table(enzyme,substrate,stringsAsFactors = F), 1,
+                                               function(a) { z = sort(a)
+                                               paste0(z[1],"_",z[2]) })]
+# extracting references
+ptm = unique(ptm)
+ptm = ptm[, .(pair_id_clean, enzyme, substrate, unlist(strsplit(references, ";")), sources, residue_type, residue_offset, modification, taxon = "9606", OmniPath_ptm = 1), by = paste0(enzyme, substrate, residue_offset, modification)]
+ptm[,paste0 := NULL]
+setnames(ptm, colnames(ptm)[4],"pubid")
+setnames(ptm, colnames(ptm)[c(2,3)],c("ida_clean","idb_clean"))
+ptm = unique(ptm)
+# filtering our ptm interactions coming from HPRD
+ptm = ptm[-unique(grep("HPRD",sources)),]
+# saving detailed OmniPath_interactions table with standard columns
+fwrite(x = ptm, 
+       file = "./results/pairs_pmids_OmniPath_ptm_interactions_detailed.txt", sep = "\t")
+# saving minimal OmniPath_interactions table with standard columns
+ptm_s = ptm[, .(pair_id_clean, ida_clean, idb_clean, pubid, taxon, OmniPath_ptm)]
+fwrite(x = unique(ptm_s), 
+       file = "./results/pairs_pmids_OmniPath_ptm_interactions_minimal.txt", sep = "\t")
+```
+
+The total number of interacting pairs in the filtered by database interaction dataset: `r length(unique(ptm$pair_id_clean))`  
+
+The total number of articles where evidence comes from (in the filtered by database interaction dataset): `r length(unique(ptm$pubid))`    
+
+
+I create a list of PMIDs that serve as the evidence for the interaction dataset  
+
+```{r pmids_interactions}
+interactions_pmids <- data.frame(unique(interactions$pubid))
+write.table(interactions_pmids, "./results/OmniPath_interactions_pmids.txt", quote=F, sep ="\t", row.names = F, col.names = T)
+```
+
+`r nrow(interactions_pmids)` publications serve as the evidence for the interaction dataset   
+
+I create a list of PMIDs that serve as the evidence for the ptm dataset  
+
+```{r pmids_ptm}
+ptm_pmids <- data.frame(unique(ptm$pubid))
+write.table(ptm_pmids, "./results/OmniPath_ptm_interactions_pmids.txt", quote=F, sep ="\t", row.names = F, col.names = T)
+```
+
+`r nrow(ptm_pmids)` publications serve as the evidence for the ptm dataset   
+
+#### Compare interaction and ptm datasets
+
+I calculate how many interactions in interaction dataset match to ptm dataset  
+
+```{r  interaction_and_ptm , message=FALSE, warning=FALSE, fig.width=4, fig.height=2}
+N_interactions = length(interactions[,unique(pair_id_clean)])
+N_ptm = length(ptm[,unique(pair_id_clean)])
+N_overlap = sum(!is.na(match(ptm[,unique(pair_id_clean)], interactions[,unique(pair_id_clean)])))
+
+venn.d = draw.pairwise.venn(area1 = N_interactions, area2 = N_ptm, cross.area = N_overlap, category = c("OmniPath interactions", "OmniPath ptm"), 
+                          lty = rep("blank", 2), 
+                          fill = c("blue", "red"), 
+                          alpha = rep(0.5, 2), cat.pos = c(0, 135), 
+                          cat.dist = rep(0.035, 2), 
+                          cat.cex = c(1,1), scaled = TRUE, euler.d = TRUE,  margin = 0.05,
+                          direct.area = TRUE,
+                          cex = 1)
+
+```
+
+
+#### Compare OmniPath interaction dataset and the publications evidence for it to IMEx 
+
+I calculate how many interactions in OmniPath interaction dataset match to IMEx.  
+
+```{r biogrid_vs_imex, message=FALSE, warning=FALSE, fig.width=4, fig.height=2}
+imex = fread("https://raw.githubusercontent.com/pporrasebi/darkspaceproject/master/IMEx/results/imex_full.txt", header = T, sep = "\t", colClasses = "character")
+imex_human = imex[taxid_a == "9606" | taxid_b == "9606",]
+N_imex = length(imex_human[,unique(pair_id_clean)])
+N_OmniPath = length(interactions[,unique(pair_id_clean)])
+N_overlap = sum(!is.na(match(interactions[,unique(pair_id_clean)], imex_human[,unique(pair_id_clean)])))
+
+venn.d = draw.pairwise.venn(area1 = N_imex, area2 = N_OmniPath, cross.area = N_overlap, category = c("IMEx", "OmniPath interactions"), 
+                          lty = rep("blank", 2), 
+                          fill = c("blue", "red"), 
+                          alpha = rep(0.5, 2), cat.pos = c(0, 135), 
+                          cat.dist = rep(0.035, 2), 
+                          cat.cex = c(1,1), scaled = TRUE, euler.d = TRUE,  margin = 0.05,
+                          direct.area = TRUE,
+                          cex = 1)
+
+```
+
+I calculate how many publications in OmniPath match to IMEx.  
+
+```{r biogrid_vs_imex_pub, message=FALSE, warning=FALSE, fig.width=4, fig.height=2}
+N_pubid_imex = length(imex_human[,unique(pubid)])
+N_pubid_OmniPath = length(interactions[,unique(pubid)])
+N_pubid_overlap = sum(!is.na(match(interactions[,unique(pubid)], imex_human[,unique(pubid)])))
+
+venn.d = draw.pairwise.venn(area1 = N_pubid_imex, area2 = N_pubid_OmniPath, cross.area = N_pubid_overlap, category = c("IMEx", "OmniPath interactions"), 
+                          lty = rep("blank", 2), 
+                          fill = c("blue", "red"), 
+                          alpha = rep(0.5, 2), cat.pos = c(0, 135), 
+                          cat.dist = rep(0.035, 2), 
+                          cat.cex = c(1,1), scaled = TRUE, euler.d = TRUE,  margin = 0.05,
+                          direct.area = TRUE,
+                          cex = 1)
+
+```
+
+I calculate how many interactions published in specific articles (the same interaction can have evidence from different publications) in OmniPath match to IMEx.  
+
+```{r biogrid_vs_imex_pub_inter, message=FALSE, warning=FALSE, fig.width=4, fig.height=2}
+N_pub_int_imex = length(imex_human[,unique(paste0(pubid,"_",pair_id_clean))])
+N_pub_int_OmniPath = length(interactions[,unique(paste0(pubid,"_",pair_id_clean))])
+N_pub_int_overlap = sum(!is.na(match(interactions[,unique(paste0(pubid,"_",pair_id_clean))], imex_human[,unique(paste0(pubid,"_",pair_id_clean))])))
+
+venn.d = draw.pairwise.venn(area1 = N_pub_int_imex, area2 = N_pub_int_OmniPath, cross.area = N_pub_int_overlap, category = c("IMEx", "OmniPath interactions"), 
+                          lty = rep("blank", 2), 
+                          fill = c("blue", "red"), 
+                          alpha = rep(0.5, 2), cat.pos = c(0, 135), 
+                          cat.dist = rep(0.035, 2), 
+                          cat.cex = c(1,1), scaled = TRUE, euler.d = TRUE,  margin = 0.05,
+                          direct.area = TRUE,
+                          cex = 1)
+
+```
