@@ -153,10 +153,10 @@ fwrite(x = unique(EVEX_pairs),
        file = "./results/pairs_pmids_EVEX_detailed.txt", sep = "\t")
 N_EVEX = length(EVEX_pairs[,unique(pair_id_clean)])
 
-# saving detailed EVEX table with standard columns
+# saving minimal EVEX table with standard columns
 EVEX_pairs_s = EVEX_pairs[, .(pair_id_clean, ida_clean, idb_clean, pubid, taxon, EVEX)]
 fwrite(x = unique(EVEX_pairs_s), 
-       file = "./results/pairs_pmids_EVEX_shallow.txt", sep = "\t")
+       file = "./results/pairs_pmids_EVEX_minimal.txt", sep = "\t")
 ```
 
 The total number of interacting pairs extracted from EVEX:`r N_EVEX`
@@ -210,7 +210,7 @@ venn.d = draw.pairwise.venn(area1 = N_pubid_imex, area2 = N_pubid_EVEX, cross.ar
 
 ```
 
-I calculate how many interactions published in specific articles (the same interaction can come from different publications) in EVEX match to IMEx.
+I calculate how many interactions published in specific articles (the same interaction can have evidence from different publications) in EVEX match to IMEx.
 
 ```{r biogrid_vs_imex_pub_inter, message=FALSE, warning=FALSE, fig.width=4, fig.height=2}
 N_pub_int_imex = length(imex_human[,unique(paste0(pubid,"_",pair_id_clean))])
