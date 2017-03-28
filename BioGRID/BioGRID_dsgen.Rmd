@@ -44,7 +44,7 @@ system("perl ./scripts/MITAB25extractor_v12.pl ./processed_files/biogrid_mitab25
 unlink(c("./source_files/2017-02-27_MITAB-2.5","./processed_files/biogrid_mitab25.txt"))
 ```
 
-Saving a table of interacting pairs, publication IDs and BioGRID tag.
+Saving a table of interacting pairs, publication IDs and BioGRID tag. Selecting human protein-human protein only interactions.
 
 ```{r pairs, message=FALSE, warning=FALSE}
 biogrid_from_mentha = fread("./processed_files/biogrid_pairs.txt", header = T, sep = "\t", colClasses = "character")

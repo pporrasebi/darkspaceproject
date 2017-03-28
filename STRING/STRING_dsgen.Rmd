@@ -17,16 +17,20 @@ suppressPackageStartupMessages({
         library(R.utils)
         library(XML)
         library(UniProt.ws)
+        library(httr)
         })
 ```
 
 I download the latest version of the STRING data for human from STRING website: MITAB2.5. Current file was downloaded on `r STRING_date`. 
 
 ```{r download_OmniPath, message=FALSE, warning=FALSE}
-STRING_mitab_25_url = "http://string-db.org/download/psicquic-mitab_2.5.v10/9606.psicquic-mitab_2.5.v10.txt.gz"
-STRING_mitab_25_file_gz = "./source_files/9606.psicquic-mitab_2.5.v10.txt.gz"
-STRING_mitab_25_file = "./source_files/9606.psicquic-mitab_2.5.v10.txt"
-if(!file.exists(STRING_mitab_25_file_gz)) download(STRING_mitab_25_url,STRING_mitab_25_file_gz)
+STRING_mitab_25_url = "http://string.uzh.ch/download/protected/string_10/protein.links.full.v10/9606.protein.links.full.v10.txt.gz"
+STRING_mitab_25_file_gz = "./source_files/9606.protein.links.full.v10.txt.gz"
+STRING_mitab_25_file = "./source_files/9606.protein.links.full.v10.txt"
+string_get = GET(STRING_mitab_25_url,  authenticate("pabloporras", "Rzpstqj3"))
+string = content(string_get, type = "text/tab-separated-values")
+
+if(!file.exists(STRING_mitab_25_file_gz)) download(STRING_mitab_25_url,STRING_mitab_25_file_gz, http_proxy_user)
 gunzip(STRING_mitab_25_file_gz, remove = F)
 # Reading the table, cleaning
 STRING_mitab = fread(STRING_mitab_25_file, colClasses = "character", header = F)
