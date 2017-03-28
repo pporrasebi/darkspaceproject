@@ -2,6 +2,10 @@
 title: Comparison of IMEx with other protein association datasets
 date: 2016-12-19
 author: Pablo Porras
+output:
+  html_document:
+    keep_md: yes
+    toc: yes
 ---
 ```{r set-options, echo=FALSE}
 options(width = 80)
