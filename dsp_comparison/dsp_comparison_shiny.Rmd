@@ -78,7 +78,7 @@ The reactome dataset contains `r nrow(reactome_pairs)` protein associations reco
 ```{r, fig.height=8, fig.width=8}
 setwd("../epmc_text_mining/results/")
 system("gunzip -k pairs_pmids_tm.txt.gz")
-tm_pairs_pmids <- fread("pairs_pmids_tm.txt",header=T,sep="\t",colClasses=c("character","character","numeric"),data.table = T)
+tm_pairs_pmids <- fread("pairs_pmids_tm.txt",header=T,sep="\t",colClasses=c("character","character","numeric","NULL"),data.table = T)
 system("rm pairs_pmids_tm.txt")
 setwd("../../dsp_comparison/")
 
