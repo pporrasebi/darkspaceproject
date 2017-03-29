@@ -180,8 +180,8 @@ tm_long$tm &lt;- 1</code></pre>
 <div id="generating-comparison-file" class="section level4">
 <h4>Generating comparison file</h4>
 <pre class="r"><code>tm_lite &lt;- unique(select(tm_long,pair_id,pmid,tm,method_term))
-write.table(tm_lite,&quot;./results/pairs_pmids_tm_it3.txt&quot;,col.names=T,row.names=F,quote=F,sep=&quot;\t&quot;)
-system(&quot;gzip ./results/pairs_pmids_tm_it3.txt&quot;)</code></pre>
+write.table(tm_lite,&quot;./results/pairs_pmids_tm.txt&quot;,col.names=T,row.names=F,quote=F,sep=&quot;\t&quot;)
+system(&quot;gzip ./results/pairs_pmids_tm.txt&quot;)</code></pre>
 <hr />
 </div>
 </div>

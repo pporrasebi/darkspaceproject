@@ -84,8 +84,8 @@ tm_long$tm <- 1
 
 ```{r}
 tm_lite <- unique(select(tm_long,pair_id,pmid,tm,method_term))
-write.table(tm_lite,"./results/pairs_pmids_tm_it3.txt",col.names=T,row.names=F,quote=F,sep="\t")
-system("gzip ./results/pairs_pmids_tm_it3.txt")
+write.table(tm_lite,"./results/pairs_pmids_tm.txt",col.names=T,row.names=F,quote=F,sep="\t")
+system("gzip ./results/pairs_pmids_tm.txt")
 ```
 
 ************************************************************
