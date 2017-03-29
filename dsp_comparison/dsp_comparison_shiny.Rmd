@@ -151,7 +151,7 @@ OmniPath_interaction_pairs <- unique(select(OmniPath_interaction_pairs_pmids, pa
 OmniPath_interaction_pmids <- unique(select(OmniPath_interaction_pairs_pmids, pmid=pubid,OmniPath_interactions))
 ```
 
-The BioGRID dataset contains `r nrow(OmniPath_interaction_pairs)` protein associations recorded in `r nrow(OmniPath_interaction_pmids)` publications.
+The OmniPath-interactions dataset contains `r nrow(OmniPath_interaction_pairs)` protein associations recorded in `r nrow(OmniPath_interaction_pmids)` publications.
 
 #### OmniPath ptm (post-translational modifications) data 
 
@@ -165,7 +165,7 @@ OmniPath_ptm_pairs <- unique(select(OmniPath_ptm_pairs_pmids, pair_id=pair_id_cl
 OmniPath_ptm_pmids <- unique(select(OmniPath_ptm_pairs_pmids, pmid=pubid,OmniPath_ptm))
 ```
 
-The BioGRID dataset contains `r nrow(OmniPath_ptm_pairs)` protein associations recorded in `r nrow(OmniPath_ptm_pmids)` publications.
+The OmniPath-ptms dataset contains `r nrow(OmniPath_ptm_pairs)` protein associations recorded in `r nrow(OmniPath_ptm_pmids)` publications.
 
 
 ### Part 2: Generating comparison dataset at the pair level
