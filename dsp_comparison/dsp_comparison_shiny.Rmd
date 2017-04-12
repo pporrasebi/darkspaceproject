@@ -212,7 +212,6 @@ overlaps = unique(comp_table_final[,.(overlaps, N_per_overlaps)])
 overlaps = overlaps[order(N_per_overlaps, decreasing = T),]
 ```
 
-
 ### Interactive plot of the overlaps between selected resources (interacting pairs)
 
 ```{r Shiny_interactions, message=F, warning=F, echo=F}

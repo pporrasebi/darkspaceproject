@@ -1,0 +1,11 @@
+base
+knitr
+plyr
+dplyr
+data.table
+UpSetR
+splitstackshape
+ggplot2
+shiny
+futile.logger
+VennDiagram
