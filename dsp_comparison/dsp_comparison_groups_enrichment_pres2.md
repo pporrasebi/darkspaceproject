@@ -169,9 +169,9 @@ As compared to NCBI gene to pubmed ID dataset (hypergeometric test, p-values):
 
 ```
          imex      reactome       tm_epmc          EVEX       BioGRID 
- 0.000000e+00 1.590452e-191  1.000000e+00 2.335806e-283  0.000000e+00 
+ 0.000000e+00 5.222585e-191  1.000000e+00 5.471301e-282  0.000000e+00 
        GO_IPI      OmniPath 
- 0.000000e+00 1.553350e-133 
+ 0.000000e+00 3.735250e-133 
 ```
 
 ========================================================

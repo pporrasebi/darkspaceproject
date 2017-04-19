@@ -15,24 +15,15 @@ The goal of this analysis is to use Reactome to try to find potentially non-cura
 
 ### Part 1: Loading Reactome data
 
-The files used for this analysis were supplied by Antonio Fabregat at Reactome around end of June, 2015. I cannot use the interactions as exported by Reactome since they do not give a PMID for each inferred interacting pair and are then not usable. As a pre-load operation, I clean up the UniProtKB accessions given by Reactome to avoid using isoform identifiers. 
+The files used for this analysis were supplied by  at Reactome around end of June, 2015. I cannot use the interactions as exported by Reactome since they do not give a PMID for each inferred interacting pair and are then not usable. As a pre-load operation, I clean up the UniProtKB accessions given by Reactome to avoid using isoform identifiers. 
 
 ```{r eval=T,message=FALSE,warning=FALSE}
-system("perl ./scripts/reactome_prot_cleaner.pl ./source_files/rr.proteins.txt ./processed_files/rr.proteins.clean.txt")
-rr_prots <- read.delim("./processed_files/rr.proteins.clean.txt", header = F, sep = "\t", colClasses = "character")
-system("rm ./processed_files/rr.proteins.clean.txt")
-colnames(rr_prots) <- c("upac","upac_clean","type", "rr_id")
-library(dplyr)
-
-rr_prots <- unique(select(rr_prots,upac=upac_clean,rr_id,type))
-
-rr_pmids <- read.delim("./source_files/rr.pubmed.txt", header = F, sep = "\t", colClasses = "character")
-colnames(rr_pmids) <- c("rr_id", "pmid")
-
-rr_upacs <- unique(data.frame(rr_prots$upac))
-```
-```{r eval=FALSE}
-write.table(rr_upacs, "./processed_files/rr.upacs.txt", quote = F, row.names = F, col.names = F)
+library(data.table)
+library()
+homo_sapiens_interactions = fread("./source_files/homo_sapiens_interactions.txt", colClasses = "character",sep = "\t", quote = "")
+x = readLines("./source_files/homo_sapiens_interactions.txt")
+xx = as.data.table(tstrsplit(x, fixed = T, split = "\t"))
+colnames(xx) = unlist(xx[1,])
 ```
 
 ### Part 2: Select only human proteins

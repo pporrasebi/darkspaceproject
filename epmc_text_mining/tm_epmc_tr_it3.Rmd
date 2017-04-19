@@ -1,0 +1,91 @@
+---
+title: 'Extracting text mining predictions EPMC: Iteration 3'
+author: "Pablo Porras"
+date: "29/03/2017"
+output: html_document
+---
+
+---
+```{r set-options, echo=FALSE}
+options(width = 80)
+```
+Text mining prediction EPMC: Technical report
+========================================================
+
+### Synopsis
+
+We collaborated the EPMC team at EBI to use text-mining techniques that use a set of keywords (see Appendix) that describe potential interaction relationships to identify sentences that may depict interacting proteins. The sentences are extracted from the abstract or full text (when available, due to copyright restrictions) or publications listed in PubMed. The text-mining exercise was performed by Senay Kafkas (SK). Email exchange about this subject can be found in the folder ./source_files/emails. 
+
+This version of the report refers to a thrid iteration of the text-mining process where PSI-MI CV was used to try and select only publications where CV terms under the 'interaction detection method' branch are found. The previous two iterations have been taken out for the sake of clarity and saving space in the repository. 
+
+#### Evaluate and extract information from SK file
+
+SK sent the result file from her search script on 2017/03/13. Here is the text of the email she sent on the first instance:  
+
+*"I prepared the data for the iteration 3 evaluation:*
+
+*/nfs/misc/literature/shenay/PPIExtraction/Data4ManualEval/Iteration3*
+
+
+*You can randomly select any number of samples from this set. Please let me know if something is not clear."*
+
+This the file format structure, as described by SK:
+
+  1. PMC ID
+  2. pubmed id
+  3. publication date
+  4. interacting protein pair, separated by ||. 
+  5. All the supporting sentences for that specific pair extracted from that specific article, separated by ||||.
+  6. section information where those sentences is coming from, separated by ||||.
+  7. The interacting pairs extracted from those sentences (proteins are separated by ||), pairs are separated by ||||.
+  8. Offsets of those proteins separated by ||||.
+  9. PSI-MI CV term representing the interaction detection method, adding the section where the term was found. 
+#### Uploading the text-mined dataset
+
+I upload only the fields I need, so the file size does not get out of hand. 
+
+```{r tm_upload, message=F, warning=F, cache=TRUE}
+require(data.table)
+
+setwd("./source_files/")
+system("gunzip ./PPI_Iter3.txt.gz")
+setwd("../")
+tm_sel <- fread("./source_files/PPI_Iter3.txt", sep = "\t", header = F, drop=c(5,7,8),data.table = T)
+colnames(tm_sel) <- c("pmcid","pmid","date","upacs","location","method_term")
+system("gzip ./source_files/PPI_Iter3.txt")
+```
+
+#### Extract protein and pair information
+
+I need to extract the upacs and deal with the redundant ones. 
+```{r format_data,message=FALSE}
+tm_sel$upac_1 <- gsub("\\|\\|.*","",tm_sel$upacs)
+tm_sel$upac_2 <- gsub(".*\\|\\|","",tm_sel$upacs)
+
+library(splitstackshape)
+tm_long_pt1 <- cSplit(tm_sel, "upac_1", sep = ",", direction = "long")
+tm_long <- cSplit(tm_long_pt1, "upac_2", sep = ",", direction = "long")
+
+tm_long$upac_1 <- as.character(tm_long$upac_1)
+tm_long$upac_2 <- as.character(tm_long$upac_2)
+```
+
+Now I generate the pair ids for the text-mined datset.
+
+```{r,message=FALSE}
+library(dplyr)
+tm_long$pair_id <- apply(select(tm_long,upac_1,upac_2), 1,function(i){
+  paste(sort(i),collapse = "_")
+})
+tm_long$tm <- 1
+```
+
+#### Generating comparison file
+
+```{r}
+tm_lite <- unique(select(tm_long,pair_id,pmid,tm,method_term))
+write.table(tm_lite,"./results/pairs_pmids_tm.txt",col.names=T,row.names=F,quote=F,sep="\t")
+system("gzip ./results/pairs_pmids_tm.txt")
+```
+
+************************************************************
