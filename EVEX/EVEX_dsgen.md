@@ -5,7 +5,7 @@ EVEX dataset generator
 
 
 
-I download the latest version of the EVEX data from EVEX website: relations table and articles table (which have common General event ID). Current file was downloaded on Tue Mar  7 10:49:36 2017. 
+I download the latest version of the EVEX data from EVEX website: relations table and articles table (which have common General event ID). Current file was downloaded on Tue Apr 18 18:49:32 2017. 
 
 Format rescription:
 
@@ -82,7 +82,7 @@ Homo_sapiens_EVEX_articles = fread("./source_files/Homo/EVEX_articles_9606.tab",
 ```
 
 EVEX is a text-mining resource which aims to identify interactions of different types from the literature as well as segment those interactions by type and measure the confidence of those in interactions being really described in the articles (not an artifact of text-mining).   
-Interactions is identified by a pair of genes (in the network format, there is another data format in EVEX which is not relevant here), segmented by type and polarity, and given a confidence score.
+An interaction is identified by a pair of genes (in the network format, there is another data format in EVEX which is not relevant here), segmented by type and polarity, and given a confidence score.
 
 Below you can see how many interactions belong to each type. 
 
@@ -241,13 +241,13 @@ fwrite(x = unique(EVEX_pairs),
        file = "./results/pairs_pmids_EVEX_detailed.txt", sep = "\t")
 N_EVEX = length(EVEX_pairs[,unique(pair_id_clean)])
 
-# saving detailed EVEX table with standard columns
+# saving minimal EVEX table with standard columns
 EVEX_pairs_s = EVEX_pairs[, .(pair_id_clean, ida_clean, idb_clean, pubid, taxon, EVEX)]
 fwrite(x = unique(EVEX_pairs_s), 
-       file = "./results/pairs_pmids_EVEX_shallow.txt", sep = "\t")
+       file = "./results/pairs_pmids_EVEX_minimal.txt", sep = "\t")
 ```
 
-The total number of interacting pairs extracted from EVEX:517258
+The total number of interacting pairs extracted from EVEX:526132
 
 I create a list of PMIDs that have been mined by them.
 
@@ -257,7 +257,7 @@ EVEX_pmids <- data.frame(unique(EVEX_pairs$pubid))
 write.table(EVEX_pmids, "./results/EVEX_pmids.txt", quote=F, sep ="\t", row.names = F, col.names = T)
 ```
 
-54247 publications are were mined to get interactions in the EVEX database. 
+54322 publications are were mined to get interactions in the EVEX database. 
 
 #### Compare EVEX interactions and publications to IMEx 
 
@@ -266,6 +266,17 @@ I calculate how many interactions in EVEX match to IMEx.
 
 ```r
 imex = fread("https://raw.githubusercontent.com/pporrasebi/darkspaceproject/master/IMEx/results/imex_full.txt", header = T, sep = "\t", colClasses = "character")
+```
+
+```
+## 
+Read 17.3% of 577189 rows
+Read 41.6% of 577189 rows
+Read 91.8% of 577189 rows
+Read 577189 rows and 9 (of 9) columns from 0.042 GB file in 00:00:05
+```
+
+```r
 imex_human = imex[taxid_a == "9606" | taxid_b == "9606",]
 N_imex = length(imex_human[,unique(pair_id_clean)])
 N_EVEX = length(EVEX_pairs[,unique(pair_id_clean)])
@@ -303,7 +314,7 @@ venn.d = draw.pairwise.venn(area1 = N_pubid_imex, area2 = N_pubid_EVEX, cross.ar
 
 ![](EVEX_dsgen_files/figure-html/biogrid_vs_imex_pub-1.png)<!-- -->
 
-I calculate how many interactions published in specific articles (the same interaction can come from different publications) in EVEX match to IMEx.
+I calculate how many interactions published in specific articles (the same interaction can have evidence from different publications) in EVEX match to IMEx.
 
 
 ```r
