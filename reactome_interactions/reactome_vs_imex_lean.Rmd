@@ -19,11 +19,15 @@ The files used for this analysis were supplied by  at Reactome around end of Jun
 
 ```{r eval=T,message=FALSE,warning=FALSE}
 library(data.table)
-library()
 homo_sapiens_interactions = fread("./source_files/homo_sapiens_interactions.txt", colClasses = "character",sep = "\t", quote = "")
-x = readLines("./source_files/homo_sapiens_interactions.txt")
-xx = as.data.table(tstrsplit(x, fixed = T, split = "\t"))
-colnames(xx) = unlist(xx[1,])
+
+# view which types of interactions are present
+homo_sapiens_interactions[,table(`Interaction type(s)`)]
+homo_sapiens_interactions[,table(`Host organism(s)`)]
+# identify which interacting partners 
+homo_sapiens_interactions[,table(gsub(":.+$","",unique(c(`#ID(s) interactor A`,`ID(s) interactor B`))))]
+
+write(homo_sapiens_interactions[,gsub("\\-.+$","",gsub("^uniprotkb:","",grep("uniprotkb",unique(c(`#ID(s) interactor A`,`ID(s) interactor B`)),value = T)))], "./processed_files/protein_updated_reactome.txt")
 ```
 
 ### Part 2: Select only human proteins
