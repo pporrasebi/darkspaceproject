@@ -62,7 +62,7 @@ Homo_sapiens_EVEX_articles = fread("./source_files/Homo/EVEX_articles_9606.tab",
 ```
 
 EVEX is a text-mining resource which aims to identify interactions of different types from the literature as well as segment those interactions by type and measure the confidence of those in interactions being really described in the articles (not an artifact of text-mining).   
-Interactions is identified by a pair of genes (in the network format, there is another data format in EVEX which is not relevant here), segmented by type and polarity, and given a confidence score.
+An interaction is identified by a pair of genes (in the network format, there is another data format in EVEX which is not relevant here), segmented by type and polarity, and given a confidence score.
 
 Below you can see how many interactions belong to each type. 
 
