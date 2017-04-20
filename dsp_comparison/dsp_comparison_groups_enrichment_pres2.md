@@ -26,11 +26,11 @@ The following datasets are included in the analysis:
  
 
 
- - Reactome dataset: contains 430095 protein associations recorded in 9381 publications. 
+ - Reactome dataset: contains 6419 protein associations recorded in 3046 publications. 
  
 
 
- - text-mining EPMC dataset contains 959438 protein associations recorded in 167311 publications.
+ - text-mining EPMC dataset contains 143365 protein associations recorded in 61153 publications.
  
 
 
@@ -70,7 +70,7 @@ Part 1: Comparison dataset at the pair level
 ========================================================
 
 
-The comparison dataset gives a total number of 2936030 potentially interacting pairs, of which 2794768 (95.19%) are not curated in IMEx. 
+The comparison dataset gives a total number of 1955991 potentially interacting pairs, of which 1814729 (92.78%) are not curated in IMEx. 
 The dataset can be accessed: https://github.com/vitkl/darkspaceproject/blob/master/dsp_comparison/results/comp_table_final.txt.gz 
 
 Overlaps at the pair level, summary:
@@ -83,7 +83,7 @@ Part 2: Comparison dataset at the publication level
 
 
 
-The comparison set gives a total number of 245352 publications, of which 236531 (96.4%) are not curated in IMEx. 
+The comparison set gives a total number of 140750 publications, of which 131929 (93.73%) are not curated in IMEx. 
 The dataset can be accessed: https://github.com/vitkl/darkspaceproject/blob/master/dsp_comparison/results/pubcomp_table_final.txt.gz 
 
 Overlaps at the publication level, summary:
@@ -95,7 +95,7 @@ Part 3: Generating comparison dataset at the pair level taking the publication i
 
 
 
-The comparison set gives a total number of 8202340 protein association pairs, of which 8041282 (98.04%) are not curated in IMEx. In all these pairs the publication from which they were derived was also matched, so the overlaps and numbers differ from previous comparisons. 
+The comparison set gives a total number of 1839273 protein association pairs, of which 1678215 (91.24%) are not curated in IMEx. In all these pairs the publication from which they were derived was also matched, so the overlaps and numbers differ from previous comparisons. 
 The dataset can be accessed: https://github.com/vitkl/darkspaceproject/blob/master/dsp_comparison/results/pubpaircomp_table_final.txt.tar.gz 
 
 Part 4: Comparing groups of resources
@@ -169,9 +169,9 @@ As compared to NCBI gene to pubmed ID dataset (hypergeometric test, p-values):
 
 ```
          imex      reactome       tm_epmc          EVEX       BioGRID 
- 0.000000e+00 5.222585e-191  1.000000e+00 5.471301e-282  0.000000e+00 
+ 0.000000e+00 3.479948e-111  1.000000e+00 2.335806e-283  0.000000e+00 
        GO_IPI      OmniPath 
- 0.000000e+00 3.735250e-133 
+ 0.000000e+00 1.553350e-133 
 ```
 
 ========================================================
@@ -180,10 +180,10 @@ As compared to the union of all resources in this comparison (hypergeometric tes
 ~ 0 means enriched, ~ 1 means depleted
 
 ```
-        imex     reactome      tm_epmc         EVEX      BioGRID 
-0.000000e+00 2.102444e-50 1.000000e+00 5.332067e-03 0.000000e+00 
-      GO_IPI     OmniPath 
-0.000000e+00 1.772329e-31 
+         imex      reactome       tm_epmc          EVEX       BioGRID 
+ 0.000000e+00  2.676737e-09  1.000000e+00  1.000000e+00  0.000000e+00 
+       GO_IPI      OmniPath 
+6.311952e-210  4.839113e-01 
 ```
 
 
@@ -195,8 +195,10 @@ As compared to NCBI gene to pubmed ID dataset (hypergeometric test, p-values):
 ~ 0 means enriched, ~ 1 means depleted
 
 ```
-    imex reactome  tm_epmc     EVEX  BioGRID   GO_IPI OmniPath 
-       0        0        1        0        0        0        0 
+         imex      reactome       tm_epmc          EVEX       BioGRID 
+ 0.000000e+00 1.972603e-168  1.000000e+00  0.000000e+00  0.000000e+00 
+       GO_IPI      OmniPath 
+ 0.000000e+00  0.000000e+00 
 ```
 
 
