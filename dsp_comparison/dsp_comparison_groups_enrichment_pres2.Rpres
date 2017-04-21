@@ -22,10 +22,10 @@ opts_chunk$set(cache=F, message=FALSE,warning=FALSE, echo=FALSE)
 
 ```{r libraries}
 # install packages if some are not already installed
-packages = c("plyr","dplyr","data.table","UpSetR", "splitstackshape", "ggplot2", "shiny", "VennDiagram")
-if(mean(packages %in% installed.packages()) != 1){
-        install.packages(packages[!packages %in% installed.packages()])
-}
+# packages = c("plyr","dplyr","data.table","UpSetR", "splitstackshape", "ggplot2", "shiny", "VennDiagram")
+# if(mean(packages %in% installed.packages()) != 1){
+#        install.packages(packages[!packages %in% installed.packages()])
+#}
 suppressPackageStartupMessages({
 library(plyr)
 library(dplyr)
