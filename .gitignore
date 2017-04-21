@@ -2,6 +2,7 @@
 .Rproj.user
 .Rhistory
 .RData
+<<<<<<< HEAD
 /Users/ppm/Documents/Projects/darkspaceproject/dsp_comparison/.Rproj.user
 /Users/ppm/Documents/Projects/darkspaceproject/dsp_comparison/.Rhistory
 /Users/ppm/Documents/Projects/darkspaceproject/dsp_comparison/.RData
@@ -31,6 +32,7 @@
 /Users/ppm/Documents/Projects/darkspaceproject/reactome_interactions/.Rhistory
 /Users/ppm/Documents/Projects/darkspaceproject/reactome_interactions/.RData
 /Users/ppm/Documents/Projects/darkspaceproject/epmc_text_mining/source_files/PPI_Iter3.txt
+=======
 /dsp_comparison/geneID2pubmed_release_04-2017
 /dsp_comparison/geneID2pubmed_release_04-2017
-
+>>>>>>> a63f933bbbe2f158a7148b8351e59d3d3197c54b

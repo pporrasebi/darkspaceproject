@@ -39,6 +39,7 @@ Filtering BioGRID only interactions and cleaning up the BioGRID file.
 ```{r message=FALSE, warning=FALSE}
 mentha = fread("./source_files/2017-02-27_MITAB-2.5", header = F, sep = "\t", colClasses = "character")
 biogrid_from_mentha = mentha[V13 == "psi-mi:\"MI:0463\"(biogrid)",]
+biogrid_from_mentha[,table(V12)]
 fwrite(x = biogrid_from_mentha, file = "./processed_files/biogrid_mitab25.txt",sep = "\t")
 system("perl ./scripts/MITAB25extractor_v12.pl ./processed_files/biogrid_mitab25.txt ./processed_files/biogrid_pairs.txt")
 unlink(c("./source_files/2017-02-27_MITAB-2.5","./processed_files/biogrid_mitab25.txt"))

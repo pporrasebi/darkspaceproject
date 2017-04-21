@@ -5,7 +5,7 @@ BioGRID dataset generator
 
 
 
-I download the latest version of the BioGRID data from mentha website. I have tried using PSICQUIC, however, downloading whole mentha using PSICQUIC takes too much time. Now, however, the link should be updated manually to get the latest mentha release. Current file was downloaded on Mon Mar  6 16:05:32 2017. 
+I download the latest version of the BioGRID data from mentha website. I have tried using PSICQUIC, however, downloading whole mentha using PSICQUIC takes too much time. Now, however, the link should be updated manually to get the latest mentha release. Current file was downloaded on Thu Apr 20 17:26:57 2017. 
 
 
 ```r
@@ -31,20 +31,36 @@ mentha = fread("./source_files/2017-02-27_MITAB-2.5", header = F, sep = "\t", co
 
 ```
 ## 
-Read 38.9% of 1105301 rows
-Read 61.5% of 1105301 rows
-Read 91.4% of 1105301 rows
+Read 39.8% of 1105301 rows
+Read 72.4% of 1105301 rows
+Read 93.2% of 1105301 rows
 Read 1105301 rows and 15 (of 15) columns from 0.325 GB file in 00:00:05
 ```
 
 ```r
 biogrid_from_mentha = mentha[V13 == "psi-mi:\"MI:0463\"(biogrid)",]
+biogrid_from_mentha[,table(V12)]
+```
+
+```
+## V12
+##       psi-mi:"MI:0403"(colocalization) 
+##                                  31835 
+##   psi-mi:"MI:0407"(direct interaction) 
+##                                 156854 
+##          psi-mi:"MI:0914"(association) 
+##                                   8331 
+## psi-mi:"MI:0915"(physical association) 
+##                                 267494
+```
+
+```r
 fwrite(x = biogrid_from_mentha, file = "./processed_files/biogrid_mitab25.txt",sep = "\t")
 system("perl ./scripts/MITAB25extractor_v12.pl ./processed_files/biogrid_mitab25.txt ./processed_files/biogrid_pairs.txt")
 unlink(c("./source_files/2017-02-27_MITAB-2.5","./processed_files/biogrid_mitab25.txt"))
 ```
 
-Saving a table of interacting pairs, publication IDs and BioGRID tag.
+Saving a table of interacting pairs, publication IDs and BioGRID tag. Selecting human protein-human protein only interactions.
 
 
 ```r
