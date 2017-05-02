@@ -49,7 +49,7 @@ Saving a table of interacting pairs, publication IDs and BioGRID tag. Selecting 
 
 ```{r pairs, message=FALSE, warning=FALSE}
 biogrid_from_mentha = fread("./processed_files/biogrid_pairs.txt", header = T, sep = "\t", colClasses = "character")
-biogrid_from_mentha_human = biogrid_from_mentha[taxid_a == "9606" | taxid_b == "9606",]
+biogrid_from_mentha_human = biogrid_from_mentha[taxid_a == "9606" & taxid_b == "9606",]
 fwrite(x = unique(biogrid_from_mentha_human[, .(pair_id_clean, pubid, biogrid = rep(1, .N))]), 
        file = "./results/pairs_pmids_biogrid.txt", sep = "\t")
 N_biogrid = length(biogrid_from_mentha_human[,unique(pair_id_clean)])
@@ -76,7 +76,8 @@ I calculate how many interactions in BioGRID match to IMEx.
 
 ```{r biogrid_vs_imex, message=FALSE, warning=FALSE, fig.width=4, fig.height=2}
 imex = fread("https://raw.githubusercontent.com/pporrasebi/darkspaceproject/master/IMEx/results/imex_full.txt", header = T, sep = "\t", colClasses = "character")
-imex_human = imex[taxid_a == "9606" | taxid_b == "9606",]
+
+imex_human = imex[taxid_a == "9606" & taxid_b == "9606",]
 N_imex = length(imex_human[, unique(pair_id_clean)])
 N_biogrid = length(biogrid_from_mentha_human[,unique(pair_id_clean)])
 N_overlap = sum(!is.na(match(biogrid_from_mentha_human[,unique(pair_id_clean)], imex_human[, unique(pair_id_clean)])))

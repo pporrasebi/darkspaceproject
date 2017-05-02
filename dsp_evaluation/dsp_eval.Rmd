@@ -1,0 +1,54 @@
+---
+title: "DSP evaluation"
+output: html_notebook
+---
+
+## Synopsis
+
+Manual evaluation of Low-Hanging Fruit lists by curators in IMEx consortium. 
+
+#### Libraries
+```{r libraries, message=FALSE,warning=FALSE}
+library(data.table)
+```
+### List upload
+
+Lists are manually evaluated and compiled at https://docs.google.com/spreadsheets/d/1tL1HtVD3-BxHxKuXbIYhcFjmCptGVEOD5aFJCZw6CZk/edit#gid=0. Lists are manually downloaded from there. 
+
+```{r upload}
+# First LHF list
+lhf_rd1 <- fread("./eval_tables/lhf_rd1.txt",header=T)
+
+# EPMC text-mining lists
+tm_it1_eval <- fread("./eval_tables/tm_it1.txt",header=T)
+tm_it2_eval <- fread("./eval_tables/tm_it2.txt",header=T)
+```
+
+### Evaluation
+
+#### LHF iteration 1
+
+*Publications containing interactions*
+```{r lhf_it1_eval_publ}
+lhf_pub_pred <- unique(lhf_rd1[,.(pmid,`Contains interactions?`)])
+lhf_pub_eval <- data.table(table(lhf_pub_pred$`Contains interactions?`))
+```
+Positives: `r paste(round(lhf_pub_eval[V1=="yes",.(N)]/sum(lhf_pub_eval[,.(N)])*100,2),"%",sep="")`  
+Negatives: `r paste(round(lhf_pub_eval[V1=="no",.(N)]/sum(lhf_pub_eval[,.(N)])*100,2),"%",sep="")`
+
+
+*Interacting protein pairs correctly identified*
+```{r lhf_it1_eval_pairs}
+lhf_pair_pred <- unique(lhf_rd1[,.(pair_id,`Are pairs correct?`)])
+lhf_pair_eval <- data.table(table(lhf_pair_pred$`Are pairs correct?`))
+```
+Positives: `r paste(round(lhf_pair_eval[V1=="yes",.(N)]/sum(lhf_pair_eval[,.(N)])*100,2),"%",sep="")`  
+Negatives: `r paste(round(lhf_pair_eval[V1=="no",.(N)]/sum(lhf_pair_eval[,.(N)])*100,2),"%",sep="")`
+
+*Correct new pairs*
+```{r new pairs}
+lhf_newpairs <- unique(lhf_rd1[noncur_prot==1,.(pair_id,`Are pairs correct?`)])
+lhf_newpairs_eval <- data.table(table(lhf_newpairs$`Are pairs correct?`))
+newpairsfound <- lhf_newpairs_eval[V1=="yes",.(N)]
+newpairsfound
+```

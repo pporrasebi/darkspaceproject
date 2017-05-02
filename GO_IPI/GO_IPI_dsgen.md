@@ -6,7 +6,7 @@ GO IPI, Gene Ontology - Inferred from Physical Interaction - dataset generator
 
 
 
-I download the latest version of Gene Ontology IPI dataset - EBI_GOA_nonIntAct - using PSICQUIC service. Current file was downloaded on Mon Mar  6 16:05:36 2017. 
+I download the latest version of Gene Ontology IPI dataset - EBI_GOA_nonIntAct - using PSICQUIC service. Current file was downloaded on Mon Apr 24 10:06:58 2017. 
 
 
 
@@ -21,7 +21,7 @@ MITAB = "tab25"
 EBI_GOA_nonIntAct = data.table()
 if(database %in% providers){
         ## Query for the number of interactions
-        PSICQUIC_query = paste("species:",SPECIES_ID, sep = "")
+        PSICQUIC_query = paste("taxidA:",SPECIES_ID," AND taxidB:",SPECIES_ID, sep = "")
         PSICQUIC_query1 = paste0(PSICQUIC_query, "?format=count") 
         N_interactions <- unlist(rawQuery(psicquic, database, PSICQUIC_query1))
         
@@ -54,7 +54,7 @@ N_EBI_GOA_nonIntAct = length(EBI_GOA_nonIntAct[,unique(pair_id_clean)])
 ```
 
 
-The EBI_GOA_nonIntAct dataset contains 10215 human interacting pairs. 
+The EBI_GOA_nonIntAct dataset contains 8321 human interacting pairs. 
 
 
 Creating a list of PMIDs that have been curated into GO annotations of human proteins (EBI_GOA_nonIntAct dataset)
@@ -68,7 +68,7 @@ write.table(EBI_GOA_nonIntAct_pmids, "./results/biogrid_pmids.txt", quote=F, sep
 ```
 
 
-5459 publications (human) are curated into EBI_GOA_nonIntAct dataset 
+4648 publications (human) are curated into EBI_GOA_nonIntAct dataset 
 
 #### Compare human EBI_GOA_nonIntAct interactions and publications to IMEx 
 
@@ -77,7 +77,7 @@ I calculate how many interactions in EBI_GOA_nonIntAct dataset match to IMEx.
 
 ```r
 imex = fread("https://raw.githubusercontent.com/pporrasebi/darkspaceproject/master/IMEx/results/imex_full.txt", header = T, sep = "\t", colClasses = "character")
-imex_human = imex[taxid_a == "9606" | taxid_b == "9606",]
+imex_human = imex[taxid_a == "9606" & taxid_b == "9606",]
 N_imex = length(imex_human[, unique(pair_id_clean)])
 N_EBI_GOA_nonIntAct = length(EBI_GOA_nonIntAct[,unique(pair_id_clean)])
 N_overlap = sum(!is.na(match(EBI_GOA_nonIntAct[,unique(pair_id_clean)], imex_human[, unique(pair_id_clean)])))
