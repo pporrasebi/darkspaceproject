@@ -1,0 +1,513 @@
+pair_id	pmid	imex	reactome	tm_epmc	iid_pred	noncur_prot	Contains interactions?	Are pairs correct?	Correct but cannot be curated	Curator	Comments	Reserved for curation	Annotated in IntAct?
+P00751_P27918	978134	0	1	1	1	0	no			Mgt	"1976 publication;no interaction evidence we would accept.		"		
+P06681_P27918	978134	0	1	1	1	0	no			Mgt	                  as above		
+P09919_Q99062	2147944	0	1	1	1	1	no			Luana			
+P12830_P35222	7806582	0	1	1	1	0	yes	yes		Mgt	There are already 12 interactions in IntAct;Miscore = 0.93		
+P09038_P31431	8609172	0	1	1	1	0	yes	no		Mgt			
+P46940_P62158	9199170	0	1	1	1	0	yes	yes	TRUE	Mgt	IQGAP and Calm1   of Bovine origin		
+P29590_P63165	9412458	0	1	1	1	0	yes	no		Mgt			
+P46108_P56945	9472046	0	1	1	1	0	yes	yes	TRUE	Mgt	Cas/P130 = Rattine origin		
+P56945_Q05397	9472046	0	1	1	1	0	yes	no		Mgt			
+Q08379_Q14789	9490716	0	1	1	1	0	yes	no		Mgt	both proteins are preys in a pull-down (rat)		
+O43914_O95944	9625766	0	1	1	1	1	yes	yes		Luana			Yes -but pair was O76036+P07766
+O14653_Q13190	9647643	0	1	1	1	0	yes	yes	partially correct	Mgt	y2H; no species		
+P16070_Q9Y5Y7	10037799	0	1	1	1	0	no	no		Simona			no
+O43914_O95944	10049942	0	1	1	1	1	yes	yes		Luana		yes-mgt	
+O43561_O75791	10224278	0	1	1	1	0	yes	yes		Simona			no
+Q15223_Q92692	10225955	0	1	1	1	0	yes	no		Simona			no
+O15389_O43699	10499918	0	1	1	1	0	yes	no		Simona			no
+O15389_P20138	10499918	0	1	1	1	0	yes	no		Simona			no
+O15389_Q9BZZ2	10499918	0	1	1	1	1	yes	no		Luana			
+P20138_P20273	10499918	0	1	1	1	0	yes	no		Simona			no
+O14893_Q16637	10601333	0	1	1	1	0	yes	yes		Simona			yes
+O14893_Q9UHI6	10601333	0	1	1	1	0	yes	yes		Simona			yes
+P62316_Q9UHI6	10601333	0	1	1	1	0	yes	yes		Simona	very low binding		no
+P62318_Q9UHI6	10601333	0	1	1	1	0	yes	yes		Simona			no
+Q16637_Q9UHI6	10601333	0	1	1	1	0	yes	yes		Simona			yes
+P33897_P40855	10704444	0	1	1	1	0	yes	no		Simona	It should be P28288 instead of P33897		yes
+O14893_P57678	10725331	0	1	1	1	0	yes	yes		Simona	Gemin 2 binds Gemin 4 only in IP fig6a where proteins are  identified by molecular wheight		no
+O14893_Q16637	10725331	0	1	1	1	0	yes	yes		Simona	SMN  binds Gemin 2 only in IP fig1 where proteins are  identified by molecular wheight		yes
+P57678_P62304	10725331	0	1	1	1	0	yes	yes		Simona	weak binding Fig6C		no
+P57678_P62314	10725331	0	1	1	1	0	yes	yes		Simona			no
+P57678_Q16637	10725331	0	1	1	1	0	yes	yes		Simona	SMN binds Gemin 4 only in IP fig6a where proteins are  identified by molecular wheight		yes
+Q16637_Q16637	10725331	0	1	1	1	0	yes	no		Simona			yes
+Q16637_Q9UHI6	10725331	0	1	1	1	0	yes	yes		Simona	SMN binds Gemin 3 only in IP fig6a where proteins are  identified by molecular wheight		yes
+P04049_P27361	10725339	0	1	1	1	0	yes	yes		Simona			no
+Q92793_Q92793	10769018	0	1	1	1	0	yes	no		Simona			yes
+P23229_Q15149	10811835	0	1	1	1	0	yes	no		Simona			no
+Q15149_Q9UMD9	10811835	0	1	1	1	0	yes	no		Simona			no
+P14210_P46109	10871282	0	1	1	1	0	yes	no		Simona			no
+P39687_Q15717	11018049	0	1	1	1	0	yes	yes		Simona			no
+Q13418_Q9NVD7	11331308	0	1	1	1	0	yes	yes		Simona			yes
+O60880_Q96DU3	11489943	0	1	1	1	1	yes	yes		Luana		yes-mgt	
+O60566_P30260	11535616	0	1	1	1	0	yes	yes		Simona			yes
+O60566_Q13257	11535616	0	1	1	1	0	yes	yes		Simona			yes
+O43914_Q9NZC2	11602640	0	1	1	1	1	yes	yes		Luana		yes-mgt	
+Q9H2G9_Q9H8Y8	11739401	0	1	1	1	0	yes	yes		Simona			yes
+P49755_Q15363	11748249	0	1	1	1	0	yes	yes		Simona	The pair is correct but the taxid not. Rat proteins.		yes
+P49755_Q9BVK6	11748249	0	1	1	1	0	yes	yes		Simona	The pair is correct but the taxid not. Rat proteins.		yes
+Q15363_Q15363	11748249	0	1	1	1	0	yes	yes		Simona	The pair is correct but the taxid not. Rat proteins.		yes
+O14662_O75379	11839770	0	1	1	1	0	yes	yes		Simona			no
+O14653_Q13190	11927603	0	1	1	1	0	yes	yes		Simona	 proteins may be  not human		yes
+Q08379_Q13190	11927603	0	1	1	1	0	yes	yes		Simona	 proteins may be  not human		no
+O95249_Q13190	12070132	0	1	1	1	0	yes	yes		Simona	not sure if  the pull down is with human or rat proteins, I considered human		no
+P15692_P35968	12810700	0	1	1	1	0	no	no		Simona			yes
+P42574_P98170	12874265	0	1	1	1	0	yes	yes		Simona			yes
+P42574_Q9NR28	12874265	0	1	1	1	0	yes	no		Simona			no
+P98170_Q9NR28	12874265	0	1	1	1	0	yes	no		Simona			yes
+P15311_P32004	12925712	0	1	1	1	0	yes	no		Simona	only ankirin binding is shown		no
+P26038_P32004	12925712	0	1	1	1	0	yes	no		Simona	only ankirin binding is shown		no
+P54646_Q15831	14511394	0	1	1	1	0	yes	no		Simona	AMPK subunit alfa2 is not shown		yes
+P54646_Q7RTN6	14511394	0	1	1	1	0	yes	no		Simona	AMPK subunit alfa2 is not shown		no
+P54646_Q9C0K7	14511394	0	1	1	1	0	yes	no		Simona	AMPK subunit alfa2 is not shown		no
+P54646_Q9Y376	14511394	0	1	1	1	0	yes	no		Simona	AMPK subunit alfa2 is not shown		no
+Q15831_Q9Y478	14511394	0	1	1	1	0	yes	no		Simona	AMPK subunit beta is not shown		no
+Q9C0K7_Q9Y478	14511394	0	1	1	1	0	yes	no		Simona	AMPK subunit beta is not shown		no
+O00206_Q14653	14517278	0	1	1	1	0	yes	no		Simona			no
+O00206_Q8IUC6	14517278	0	1	1	1	0	yes	no		Simona			no
+O00206_Q92985	14517278	0	1	1	1	0	yes	no		Simona			no
+O15455_Q14653	14517278	0	1	1	1	0	yes	no		Simona			no
+O15455_Q8IUC6	14517278	0	1	1	1	0	yes	no		Simona			no
+O15455_Q92985	14517278	0	1	1	1	0	yes	no		Simona			no
+Q14653_Q8IUC6	14517278	0	1	1	1	0	yes	no		Simona			no
+Q14653_Q92985	14517278	0	1	1	1	0	yes	no		Simona			no
+Q14653_Q9Y6Y9	14517278	0	1	1	1	0	yes	no		Simona			no
+Q8IUC6_Q92985	14517278	0	1	1	1	0	yes	no		Simona			no
+Q9UHD9_Q9UMX0	14662753	0	1	1	1	0	yes	no		Simona			yes
+O15105_P01137	14718519	0	1	1	1	0	yes	no		Simona			no
+O15105_P36897	14718519	0	1	1	1	0	yes	yes		Simona	fig 3		no
+P01137_P36897	14718519	0	1	1	1	0	yes	no		Simona	not shown		yes
+P28288_P40855	15007061	0	1	1	1	0	yes	yes		Simona	colocalization only		yes
+Q15287_Q8IYB3	15024032	0	1	1	1	0	no	no		Simona			yes
+O15085_O43157	15210733	0	1	1	1	0	yes	no		Simona	IP only shows erb2-RhoGEF interaction (fig7)		yes
+O15085_Q92730	15210733	0	1	1	1	0	yes	no		Simona	IP only shows erb2-RhoGEF interaction (fig7)		no
+O43157_Q92730	15210733	0	1	1	1	0	yes	no		Simona	IP only shows erb2-RhoGEF interaction (fig7)		yes
+O43157_Q92854	15210733	0	1	1	1	0	yes	no		Simona	IP only shows erb2-RhoGEF interaction (fig7)		no
+O43157_Q9NZN5	15210733	0	1	1	1	0	yes	no		Simona	IP only shows erb2-RhoGEF interaction (fig7)		no
+O00206_Q14653	15210742	0	1	1	1	0	no	no		Simona	the paper doesn' t show any protein-protein interaction		no
+O15455_Q14653	15210742	0	1	1	1	0	no	no		Simona	the paper doesn' t show any protein-protein interaction		no
+Q14164_Q14653	15210742	0	1	1	1	0	no	no		Simona	the paper doesn' t show any protein-protein interaction		yes
+Q14164_Q8IUC6	15210742	0	1	1	1	0	no	no		Simona	the paper doesn' t show any protein-protein interaction		no
+Q14164_Q92844	15210742	0	1	1	1	0	no	no		Simona	the paper doesn' t show any protein-protein interaction		yes
+Q14164_Q92985	15210742	0	1	1	1	0	no	no		Simona	the paper doesn' t show any protein-protein interaction		yes
+Q14164_Q9UHD2	15210742	0	1	1	1	0	no	no		Simona	the paper doesn' t show any protein-protein interaction		yes
+Q14653_Q8IUC6	15210742	0	1	1	1	0	no	no		Simona	the paper doesn' t show any protein-protein interaction		no
+Q14653_Q9UHD2	15210742	0	1	1	1	0	no	no		Simona	the paper doesn' t show any protein-protein interaction		yes
+Q8IUC6_Q9UHD2	15210742	0	1	1	1	0	no	no		Simona	the paper doesn' t show any protein-protein interaction		yes
+Q92844_Q9UHD2	15210742	0	1	1	1	0	no	no		Simona	the paper doesn' t show any protein-protein interaction		yes
+Q92985_Q9UHD2	15210742	0	1	1	1	0	no	no		Simona	the paper doesn' t show any protein-protein interaction		yes
+P48023_Q14790	15289496	0	1	1	1	0	no	no		Simona			yes
+P42229_Q15303	15534001	0	1	1	1	0	yes	yes		Simona			no
+O95631_P43146	15557120	0	1	1	1	0	yes	no		Simona	the interaction in true but not shown in the paper		yes
+O75116_Q13464	15699075	0	1	1	1	0	yes	no		Simona			no
+P53350_Q8N3U4	15737063	0	1	1	1	0	yes	no		Simona			no
+Q14674_Q8N3U4	15737063	0	1	1	1	0	yes	no		Simona			no
+Q8N3U4_Q8WVM7	15737063	0	1	1	1	0	yes	no		Simona	Ip in fig 1 but the ab recognize both		yes
+P51617_Q92985	15767370	0	1	1	1	0	yes	yes		Luana			
+P51617_Q9NWZ3	15767370	0	1	1	1	0	yes	no		Luana			
+P51617_Q9Y4K3	15767370	0	1	1	1	0	yes	no		Luana			
+Q92985_Q9NR96	15767370	0	1	1	1	0	yes	no		Luana			
+Q92985_Q9NWZ3	15767370	0	1	1	1	0	yes	no		Luana			
+Q92985_Q9Y4K3	15767370	0	1	1	1	0	yes	no		Luana			
+P23025_P54727	16030353	0	1	1	1	0	yes	no		Luana			
+P23025_Q01831	16030353	0	1	1	1	0	yes	no		Luana			
+P41208_Q01831	16030353	0	1	1	1	0	yes	no		Luana			
+P54727_Q01831	16030353	0	1	1	1	0	yes	no		Luana			
+Q01831_Q92466	16030353	0	1	1	1	0	yes	no		Luana			
+O14920_O43318	16301747	0	1	1	1	0	yes	no		Luana			yes
+O14920_Q9UDY8	16301747	0	1	1	1	0	yes	no		Luana			
+O14920_Q9Y6K9	16301747	0	1	1	1	0	yes	no		Luana			
+O43318_Q9BXL7	16301747	0	1	1	1	0	yes	yes		Luana	murine proteins		
+O43318_Q9UDY8	16301747	0	1	1	1	0	yes	no		Luana			
+O95999_Q9BXL7	16301747	0	1	1	1	0	yes	no		Luana			
+O95999_Q9UDY8	16301747	0	1	1	1	0	yes	no		Luana			
+O95999_Q9Y6K9	16301747	0	1	1	1	0	yes	no		Luana			
+Q9BXL7_Q9UDY8	16301747	0	1	1	1	0	yes	no		Luana			
+Q9BXL7_Q9Y6K9	16301747	0	1	1	1	0	yes	no		Luana			
+Q9UDY8_Q9Y6K9	16301747	0	1	1	1	0	yes	no		Luana			
+Q00987_Q93009	16402859	0	1	1	1	0	yes	yes		Luana			
+Q7L576_Q92558	16702231	0	1	1	1	0	yes	no		Luana			
+Q7L576_Q9Y6W5	16702231	0	1	1	1	0	yes	no		Luana			
+Q8IZP0_Q9UQB8	16702231	0	1	1	1	0	yes	yes		Luana			
+Q8IZP0_Q9Y6W5	16702231	0	1	1	1	0	yes	yes		Luana			
+Q9UQB8_Q9Y6W5	16702231	0	1	1	1	0	yes	yes		Luana			
+P27361_P28482	16879721	0	1	1	1	0	no			Luana	it'a review		
+P15692_P35968	17030947	0	1	1	1	0	no			Luana			
+O14777_Q13257	17030981	0	1	1	1	0	yes	no		Luana			
+O14777_Q92674	17030981	0	1	1	1	0	yes	no		Luana			
+O14777_Q9BZD4	17030981	0	1	1	1	0	yes	no		Luana			
+O14777_Q9Y6D9	17030981	0	1	1	1	0	yes	no		Luana			
+O43683_Q92674	17030981	0	1	1	1	0	yes	no		Luana			
+O60566_Q92674	17030981	0	1	1	1	0	yes	no		Luana			
+P49450_Q03188	17030981	0	1	1	1	0	yes	no		Luana			
+P49450_Q99661	17030981	0	1	1	1	0	yes	no		Luana			
+Q13257_Q92674	17030981	0	1	1	1	0	yes	no		Luana			
+Q13257_Q9BZD4	17030981	0	1	1	1	0	yes	no		Luana			
+Q92674_Q9BZD4	17030981	0	1	1	1	0	yes	no		Luana			
+Q92674_Q9Y6D9	17030981	0	1	1	1	0	yes	no		Luana			
+Q9BZD4_Q9Y6D9	17030981	0	1	1	1	0	yes	no		Luana			
+Q13561_Q14203	17283181	0	1	1	1	0	yes	no		Luana			
+P20585_Q9UQ84	17426132	0	1	1	1	0	yes	yes		Luana			
+P43246_P52701	17426132	0	1	1	1	0	yes	no		Luana			
+P43246_Q9UQ84	17426132	0	1	1	1	0	yes	yes		Luana			
+P52701_Q9UQ84	17426132	0	1	1	1	0	yes	yes		Luana			
+O15455_Q9H1C4	17452530	0	1	1	1	0	yes	yes		Luana	murine proteins		
+Q9H1C4_Q9NR96	17452530	0	1	1	1	0	yes	yes		Luana	murine proteins		
+Q9H1C4_Q9NYK1	17452530	0	1	1	1	0	yes	yes		Luana	murine proteins		
+O60603_Q9NWZ3	17485511	0	1	1	1	0	yes	no		Luana			
+Q8N6H7_Q8N6T3	17760859	0	1	1	1	0	yes	yes		Luana	Colocalization/rat or pig proteins		
+Q8N6H7_Q9NP61	17760859	0	1	1	1	0	yes	yes		Luana	Colocalization/rat or pig proteins		
+Q8N6T3_Q9NP61	17760859	0	1	1	1	0	yes	yes		Luana	Colocalization/rat or pig proteins		
+P13010_P78527	18046455	0	1	1	1	0	yes	no		Luana			
+P13010_Q13426	18046455	0	1	1	1	0	yes	no		Luana			
+P49917_Q13426	18046455	0	1	1	1	0	yes	yes		Luana			
+P49917_Q9H9Q4	18046455	0	1	1	1	0	yes	yes		Luana			
+Q13426_Q9H9Q4	18046455	0	1	1	1	0	yes	yes		Luana			
+P21579_Q8WXE9	18166656	0	1	1	1	0	yes	yes		Luana	rat synaptotagmin 1		
+O14662_O43752	18195106	0	1	1	1	0	yes		Yes	Simona	fig7D both interact with CG185 but in two samples		no
+O14662_O60499	18195106	0	1	1	1	0	yes		Yes	Simona	fig7D both interact with CG185 but in two samples		no
+O14662_O75379	18195106	0	1	1	1	0	yes	no		Simona			no
+O14662_Q8IWJ2	18195106	0	1	1	1	0	yes	yes		Simona			no
+O43752_O75379	18195106	0	1	1	1	0	yes	no		Simona			yes
+O43752_Q8IWJ2	18195106	0	1	1	1	0	yes	yes		Simona			no
+O60499_Q8IWJ2	18195106	0	1	1	1	0	yes	yes		Simona			no
+P20340_Q8IWJ2	18195106	0	1	1	1	0	yes		Yes	Simona	fig 8		yes
+O95786_Q7Z434	18307765	0	1	1	1	0	no	no		Simona			yes
+Q7Z434_Q9BYX4	18307765	0	1	1	1	0	no	no		Simona			yes
+O95684_P11362	18412956	0	1	1	1	0	yes	yes		Simona	fig2B		yes
+P11362_P19174	18412956	0	1	1	1	0	yes	no		Simona	the interaction is not shown		yes
+P11940_Q92900	18447585	0	1	1	1	0	yes	yes		Simona	fig 6		yes
+P08047_P36956	18654640	0	1	1	1	0	no	no		Simona	It is a ChIP exp containing protein-dna interactions not protein protein		no
+Q13625_Q96KQ4	18676979	0	1	1	1	0	yes	no		Simona			no
+Q13625_Q9H3D4	18676979	0	1	1	1	0	yes	yes		Simona			yes
+Q96KQ4_Q9H3D4	18676979	0	1	1	1	0	yes	yes		Simona			yes
+O75077_O75078	18974846	0	1	1	1	0	yes	no		Simona			no
+O75077_Q8N135	18974846	0	1	1	1	1	yes	yes		Luana	The pair is correct but the taxid not. Mouse proteins.		
+O75078_O95970	18974846	0	1	1	1	1	yes	yes		Luana	The pair is correct but the taxid not. Mouse proteins.		
+O75078_Q8N135	18974846	0	1	1	1	1	yes	yes		Luana	The pair is correct but the taxid not. Mouse proteins.		
+Q8N135_Q9P0K1	18974846	0	1	1	1	1	yes	yes		Luana	The pair is correct but the taxid not. Mouse proteins.		
+P25942_Q99558	18997794	0	1	1	1	0	yes	no		Simona			no
+Q12933_Q13114	18997794	0	1	1	1	0	yes	yes		Simona	fig3		no
+Q12933_Q99558	18997794	0	1	1	1	0	yes	yes		Simona	fig 3		yes
+Q13114_Q99558	18997794	0	1	1	1	0	yes	yes		Simona	fig 3		yes
+P23025_Q01831	19056823	0	1	1	1	0	yes	no		Simona			no
+P23025_Q92466	19056823	0	1	1	1	0	yes	yes		Simona			no
+P54727_Q01831	19056823	0	1	1	1	0	yes	no		Simona			yes
+P54727_Q92466	19056823	0	1	1	1	0	yes	no		Simona			no
+Q01831_Q92466	19056823	0	1	1	1	0	yes	no		Simona			no
+O00255_P46940	19079338	0	1	1	1	0	yes	yes		Simona			no
+P12830_P46940	19079338	0	1	1	1	0	yes	no		Simona	the shown interaction is with catenin, caderin is mentioned not shown		no
+P48729_P49841	19107203	0	1	1	1	0	yes	no		Simona	it matches complexes in IntAct		no
+P16104_Q13315	19234442	0	1	1	1	0	yes	no		Simona			yes
+P38398_Q99708	19357644	0	1	1	1	0	yes	no		Simona	brca1 is chicken (suppl fig8)		yes
+P49450_Q96T23	19398759	0	1	1	1	0	yes	yes		Simona			no
+O15455_Q9H1C4	19451267	0	1	1	1	0	yes	yes		Simona	fig5		no
+Q9H1C4_Q9NR96	19451267	0	1	1	1	0	yes	yes		Simona	fig5		yes
+Q9H1C4_Q9NYK1	19451267	0	1	1	1	0	yes	yes		Simona	fig5		no
+Q9NR96_Q9NYK1	19451267	0	1	1	1	0	yes	yes		Simona	fig6		no
+Q92900_Q9HAU5	19478851	0	1	1	1	0	yes	yes		Simona	fig7		yes
+O95786_Q7Z434	19479062	0	1	1	1	0	yes	no		Simona			yes
+O95786_Q9BYX4	19479062	0	1	1	1	0	yes	no		Simona			no
+O95786_Q9Y4K3	19479062	0	1	1	1	0	yes	no		Simona			no
+Q14164_Q92985	19479062	0	1	1	1	0	yes	no	Yes	Simona	They are both IP by Traf6 but in different samples (F5)		yes
+Q14164_Q9Y4K3	19479062	0	1	1	1	0	yes	yes		Simona			no
+Q7Z434_Q9BYX4	19479062	0	1	1	1	0	yes	no		Simona			yes
+Q7Z434_Q9Y4K3	19479062	0	1	1	1	0	yes	yes	Yes	Simona	They are both IP by Traf6 but in different samples (F5)		yes
+Q92985_Q9UHD2	19479062	0	1	1	1	0	yes	no		Simona			yes
+Q92985_Q9Y4K3	19479062	0	1	1	1	0	yes	yes		Simona			yes
+Q9BYX4_Q9Y4K3	19479062	0	1	1	1	0	yes	no		Simona			no
+Q9UHD2_Q9Y4K3	19479062	0	1	1	1	0	yes	yes		Simona			no
+O95786_Q14258	19484123	0	1	1	1	0	yes	yes		Simona			yes
+O95786_Q8IUD6	19484123	0	1	1	1	0	yes	yes		Simona			no
+Q14258_Q8IUD6	19484123	0	1	1	1	0	yes	no		Simona			no
+O43318_Q9NYJ8	19675569	0	1	1	1	0	yes	no		Simona			yes
+O43318_Q9Y4K3	19675569	0	1	1	1	0	yes	yes	Yes	Simona	it is an in vitro enzymatic activity (fig1) not sure if it is purified enough		yes
+P09958_P46531	19701457	0	1	1	1	0	yes	no		Simona	the only interaction is  the in vitro cleavage Notch2 by furin in suppl 2		no
+P46531_Q04721	19701457	0	1	1	1	0	yes	no		Simona	the only interaction is  the in vitro cleavage Notch2 by furin in suppl 2		no
+O00255_P46940	19737400	0	1	1	1	0	yes	no		Simona			no
+P12830_P46940	19737400	0	1	1	1	0	yes	yes		Simona			no
+P05230_P22607	19749790	0	1	1	1	0	no	no		Simona	the binding is not shown		yes
+P19174_P22607	19749790	0	1	1	1	0	no	no		Simona	the binding is not shown		no
+Q13315_Q92993	19783983	0	1	1	1	0	yes	yes		Simona	the IP is shown in suppl mat S2		no
+P00533_Q9Y6I3	19814798	0	1	1	1	0	no	no		Simona	review		no
+P04222_P43632	19858347	0	1	1	1	1	yes	yes		Luana			yes
+P30504_P43632	19858347	0	1	1	1	1	yes	yes		Luana			'
+O95786_Q13114	19893624	0	1	1	1	0	yes	no		Luana			no
+O95786_Q7Z434	19893624	0	1	1	1	0	yes	no		Luana			no
+O95786_Q9BYX4	19893624	0	1	1	1	0	yes	no		Luana			no
+Q13114_Q7Z434	19893624	0	1	1	1	0	yes	yes		Luana			no
+O00206_Q9Y2C9	20037584	0	1	1	1	1	yes	yes		Luana			Yes-DIP have this in progress
+P28482_Q9H8Y8	20083603	0	1	1	1	0	yes	no		Luana			no
+Q86V81_Q9UBU9	20129943	0	1	1	1	0	yes	yes		Luana	taxid ref not specified		no
+P01111_P01116	20141835	0	1	1	1	0	yes	no		Luana			yes
+P01111_P15056	20141835	0	1	1	1	0	yes	no		Luana			yes
+P01116_P15056	20141835	0	1	1	1	0	yes	no		Luana			yes
+P15056_Q8IVT5	20141835	0	1	1	1	0	yes	no		Luana			yes
+P20585_P43246	20154325	0	1	1	1	0	no	no		Luana	wrong PMID		no
+P20585_P43246	20160730	0	1	1	1	0	no	no		Luana			no
+P43246_P52701	20160730	0	1	1	1	0	no	no		Luana			no
+P63165_Q9UBE0	20164921	0	1	1	1	0	yes	no		Luana			no
+P01130_Q5SW96	20231386	0	1	1	1	0	yes	yes		Luana	COLOCALIZATION		no
+P09038_P11362	20421966	0	1	1	1	0	yes	no		Luana			no
+O43187_P51617	20485341	0	1	1	1	0	yes	no		Luana			no
+P51617_Q9NWZ3	20485341	0	1	1	1	0	yes	no		Luana			no
+O15066_Q9P2E2	20526328	0	1	1	1	0	yes	no		Luana			no
+Q9P2E2_Q9Y496	20526328	0	1	1	1	0	yes	no		Luana			no
+Q03468_Q13216	20541997	0	1	1	1	0	no	no		Luana	WRONG PMID		no
+P49450_Q03188	20566683	0	1	1	1	0	no	no		Luana			no
+P49450_Q96BT3	20566683	0	1	1	1	0	no	no		Luana			no
+P49450_Q96H22	20566683	0	1	1	1	0	no	no		Luana			no
+P49450_Q9H3R5	20566683	0	1	1	1	0	no	no		Luana			no
+P49450_Q9NSP4	20566683	0	1	1	1	0	no	no		Luana			no
+Q03188_Q96H22	20566683	0	1	1	1	0	no	no		Luana			no
+O15519_Q13158	20696707	0	1	1	1	0	no	no		Luana			no
+Q13158_Q14790	20696707	0	1	1	1	0	no	no		Luana			no
+Q14457_Q6ZNE5	20713597	0	1	1	1	0	yes	yes		Luana			no
+Q14457_Q8NEB9	20713597	0	1	1	1	0	yes	no		Luana			no
+Q6ZNE5_Q8NEB9	20713597	0	1	1	1	0	yes	no		Luana			no
+Q9UBC3_Q9UJW3	20838592	0	1	1	1	0	no	no		Luana			no
+Q9UJW3_Q9Y6K1	20838592	0	1	1	1	0	no	no		Luana			no
+Q9UJW3_Q9Y6K1	20841325	0	1	1	1	0	no	no		Luana			no
+P51587_Q06609	20871616	0	1	1	1	0	yes	no		Luana			
+P51587_Q86YC2	20871616	0	1	1	1	0	yes	no		Luana			
+P63167_Q9C0C7	20921139	0	1	1	1	0	yes	yes		Luana			
+Q8NEB9_Q9C0C7	20921139	0	1	1	1	0	yes	no		Luana			
+Q4VCS5_Q9GZV5	21224387	0	1	1	1	0	yes	yes		Luana			
+P23025_P28715	21282463	0	1	1	1	0	no	no		Luana			
+P28715_Q92889	21282463	0	1	1	1	0	no	no		Luana			
+P63165_Q13569	21284855	0	1	1	1	0	yes	yes		Luana			
+O76064_Q12888	21293379	0	1	1	1	0	yes	no		Luana			
+P16104_Q12888	21293379	0	1	1	1	0	yes	no		Luana			
+P16104_Q14676	21293379	0	1	1	1	0	yes	no		Luana			
+P62805_Q12888	21293379	0	1	1	1	0	yes	no		Luana			
+Q12888_Q14676	21293379	0	1	1	1	0	yes	no		Luana			
+Q9H1K1_Q9Y697	21298097	0	1	1	1	0	yes	yes		Luana	CoIP with other proteins		
+P62158_Q13576	21299499	0	1	1	1	0	yes	yes		Luana			
+P62158_Q86VI3	21299499	0	1	1	1	0	yes	yes		Luana			
+P05549_P63279	21375726	0	1	1	1	0	no	no		Luana			
+Q9UBC3_Q9UJW3	21378119	0	1	1	1	0	yes	yes		Luana			
+P48995_Q13586	21408196	0	1	1	1	0	yes	yes		Luana			
+O00401_Q05193	21445324	0	1	1	1	0	no	no		Luana	Most of the proteins are mentioned/detected in the paper but not as pairs		
+O00401_Q15642	21445324	0	1	1	1	0	no	no		Luana			
+O00401_Q96RU3	21445324	0	1	1	1	0	no	no		Luana			
+O00499_O15056	21445324	0	1	1	1	0	no	no		Luana			
+O00499_Q9UNF0	21445324	0	1	1	1	0	no	no		Luana			
+O00499_Q9Y5X1	21445324	0	1	1	1	0	no	no		Luana			
+O15056_Q99961	21445324	0	1	1	1	0	no	no		Luana			
+Q05193_Q9UNF0	21445324	0	1	1	1	0	no	no		Luana			
+Q05193_Q9Y5X1	21445324	0	1	1	1	0	no	no		Luana			
+Q15642_Q9UNF0	21445324	0	1	1	1	0	no	no		Luana			
+Q15642_Q9Y5X1	21445324	0	1	1	1	0	no	no		Luana			
+Q96RU3_Q9UNF0	21445324	0	1	1	1	0	no	no		Luana			
+Q96RU3_Q9Y5X1	21445324	0	1	1	1	0	no	no		Luana			
+Q99961_Q9UNF0	21445324	0	1	1	1	0	no	no		Luana			
+Q99961_Q9Y5X1	21445324	0	1	1	1	0	no	no		Luana			
+Q13535_Q9HAW4	21680713	0	1	1	1	0	yes	no		Simona			no
+P25098_P48729	21695114	0	1	1	1	0	yes	no		Simona			no
+O15455_Q13158	21737330	0	1	1	1	0	yes	no		Simona	tlr3 activates the pathway, but is not shown the binding to fadd		no
+O15455_Q13546	21737330	0	1	1	1	0	yes	no		Simona	tlr3 activates the pathway, but is not shown the binding to Rip		no
+O15455_Q8IUC6	21737330	0	1	1	1	0	yes	no		Simona	tlr3 activates the pathway, but is not shown the binding to ticam		no
+O15519_Q13158	21737330	0	1	1	1	0	yes	yes		Simona	IP complex		yes
+O15519_Q13546	21737330	0	1	1	1	0	yes	yes		Simona	IP complex		yes
+O15519_Q14790	21737330	0	1	1	1	0	yes	yes		Simona	IP complex		yes
+Q13158_Q13546	21737330	0	1	1	1	0	yes	yes		Simona	IP complex		yes
+Q13158_Q14790	21737330	0	1	1	1	0	yes	yes		Simona	IP complex		yes
+Q13546_Q14790	21737330	0	1	1	1	0	yes	yes		Simona	IP complex		yes
+Q13546_Q9Y572	21737330	0	1	1	1	0	yes	no		Simona			yes
+Q14790_Q8IUC6	21737330	0	1	1	1	0	yes	yes		Simona	IP complex		no
+P06748_P49450	21768289	0	1	1	1	0	yes	yes	Yes	Simona	Nucleosome reconstitution. Proteins are added but it is not verified if they are in the complex (fig5)		yes
+P49450_Q8NCD3	21768289	0	1	1	1	0	yes	yes	Yes	Simona			yes
+P49450_Q96H22	21768289	0	1	1	1	0	yes	no		Simona			no
+O15169_O95271	21799911	0	1	1	1	0	yes	yes		Simona			no
+P00519_P43351	21804533	0	1	1	1	0	yes	no		Simona	It is an in vitro kinase assay in suppl mat , pair is correct but abl is murine not human		no
+O14662_O75379	21807881	0	1	1	1	0	yes	yes		Simona	IP fig4D		no
+O43752_O75379	21807881	0	1	1	1	0	yes	yes		Simona	IP fig4D		yes
+O95999_Q9UDY8	21966355	0	1	1	1	0	no	no		Simona			yes
+Q56NI9_Q9UQE7	22101327	0	1	1	1	0	no	no		Simona			no
+Q5FWF5_Q9UQE7	22101327	0	1	1	1	0	no	no		Simona			no
+O75400_P09012	22110043	0	1	1	1	0	yes	yes		Simona	the two proteins are part of a big complex (table 1: IP/ MS exp)		no
+P63027_Q9BV40	22118466	0	1	1	1	0	yes	no		Simona	the 3 proteins bind to Calm but in separate assays. The paper focuses on  the binding  of Calm with Vamp8		no
+Q15836_Q9BV40	22118466	0	1	1	1	0	yes	no		Simona	the 3 proteins bind to Calm but in separate assays. The paper focuses on  the binding  of Calm with Vamp9		no
+O15455_Q9H1C4	22164301	0	1	1	1	0	yes	yes		Simona			no
+Q9H1C4_Q9NR96	22164301	0	1	1	1	0	yes	no		Simona	this interaction is not shown in this paper		yes
+Q9H1C4_Q9NR97	22164301	0	1	1	1	1	yes	no		Luana			
+Q9H1C4_Q9NYK1	22164301	0	1	1	1	0	yes	no		Simona	this interaction is not shown in this paper		no
+P01375_P19438	22179575	0	1	1	1	0	yes	no		Luana			
+P01375_Q12933	22179575	0	1	1	1	0	yes	no		Luana			
+P01375_Q13546	22179575	0	1	1	1	0	yes	no		Luana			
+P19438_Q12933	22179575	0	1	1	1	0	yes	yes		Luana			
+P19438_Q13546	22179575	0	1	1	1	0	yes	yes		Luana			
+Q12933_Q13546	22179575	0	1	1	1	0	yes	yes		Luana	CoIP with other proteins		
+Q8IZL8_Q9H4L4	22190735	0	1	1	1	0	yes	yes		Luana	CoIP with other proteins		
+Q8IZL8_Q9Y4W2	22190735	0	1	1	1	0	yes	yes		Luana	CoIP with other proteins		
+Q9H4L4_Q9Y4W2	22190735	0	1	1	1	0	yes	yes		Luana	CoIP with other proteins		
+O60934_Q13315	22231403	0	1	1	1	0	yes	no		Luana			
+O60934_Q99708	22231403	0	1	1	1	0	yes	no		Luana			
+P20248_P24941	22231403	0	1	1	1	0	yes	yes		Luana	endogenous mouse proteins; HA-cdk2 taxid not specified		
+P24941_Q99708	22231403	0	1	1	1	0	yes	yes		Luana	HA-cdk2 taxid not specified, CoIP with other proteins		
+O60934_Q13315	22234877	0	1	1	1	0	yes	no		Luana			
+P16104_Q13315	22234877	0	1	1	1	0	yes	no		Luana			
+P16104_Q14676	22234877	0	1	1	1	0	yes	no		Luana			
+Q13315_Q14676	22234877	0	1	1	1	0	yes	yes	Yes	Luana	MDC1-SMT3 chimeric protein		
+O15287_Q9BXW9	22287633	0	1	1	1	0	no	no		Luana	Only In vitro ubiquitylation assay		
+O15287_Q9NVI1	22287633	0	1	1	1	0	no	no		Luana	Only In vitro ubiquitylation assay		
+O15360_Q9BXW9	22287633	0	1	1	1	0	no	no		Luana	Only In vitro ubiquitylation assay		
+O15360_Q9NVI1	22287633	0	1	1	1	0	no	no		Luana	Only In vitro ubiquitylation assay		
+O15360_Q9NW38	22287633	0	1	1	1	0	no	no		Luana	Only In vitro ubiquitylation assay		
+Q00597_Q9BXW9	22287633	0	1	1	1	0	no	no		Luana	Only In vitro ubiquitylation assay		
+Q8IYD8_Q9BXW9	22287633	0	1	1	1	0	no	no		Luana	Only In vitro ubiquitylation assay		
+Q9BXW9_Q9HB96	22287633	0	1	1	1	0	no	no		Luana	Only In vitro ubiquitylation assay		
+Q9BXW9_Q9NPI8	22287633	0	1	1	1	0	no	no		Luana	Only In vitro ubiquitylation assay		
+Q9BXW9_Q9NVI1	22287633	0	1	1	1	0	no	no		Luana	Only In vitro ubiquitylation assay		
+Q9BXW9_Q9NW38	22287633	0	1	1	1	0	no	no		Luana	Only In vitro ubiquitylation assay		
+Q9HB96_Q9NVI1	22287633	0	1	1	1	0	no	no		Luana	Only In vitro ubiquitylation assay		
+Q9NPD8_Q9NVI1	22287633	0	1	1	1	0	no	no		Luana	Only In vitro ubiquitylation assay		
+P01375_P19438	22297296	0	1	1	1	0	yes	no		Luana			
+P01375_Q13546	22297296	0	1	1	1	0	yes	no		Luana			
+P01375_Q15628	22297296	0	1	1	1	0	yes	no		Luana			
+P01375_Q9NQC7	22297296	0	1	1	1	0	yes	no		Luana			
+P19438_Q13546	22297296	0	1	1	1	0	yes	no		Luana			
+P19438_Q15628	22297296	0	1	1	1	0	yes	yes		Luana			
+Q13546_Q9NQC7	22297296	0	1	1	1	0	yes	no		Luana			
+P26358_Q96T88	22348533	0	1	1	1	0	no	yes		Luana	Chromatin immunoprecipitation experiment		
+P54619_P54646	22363791	0	1	1	1	0	yes	no		Luana			
+P54619_Q9Y478	22363791	0	1	1	1	0	yes	yes		Luana			
+P20226_P49848	22441827	0	1	1	1	0	yes	no		Simona	All these proteins form a well known complex but in the article ChIP experiments show the interaction of each with the gene 		yes
+P20226_Q15543	22441827	0	1	1	1	0	yes	no		Simona	All these proteins form a well known complex but in the article ChIP experiments show the interaction of each with the gene 		no
+P20226_Q15544	22441827	0	1	1	1	0	yes	no		Simona	All these proteins form a well known complex but in the article ChIP experiments show the interaction of each with the gene 		yes
+P20226_Q16594	22441827	0	1	1	1	0	yes	no		Simona	All these proteins form a well known complex but in the article ChIP experiments show the interaction of each with the gene 		yes
+P20226_Q7Z7C8	22441827	0	1	1	1	0	yes	no		Simona	All these proteins form a well known complex but in the article ChIP experiments show the interaction of each with the gene 		no
+P49848_Q15542	22441827	0	1	1	1	0	yes	no		Simona	All these proteins form a well known complex but in the article ChIP experiments show the interaction of each with the gene 		no
+Q15542_Q15543	22441827	0	1	1	1	0	yes	no		Simona	All these proteins form a well known complex but in the article ChIP experiments show the interaction of each with the gene 		no
+Q15542_Q15544	22441827	0	1	1	1	0	yes	no		Simona	All these proteins form a well known complex but in the article ChIP experiments show the interaction of each with the gene 		no
+Q15542_Q16594	22441827	0	1	1	1	0	yes	no		Simona	All these proteins form a well known complex but in the article ChIP experiments show the interaction of each with the gene 		no
+Q15542_Q7Z7C8	22441827	0	1	1	1	0	yes	no		Simona	All these proteins form a well known complex but in the article ChIP experiments show the interaction of each with the gene 		no
+P01375_P78536	22479555	0	1	1	1	0	yes	no	Yes	Simona	the pair is correct and well-known but it is not direclty demonstrated in the pmid (in vivo use of inhibitors)		no
+O00206_P05109	22489132	0	1	1	1	0	no	yes		Simona	the pair is correct but the pmid  is a review		no
+P05109_P06702	22489132	0	1	1	1	0	no	yes		Simona	the pair is correct but the pmid  is a review		yes
+P78527_Q13426	22.529.269,00	0	1	1	1	0	yes	yes		Simona	Both interacts with Q96SD1 in a complex		yes
+P15692_P35968	22689825	0	1	1	1	0	yes	no		Luana			
+P35968_Q9NP31	22689825	0	1	1	1	0	yes	yes		Luana			
+P31151_Q86SG5	22747601	0	1	1	1	1	yes	no		Luana	 2 homo-dimers but the 2 proteins are crystallized separately 		
+P01130_Q8NBP7	22764087	0	1	1	1	0	yes	no		Luana	Only a CoIP with Ubiquitin		
+P38398_Q99708	22792074	0	1	1	1	0	yes	no		Luana			
+P38398_Q9BX63	22792074	0	1	1	1	0	yes	yes		Luana			
+P54132_Q9BX63	22792074	0	1	1	1	0	yes	no		Luana			
+Q16659_Q8IW41	22800433	0	1	1	1	0	no	no		Luana	it's a review		
+P01375_Q13546	22848449	0	1	1	1	0	yes	no		Luana			
+P01375_Q9NQC7	22848449	0	1	1	1	0	yes	no		Luana			
+P19438_Q12933	22848449	0	1	1	1	0	yes	no		Luana			
+P19438_Q13546	22848449	0	1	1	1	0	yes	yes		Luana			
+Q12933_Q13546	22848449	0	1	1	1	0	yes	no		Luana			
+Q13546_Q9NQC7	22848449	0	1	1	1	0	yes	yes		Luana	In the supplementary figures		
+P04628_Q9H237	22888000	0	1	1	1	1	no			Luana	It is a review		
+P56704_Q9H237	22888000	0	1	1	1	1	no			Luana			
+P15927_P27694	22977173	0	1	1	1	0	yes	yes		Luana			
+P15927_P35244	22977173	0	1	1	1	0	yes	yes		Luana			
+P15927_P49959	22977173	0	1	1	1	0	yes	no		Luana			
+P15927_Q13315	22977173	0	1	1	1	0	yes	yes		Luana			
+P15927_Q13535	22977173	0	1	1	1	0	yes	no		Luana			
+Q13315_Q13535	22977173	0	1	1	1	0	yes	no		Luana			
+P06493_P20700	22986494	0	1	1	1	0	no	no		Luana			
+P09874_Q16531	23045548	0	1	1	1	0	yes	yes		Luana			
+P09874_Q92466	23045548	0	1	1	1	0	yes	yes		Luana			
+P23025_Q01831	23045548	0	1	1	1	0	yes	no		Luana			
+P62877_Q92466	23045548	0	1	1	1	0	yes	no		Luana			
+Q01831_Q16531	23045548	0	1	1	1	0	yes	no		Luana			
+Q01831_Q92466	23045548	0	1	1	1	0	yes	no		Luana			
+Q13619_Q92466	23045548	0	1	1	1	0	yes	yes		Luana			
+Q16531_Q92466	23045548	0	1	1	1	0	yes	yes		Luana			
+Q09161_Q13838	23222130	0	1	1	1	0	yes	no		Luana			
+A5YKK6_P78543	23236473	0	1	1	1	0	yes	no		Luana	protein taxids not specified		
+O75175_P78543	23236473	0	1	1	1	0	yes	no		Luana	protein taxids not specified		
+P78543_Q9UFF9	23236473	0	1	1	1	0	yes	yes		Luana	protein taxids not specified		
+P78543_Q9UIV1	23236473	0	1	1	1	0	yes	yes		Luana	protein taxids not specified		
+P12956_P78527	23251783	0	1	1	1	0	yes	yes		Luana	it is actually a cosedimentation after subcellular fractionation, interaction type colocalization.		
+P13010_P78527	23251783	0	1	1	1	0	yes	yes		Luana	it is actually a cosedimentation after subcellular fractionation, interaction type colocalization.		
+Q99816_Q9UK41	23305486	0	1	1	1	0	no	no		Luana	it's a review		
+O75530_Q9Y6K1	23326524	0	1	1	1	0	no	no		Luana			
+P26358_Q15910	23326524	0	1	1	1	0	no	no		Luana			
+Q15022_Q9Y6K1	23326524	0	1	1	1	0	no	no		Luana			
+O43303_Q8IW35	23400999	0	1	1	1	0	yes	no		Luana			
+O14662_Q13190	23462996	0	1	1	1	0	yes	no		Luana			
+Q13190_Q9H9E3	23462996	0	1	1	1	0	yes	yes		Luana			
+O60934_Q99708	23468639	0	1	1	1	0	yes	yes		Luana			
+Q13315_Q99708	23468639	0	1	1	1	0	yes	no		Luana			
+P62491_Q9ULH1	23567335	0	1	1	1	0	no	no		Luana	it's a review		
+P27361_P28482	23575685	0	1	1	1	0	yes	no		Luana			
+P28482_Q15121	23575685	0	1	1	1	0	yes	yes		Luana			
+Q14457_Q6ZNE5	23685627	0	1	1	1	0	yes	yes		Luana	endogenous proteins from mouse / overexpressed proteins: species not indicated		
+Q14457_Q8NEB9	23685627	0	1	1	1	0	yes	yes		Luana			
+Q13535_Q8WXE1	23723247	0	1	1	1	0	yes	no		Luana			
+Q13535_Q9BXW9	23723247	0	1	1	1	0	yes	no		Luana			
+Q9BXW9_Q9NVI1	23723247	0	1	1	1	0	yes	no		Luana			
+P21912_P31040	23747254	0	1	1	1	0	yes	yes		Luana			
+P55854_Q6ZNA4	23751493	0	1	1	1	0	yes	no		Luana			
+P61956_Q6ZNA4	23751493	0	1	1	1	0	yes	yes		Luana			
+O15078_Q15154	23789104	0	1	1	1	0	yes	no		Luana			
+O75665_Q15154	23789104	0	1	1	1	0	yes	no		Luana			
+O43318_Q15750	23825189	0	1	1	1	0	yes	yes		Luana	In complex with other proteins		
+O43318_Q9UMW8	23825189	0	1	1	1	0	yes	yes		Luana			
+Q13099_Q9Y366	23945166	0	1	1	1	0	no	no		Luana	it's a review		
+Q8IY31_Q8TDR0	23945166	0	1	1	1	0	no	no		Luana	it's a review		
+Q8IY31_Q9NWB7	23945166	0	1	1	1	0	no	no		Luana	it's a review		
+O15078_O43303	24053599	0	1	1	1	0	no	no		Luana	it's a review		
+O15078_Q15051	24053599	0	1	1	1	0	no	no		Luana	it's a review		
+P28749_Q16254	24096481	0	1	1	1	0	no	no		Luana			
+Q08999_Q16254	24096481	0	1	1	1	0	no	no		Luana			
+P01375_Q13546	24098568	0	1	1	1	0	yes	no		 Luana			
+P01375_Q9NQC7	24098568	0	1	1	1	0	yes	no		Luana			
+Q13546_Q9NQC7	24098568	0	1	1	1	0	yes	no		Luana			
+O15315_O43542	24141787	0	1	1	1	0	yes	no		Luana			
+O15315_P51587	24141787	0	1	1	1	0	yes	no		Luana			
+O15315_Q06609	24141787	0	1	1	1	0	yes	no		Luana			
+O43542_O43543	24141787	0	1	1	1	0	yes	no		Luana			
+O43542_O75771	24141787	0	1	1	1	0	yes	no		Luana			
+O43542_Q06609	24141787	0	1	1	1	0	yes	no		Luana			
+O43543_P51587	24141787	0	1	1	1	0	yes	no		Luana			
+O43543_Q06609	24141787	0	1	1	1	0	yes	no		Luana			
+O75771_Q06609	24141787	0	1	1	1	0	yes	no		Luana			
+P38398_Q86YC2	24141787	0	1	1	1	0	yes	no		Luana			
+P51587_Q06609	24141787	0	1	1	1	0	yes	no		Luana			
+P25942_Q99558	24298274	0	1	1	1	0	no	no		Luana	It's a review		
+Q13114_Q99558	24298274	0	1	1	1	0	no	no		Luana	It's a review		
+P54132_Q96NY9	24371268	0	1	1	1	0	yes	no		Luana			
+Q9BXW9_Q9NW38	24389026	0	1	1	1	0	yes	no		Luana			
+Q96RJ3_Q9Y275	24432023	0	1	1	1	1	no			Luana	It is a review		
+Q9BXW9_Q9NVI1	24623813	0	1	1	1	0	no	no		Luana			
+Q9BXW9_Q9NW38	24623813	0	1	1	1	0	no	no		Luana			
+Q9NPD8_Q9NVI1	24623813	0	1	1	1	0	no	no		Luana			
+Q96EP0_Q9BYM8	24726323	0	1	1	1	0	yes	yes		Luana	CoIP with other proteins		
+Q96EP0_Q9H0F6	24726323	0	1	1	1	0	yes	yes		Luana	CoIP with other proteins		
+Q9BYM8_Q9H0F6	24726323	0	1	1	1	0	yes	yes		Luana	CoIP with other proteins		
+O15287_Q9BXW9	24905007	0	1	1	1	0	yes	no		Luana			
+O15360_Q8IYD8	24905007	0	1	1	1	0	yes	yes		Luana	Part of FA Core Complex; all chicken proteins; Suitable for ComplexPortal		
+O15360_Q9BXW9	24905007	0	1	1	1	0	yes	no		Luana			
+Q00597_Q8NB91	24905007	0	1	1	1	0	yes	yes		Luana	Part of FA Core Complex; all chicken proteins; Suitable for ComplexPortal		
+Q00597_Q9BXW9	24905007	0	1	1	1	0	yes	no		Luana			
+Q00597_Q9HB96	24905007	0	1	1	1	0	yes	yes		Luana	Part of FA Core Complex; all chicken proteins; Suitable for ComplexPortal		
+Q00597_Q9NW38	24905007	0	1	1	1	0	yes	yes		Luana	Part of FA Core Complex; all chicken proteins; Suitable for ComplexPortal		
+Q8IYD8_Q9BXW9	24905007	0	1	1	1	0	yes	no		Luana			
+Q9BXW9_Q9HB96	24905007	0	1	1	1	0	yes	no		Luana			
+Q9BXW9_Q9NVI1	24905007	0	1	1	1	0	yes	no		Luana			
+Q9BXW9_Q9NW38	24905007	0	1	1	1	0	yes	no		Luana			
+Q9HB96_Q9NW38	24905007	0	1	1	1	0	yes	yes		Luana	Part of FA Core Complex; all chicken proteins; Suitable for ComplexPortal		
+P00533_P04626	25081058	0	1	1	1	0	yes	yes		Mgt	There are 21 interactions in IntAct;Miscore =0.95		
+P00533_Q99952	25081058	0	1	1	1	0	yes	no		Mgt			
+P04626_Q99952	25081058	0	1	1	1	0	yes	yes		Mgt		Yes	Yes
+O43426_Q9Y5X1	25107275	0	1	1	1	0	yes	no		Mgt			
+Q96RF0_Q9Y5X1	25107275	0	1	1	1	0	yes	no		Mgt			
+P23025_Q01831	25154395	0	1	1	1	0	yes	no		Mgt			
+Q01831_Q16531	25154395	0	1	1	1	0	yes	no		Mgt			
+Q01831_Q92466	25154395	0	1	1	1	0	yes	no		Mgt			
+P01160_P16066	25202235	0	1	1	1	0	no			Mgt	It is a review		
+O43264_Q6NUQ1	25364732	0	1	1	1	0	no			Mgt	It is a review		
+Q15633_Q9UKV8	25793518	0	1	1	1	0	yes	no		Mgt			
+P56945_Q13882	25938342	0	1	1	1	0	no			Mgt			
+P55854_P63165	26042670	0	1	1	1	0	yes	no		Mgt			
+P61956_P63165	26042670	0	1	1	1	0	yes	no		Mgt			
+P62877_Q92466	26042670	0	1	1	1	0	yes	no		Mgt			
+Q01831_Q92466	26042670	0	1	1	1	0	yes	yes		Mgt	FRAP;mouse mCherry-DDB2		
+P23025_Q01831	26151477	0	1	1	1	0	yes	no		Mgt	in main body of paper -1 interaction only		
+P54727_Q01831	26151477	0	1	1	1	0	yes	no		Mgt	as above		
+P00533_Q13882	26751287	0	1	1	1	0	yes	no		Mgt			

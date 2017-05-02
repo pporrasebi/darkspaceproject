@@ -68,6 +68,9 @@ tm_long <- cSplit(tm_long_pt1, "upac_2", sep = ",", direction = "long")
 
 tm_long$upac_1 <- as.character(tm_long$upac_1)
 tm_long$upac_2 <- as.character(tm_long$upac_2)
+
+publs <- unique(tm_long$pmid)
+pairs <- unique(tm_long$pair_id)
 ```
 
 Now I generate the pair ids for the text-mined datset.
