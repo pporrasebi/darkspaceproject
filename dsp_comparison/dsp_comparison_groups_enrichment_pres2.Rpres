@@ -40,7 +40,7 @@ library(VennDiagram)
 
 ```{r results='hide'}
 imex_full <- fread("../IMEx/results/imex_full.txt", header=T, sep="\t",colClasses="character",data.table = T)
-imex_human <- unique(subset(imex_full,taxid_a=="9606" & taxid_b=="9606"))
+imex_human = imex_full[taxid_a == "9606" & taxid_b == "9606",]
 imex_human$imex <- 1
 imex_human_sel <- unique(select(imex_human,pair_id=pair_id_clean,pmid=pubid,imex))
 imex_pairs <- unique(select(imex_human,pair_id=pair_id_clean,imex))
@@ -766,7 +766,7 @@ type: sub-section
 
 ========================================================
 type: sub-section
-## 4 Fractions: IMEx- or BioGRIG curated interacting pairs
+## 4 Fractions: IMEx- or BioGRID curated interacting pairs
 the fraction of interacting pairs in a particular resource which are also in IMEx or BioGRID
 
 ```{r, fig.width = 17, fig.height= 6}
@@ -864,21 +864,35 @@ type: sub-section
 the fraction of interacting pairs in a particular group or a combination of groups which are also found in the interaction group (IMEx+BioGRID+GO IPI) 
 
 ```{r, fig.width = 12, fig.height= 6}
-combs_groups = c("Interactions","Pathways","Textmining","Predictions", "Pathways & Textmining", "Pathways & Predictions", "Textmining & Predictions", "Pathways & Textmining & Predictions")
-qplot(x = combs_groups, y = c(area1/area1, n12/area2, n13/area3, n14/area4, n123/n23, n124/n24, n134/n34, n1234/n234), geom = "point", ylab = "fraction of interacting pairs in IMEx", xlab = NULL) +
-        scale_y_continuous(breaks = seq(0,1,0.1))+
-        theme(text = element_text(size = 17),
-              axis.text.x = element_text(angle =-25, vjust = 0.6, size = 17), 
-              legend.position="none",
-              plot.margin = unit(c(1,2,1,1), "cm"))+
-        geom_bar(stat = "identity", aes(fill =combs_groups))+
-        geom_text(label = c("", 
-                            paste0(signif(n12,3)," /\n",signif(area2,3)), 
-                            paste0(signif(n13,3)," /\n",signif(area3,3)), 
-                            paste0(signif(n14,3)," /\n",signif(area4,3)),
-                            paste0(signif(n123,3)," /\n",signif(n23,3)),
-                            paste0(signif(n124,3)," /\n",signif(n24,3)),
-                            paste0(signif(n134,3)," /\n",signif(n34,3)),
-                            paste0(signif(n1234,3)," /\n",signif(n234,3))), vjust = -0.5)+
-        geom_text(label = signif(c(area1/area1, n12/area2, n13/area3, n14/area4, n123/n23, n124/n24, n134/n34, n1234/n234),3), vjust = 1.4)
+combs_groups = c("Pathways","Textmining","Predictions", "Pathways & Textmining", "Pathways & Predictions", "Textmining & Predictions", "Pathways & Textmining & Predictions")
+comp_final_dt <- data.table(group = combs_groups, 
+                            overlap = c(n12/area2, n13/area3, n14/area4, n123/n23, n124/n24, n134/n34, n1234/n234),
+                            label = c(paste0(signif(n12,3)," /\n",signif(area2,3)), 
+                                      paste0(signif(n13,3)," /\n",signif(area3,3)), 
+                                      paste0(signif(n14,3)," /\n",signif(area4,3)),
+                                      paste0(signif(n123,3)," /\n",signif(n23,3)),
+                                      paste0(signif(n124,3)," /\n",signif(n24,3)),
+                                      paste0(signif(n134,3)," /\n",signif(n34,3)),
+                                      paste0(signif(n1234,3)," /\n",signif(n234,3))),
+                            sort = c(3,1,2,6,4,5,7),
+                            col = c("slategray1","slategray1","slategray1","skyblue2","skyblue2","skyblue2","skyblue4"))
+
+
+g <- ggplot(comp_final_dt,aes(x=reorder(group,sort),y=overlap,fill=col))
+g <- g + geom_bar(stat="identity")
+g <- g + guides(fill=FALSE)
+g <- g + ylab("fraction of interacting pairs in IMEx")
+g <- g + scale_fill_manual(values=c("skyblue2","skyblue4","slategray1"))
+g <- g + geom_text(label = comp_final_dt$label, vjust = -0.5)+
+        geom_text(label = signif(c(n12/area2, n13/area3, n14/area4, n123/n23, n124/n24, n134/n34, n1234/n234),3), vjust = 1.4)
+g <- g + ylim(0, 1)
+g <- g + theme(plot.title = element_text(),
+                 panel.grid.major = element_blank(),
+                 panel.grid.minor = element_blank(),
+                 panel.background = element_blank(),
+                 axis.text.y = element_text(size=12),
+                 axis.text.x = element_text(size=12,angle =-45, vjust = 0.6),
+                 axis.title.y = element_text(size=12),
+               axis.title.x = element_blank())
+g
 ```

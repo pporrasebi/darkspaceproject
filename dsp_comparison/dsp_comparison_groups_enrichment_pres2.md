@@ -46,11 +46,11 @@ Other datasets included in the analysis
 
 
 
- - BioGRID dataset: contains 221403 protein associations recorded in 25307 publications.
+ - BioGRID dataset: contains 199566 protein associations recorded in 24241 publications.
 
 
 
- - GO IPI dataset: contains 10215 protein associations recorded in 5459 publications.
+ - GO IPI dataset: contains 8321 protein associations recorded in 4648 publications.
  
 
 
@@ -70,7 +70,7 @@ Part 1: Comparison dataset at the pair level
 ========================================================
 
 
-The comparison dataset gives a total number of 1955991 potentially interacting pairs, of which 1814729 (92.78%) are not curated in IMEx. 
+The comparison dataset gives a total number of 1932420 potentially interacting pairs, of which 1791158 (92.69%) are not curated in IMEx. 
 The dataset can be accessed: https://github.com/vitkl/darkspaceproject/blob/master/dsp_comparison/results/comp_table_final.txt.gz 
 
 Overlaps at the pair level, summary:
@@ -83,7 +83,7 @@ Part 2: Comparison dataset at the publication level
 
 
 
-The comparison set gives a total number of 140750 publications, of which 131929 (93.73%) are not curated in IMEx. 
+The comparison set gives a total number of 139528 publications, of which 130707 (93.68%) are not curated in IMEx. 
 The dataset can be accessed: https://github.com/vitkl/darkspaceproject/blob/master/dsp_comparison/results/pubcomp_table_final.txt.gz 
 
 Overlaps at the publication level, summary:
@@ -95,7 +95,7 @@ Part 3: Generating comparison dataset at the pair level taking the publication i
 
 
 
-The comparison set gives a total number of 1839273 protein association pairs, of which 1678215 (91.24%) are not curated in IMEx. In all these pairs the publication from which they were derived was also matched, so the overlaps and numbers differ from previous comparisons. 
+The comparison set gives a total number of 1814260 protein association pairs, of which 1653202 (91.12%) are not curated in IMEx. In all these pairs the publication from which they were derived was also matched, so the overlaps and numbers differ from previous comparisons. 
 The dataset can be accessed: https://github.com/vitkl/darkspaceproject/blob/master/dsp_comparison/results/pubpaircomp_table_final.txt.tar.gz 
 
 Part 4: Comparing groups of resources
@@ -169,9 +169,9 @@ As compared to NCBI gene to pubmed ID dataset (hypergeometric test, p-values):
 
 ```
          imex      reactome       tm_epmc          EVEX       BioGRID 
- 0.000000e+00 6.037449e-111  1.000000e+00 5.471301e-282  0.000000e+00 
+ 0.000000e+00 2.903774e-111  1.000000e+00 8.282276e-284  0.000000e+00 
        GO_IPI      OmniPath 
- 0.000000e+00 3.735250e-133 
+ 0.000000e+00 1.164286e-133 
 ```
 
 ========================================================
@@ -181,9 +181,9 @@ As compared to the union of all resources in this comparison (hypergeometric tes
 
 ```
          imex      reactome       tm_epmc          EVEX       BioGRID 
- 0.000000e+00  2.676737e-09  1.000000e+00  1.000000e+00  0.000000e+00 
+ 0.000000e+00  5.906680e-09  1.000000e+00  1.000000e+00  0.000000e+00 
        GO_IPI      OmniPath 
-6.311952e-210  4.839113e-01 
+1.375505e-224  5.643808e-01 
 ```
 
 
@@ -196,7 +196,7 @@ As compared to NCBI gene to pubmed ID dataset (hypergeometric test, p-values):
 
 ```
          imex      reactome       tm_epmc          EVEX       BioGRID 
- 0.000000e+00 5.730489e-168  1.000000e+00  0.000000e+00  0.000000e+00 
+ 0.000000e+00 2.059229e-165  1.000000e+00  0.000000e+00  0.000000e+00 
        GO_IPI      OmniPath 
  0.000000e+00  0.000000e+00 
 ```
@@ -215,7 +215,7 @@ type: sub-section
 
 ========================================================
 type: sub-section
-## 4 Fractions: IMEx- or BioGRIG curated interacting pairs
+## 4 Fractions: IMEx- or BioGRID curated interacting pairs
 the fraction of interacting pairs in a particular resource which are also in IMEx or BioGRID
 
 ![plot of chunk unnamed-chunk-16](dsp_comparison_groups_enrichment_pres2-figure/unnamed-chunk-16-1.png)
