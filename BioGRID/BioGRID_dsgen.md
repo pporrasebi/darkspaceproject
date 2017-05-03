@@ -5,7 +5,7 @@ BioGRID dataset generator
 
 
 
-I download the latest version of the BioGRID data from mentha website. I have tried using PSICQUIC, however, downloading whole mentha using PSICQUIC takes too much time. Now, however, the link should be updated manually to get the latest mentha release. Current file was downloaded on Thu Apr 20 17:26:57 2017. 
+I download the latest version of the BioGRID data from mentha website. I have tried using PSICQUIC, however, downloading whole mentha using PSICQUIC takes too much time. Now, however, the link should be updated manually to get the latest mentha release. Current file was downloaded on Mon Apr 24 09:54:53 2017. 
 
 
 ```r
@@ -31,10 +31,10 @@ mentha = fread("./source_files/2017-02-27_MITAB-2.5", header = F, sep = "\t", co
 
 ```
 ## 
-Read 39.8% of 1105301 rows
-Read 72.4% of 1105301 rows
-Read 93.2% of 1105301 rows
-Read 1105301 rows and 15 (of 15) columns from 0.325 GB file in 00:00:05
+Read 30.8% of 1105301 rows
+Read 58.8% of 1105301 rows
+Read 84.1% of 1105301 rows
+Read 1105301 rows and 15 (of 15) columns from 0.325 GB file in 00:00:06
 ```
 
 ```r
@@ -65,13 +65,13 @@ Saving a table of interacting pairs, publication IDs and BioGRID tag. Selecting 
 
 ```r
 biogrid_from_mentha = fread("./processed_files/biogrid_pairs.txt", header = T, sep = "\t", colClasses = "character")
-biogrid_from_mentha_human = biogrid_from_mentha[taxid_a == "9606" | taxid_b == "9606",]
+biogrid_from_mentha_human = biogrid_from_mentha[taxid_a == "9606" & taxid_b == "9606",]
 fwrite(x = unique(biogrid_from_mentha_human[, .(pair_id_clean, pubid, biogrid = rep(1, .N))]), 
        file = "./results/pairs_pmids_biogrid.txt", sep = "\t")
 N_biogrid = length(biogrid_from_mentha_human[,unique(pair_id_clean)])
 ```
 
-The BioGRID dataset contains 221403 human interacting pairs. 
+The BioGRID dataset contains 199566 human interacting pairs. 
 
 Files in the /processed_files/ contain interactions for all species.
 Files in the /results/ contain interactions for human only.
@@ -85,7 +85,7 @@ biogrid_pmids <- data.frame(unique(biogrid_from_mentha_human$pubid))
 write.table(biogrid_pmids, "./results/biogrid_pmids.txt", quote=F, sep ="\t", row.names = F, col.names = T)
 ```
 
-25307 publications (human) are curated into BioGRID database. 
+24241 publications (human) are curated into BioGRID database. 
 
 #### Compare human BioGRID interactions and publications to IMEx 
 
@@ -94,7 +94,8 @@ I calculate how many interactions in BioGRID match to IMEx.
 
 ```r
 imex = fread("https://raw.githubusercontent.com/pporrasebi/darkspaceproject/master/IMEx/results/imex_full.txt", header = T, sep = "\t", colClasses = "character")
-imex_human = imex[taxid_a == "9606" | taxid_b == "9606",]
+
+imex_human = imex[taxid_a == "9606" & taxid_b == "9606",]
 N_imex = length(imex_human[, unique(pair_id_clean)])
 N_biogrid = length(biogrid_from_mentha_human[,unique(pair_id_clean)])
 N_overlap = sum(!is.na(match(biogrid_from_mentha_human[,unique(pair_id_clean)], imex_human[, unique(pair_id_clean)])))

@@ -1,0 +1,102 @@
+pmid	imex	reactome	tm_epmc	iid_pred	noncur_prot	Contains interactions?	Interacting proteins	Curator	Comments
+21092115	0	0	1	1	0	no		Pablo	
+26900403	0	0	1	0	1	no		Pablo	
+23029326	0	0	1	0	0	no		Pablo	
+24599309	0	0	1	0	0	no		Pablo	
+16260491	0	0	1	0	1	no		Pablo	
+25489419	0	0	1	0	0	no		Pablo	
+27308325	0	0	1	0	0	no		Pablo	review
+20139419	0	0	1	0	1	no		Pablo	
+21559420	0	0	1	0	0	no		Pablo	
+23870279	0	0	1	1	0	no		Pablo	
+24944773	0	0	1	1	0	no		Pablo	
+19642985	0	0	1	0	0	no		Pablo	
+26273588	0	0	1	1	0	no		Pablo	review
+20931347	0	0	1	0	0	no		Pablo	
+20085636	0	0	1	1	0	no		Pablo	
+23690665	0	0	1	0	0	no		Pablo	
+26506385	0	0	1	0	0	no		Pablo	
+22110701	0	0	1	1	1	no		Pablo	
+27274237	0	0	1	0	0	no		Pablo	
+20603627	0	0	1	1	0	no		Pablo	
+22272000	0	0	1	0	0	no		Pablo	
+26648539	0	0	1	0	0	no		Pablo	
+23978163	0	0	1	1	0	no		Pablo	
+20046643	0	0	1	0	1	no		Pablo	
+20433758	0	0	1	0	0	no		Pablo	
+22295098	0	0	1	1	0	no		Pablo	
+25502816	0	0	1	0	1	no		Pablo	
+24911652	0	0	1	0	1	no		Pablo	
+15018649	0	0	1	0	1	no		Pablo	
+12438421	0	0	1	1	0	no		Pablo	retracted paper
+25313791	0	0	1	0	1	no		Pablo	
+25916467	0	0	1	0	0	no		Pablo	
+22682496	0	0	1	0	1	no		Pablo	
+24559316	0	0	1	0	0	no		Pablo	
+22130959	0	0	1	1	0	no		Pablo	
+24312311	0	0	1	0	1	no		Pablo	
+23737792	0	0	1	0	0	no		Pablo	
+24096827	0	0	1	1	0	no		Pablo	
+23852044	0	0	1	1	0	no		Pablo	
+23554628	0	0	1	1	0	no		Pablo	review
+24718026	0	0	1	1	0	no		Pablo	
+11581317	0	0	1	1	0	no		Pablo	
+19363483	0	0	1	0	0	no		Pablo	
+24286034	0	0	1	1	0	no		Pablo	review
+24894704	0	0	1	0	0	no		Pablo	
+25221777	0	0	1	1	0	no		Pablo	
+21630250	0	0	1	1	0	no		Pablo	
+26569409	0	0	1	1	0	no		Pablo	
+23994953	0	0	1	1	1	no		Pablo	
+25884811	0	0	1	0	0	no		Pablo	"pure bioinformatics paper
+"
+23324445	0	0	1	1	0	no		Pablo	meta-analysis
+26221561	0	0	1	0	0	no		Pablo	
+21167041	0	0	1	0	1	no		Pablo	
+22741534	0	0	1	0	0	no		Pablo	
+24124474	0	0	1	0	0	no		Pablo	text-mining paper
+26909338	0	0	1	0	0	no		Pablo	review
+25350109	0	0	1	0	0	no		Pablo	
+25144367	0	0	1	0	0	no		Pablo	
+26950245	0	0	1	0	1	no		Pablo	meta-analysis
+24782595	0	0	1	0	0	no		Pablo	
+14662745	0	0	1	1	0	no		Pablo	
+21203464	0	0	1	0	1	no		Pablo	
+22662165	0	0	1	1	0	no		Pablo	
+23408898	0	0	1	0	1	no		Pablo	genetic interactions
+20077143	0	0	1	0	0	no		Pablo	
+26675397	0	0	1	0	0	no		Pablo	
+22754427	0	0	1	1	0	no		Pablo	review
+22984550	0	0	1	1	1	no		Pablo	
+23565803	0	0	1	1	0	no		Pablo	
+23617958	0	0	1	1	0	no		Pablo	
+27057457	0	0	1	0	0	no		Pablo	
+19250527	0	0	1	0	0	no		Pablo	
+22379607	0	0	1	0	0	no		Pablo	
+26503331	0	0	1	0	0	no		Pablo	
+21533169	0	0	1	1	0	no		Pablo	
+27218071	0	0	1	0	0	no		Pablo	review
+27187477	0	0	1	0	0	no		Pablo	
+26129651	0	0	1	1	0	no		Pablo	
+20696699	0	0	1	0	1	no		Pablo	
+23825942	0	0	1	0	0	no		Pablo	
+22970174	0	0	1	1	0	no		Pablo	
+21423803	0	0	1	0	0	yes	P46527-P24941,P46527-P24941-P20248-P10412	Pablo	Interactors wrongly assigned, well known interaction reported. Use as example of mutation affecting one prey only in association and for curation of multiple features in a complex. Not curated yet because authors need to be contacted for species of constructs.
+25147208	0	0	1	0	0	yes	M1R6Y5-P32481,T2ESU9-Q04067-P32481,K7TU45-Q04067-P32481,M4MD31-Q04067-P32481,Q9Y6E2-P20042	Pablo	Interactors wrongly assigned
+19293931	0	0	1	0	0	yes		Pablo	
+8707857	0	0	1	1	0	yes		Pablo	not curated yet
+25652644	0	0	1	0	0	yes		Pablo	not curated yet, chip-seq data
+20660630	0	0	1	0	0	yes		Pablo	not curated yet
+26635974	0	0	1	1	0	yes		Pablo	not curated yet, enzymatic assay cytochrome
+24834072	0	0	1	1	0	yes		Pablo	not curated yet, sea urchin proteins
+25051175	0	0	1	0	0	yes		Pablo	not curated yet, chip data
+21478866	0	0	1	0	0	yes		Pablo	not curated yet
+17292838	0	0	1	0	0	yes		Pablo	not curated, small-molecule-protein interaction, no ppis
+23940460	0	0	1	0	1	yes		Pablo	not curated yet
+26186728	0	0	1	1	0	yes		Pablo	not curated yet
+25658767	0	0	1	0	0	yes		Pablo	not curated yet
+26068791	0	0	1	0	0	yes		Pablo	not curated yet
+9024699	0	0	1	1	0	yes		Pablo	not curated yet
+22723832	0	0	1	1	0	yes		Pablo	not curated yet, chip data
+24614595	0	0	1	0	0	yes		Pablo	not curated yet
+25889084	0	0	1	1	0	yes		Pablo	not curated yet, bax oligomerization assay
