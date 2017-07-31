@@ -1,0 +1,898 @@
+========================================================
+width: 1200
+height: 1000
+font-family: 'Helvetica', 'EBI-Species'
+## Comparison of protein association datasets and their enrichment in IMEx curated interactions
+## Estimating the size of the uncurated interactome
+
+author: Vitalii Kleshchevnikov, Pablo Porras  
+date: 12 April 2017
+
+========================================================
+
+The aim of this analysis is to compare publications and interacting pair datasets produced by a number of resources. These resources potentially indicate which protein-protein interactions have been reported but not curated in IMEx. Some of these resources also provide source papers describing the interaction.
+
+IMPORTANT: This script assumes that different referenced datasets have been freshly updated. If you need to update results of this set, please re-run the corresponding source as well.
+
+The following datasets are included in the analysis:
+
+```{r setup, include=FALSE}
+opts_chunk$set(cache=F, message=FALSE,warning=FALSE, echo=FALSE)
+```
+
+```{r libraries}
+# install packages if some are not already installed
+# packages = c("plyr","dplyr","data.table","UpSetR", "splitstackshape", "ggplot2", "shiny", "VennDiagram")
+# if(mean(packages %in% installed.packages()) != 1){
+#        install.packages(packages[!packages %in% installed.packages()])
+#}
+suppressPackageStartupMessages({
+library(plyr)
+library(dplyr)
+library(data.table)
+library(UpSetR)
+library(splitstackshape)
+library(ggplot2)
+library(shiny)
+library(VennDiagram)
+})
+```
+
+```{r results='hide'}
+imex_full <- fread("../IMEx/results/imex_full.txt", header=T, sep="\t",colClasses="character",data.table = T)
+imex_human = imex_full[taxid_a == "9606" & taxid_b == "9606",]
+imex_human$imex <- 1
+imex_human_sel <- unique(select(imex_human,pair_id=pair_id_clean,pmid=pubid,imex))
+imex_pairs <- unique(select(imex_human,pair_id=pair_id_clean,imex))
+imex_pmids <- unique(select(imex_human,pmid=pubid,imex))
+```
+
+ - IMEx dataset: contains `r nrow(imex_pairs)` interacting pair of proteins recorded in `r nrow(imex_pmids)` publications.
+ 
+```{r, results='hide', warning=FALSE,message=FALSE, echo=FALSE, cache = F}
+setwd("../reactome_interactions/results/")
+system("gunzip -k pairs_pmid_reactome.txt.gz")
+reactome_pairs_pmids <- fread("pairs_pmid_reactome.txt",header=T,sep="\t",colClasses=c("character","character","numeric"),data.table = T)
+system("rm pairs_pmid_reactome.txt")
+setwd("../../dsp_comparison/")
+
+reactome_pairs <- unique(select(reactome_pairs_pmids,pair_id,reactome))
+reactome_pmids <- unique(select(reactome_pairs_pmids,pmid,reactome))
+```
+
+ - Reactome dataset: contains `r nrow(reactome_pairs)` protein associations recorded in `r nrow(reactome_pmids)` publications. 
+ 
+```{r, fig.height=8, fig.width=8, results='hide'}
+setwd("../epmc_text_mining/results/")
+system("gunzip -k pairs_pmids_tm.txt.gz")
+tm_pairs_pmids <- fread("pairs_pmids_tm.txt",header=T,sep="\t",colClasses=c("character", "character","numeric","character"),data.table = T)
+system("rm pairs_pmids_tm.txt")
+setwd("../../dsp_comparison/")
+
+tm_pairs_pmids_sel <- unique(select(tm_pairs_pmids,pair_id,pmid,tm_epmc=tm))
+tm_pairs <- unique(select(tm_pairs_pmids,pair_id,tm_epmc=tm))
+tm_pmids <- unique(select(tm_pairs_pmids,pmid,tm_epmc=tm))
+```
+
+ - text-mining EPMC dataset contains `r nrow(tm_pairs)` protein associations recorded in `r nrow(tm_pmids)` publications.
+ 
+```{r results='hide'}
+iid_pred_pairs <- fread("../iid_predictions/results/pairs_iid_pred.txt",header=T,sep="\t",colClasses=c("character","numeric"),data.table=T)
+```
+
+ - IID-predictions dataset: contains `r nrow(iid_pred_pairs)` protein associations.
+ 
+```{r results='hide'}
+setwd("../EVEX/results/")
+EVEX_pairs_pmids <- fread("pairs_pmids_EVEX_shallow.txt",header=T,sep="\t",colClasses=c("character","character","character","character","character","numeric"),data.table = T)
+setwd("../../dsp_comparison/")
+
+EVEX_pairs_pmids_sel <- unique(select(EVEX_pairs_pmids, pair_id=pair_id_clean, pmid=pubid,EVEX))
+EVEX_pairs <- unique(select(EVEX_pairs_pmids, pair_id=pair_id_clean,EVEX))
+EVEX_pmids <- unique(select(EVEX_pairs_pmids, pmid=pubid,EVEX))
+```
+
+ - text-mining EVEX dataset: contains `r nrow(EVEX_pairs)` protein associations recorded in `r nrow(EVEX_pmids)` publications.
+ 
+========================================================
+
+Other datasets included in the analysis
+
+```{r results='hide'}
+setwd("../BioGRID/results/")
+BioGRID_pairs_pmids <- fread("pairs_pmids_biogrid.txt",header=T,sep="\t",colClasses=c("character","character","numeric"),data.table = T)
+setwd("../../dsp_comparison/")
+
+BioGRID_pairs_pmids_sel <- unique(select(BioGRID_pairs_pmids, pair_id=pair_id_clean, pmid=pubid, BioGRID = biogrid))
+BioGRID_pairs <- unique(select(BioGRID_pairs_pmids, pair_id=pair_id_clean,BioGRID = biogrid))
+BioGRID_pmids <- unique(select(BioGRID_pairs_pmids, pmid=pubid,BioGRID = biogrid))
+```
+
+ - BioGRID dataset: contains `r nrow(BioGRID_pairs)` protein associations recorded in `r nrow(BioGRID_pmids)` publications.
+
+```{r results='hide'}
+setwd("../GO_IPI/results/")
+GO_IPI_pairs_pmids <- fread("pairs_pmids_EBI_GOA_nonIntAct.txt",header=T,sep="\t",colClasses=c("character","character","numeric"),data.table = T)
+setwd("../../dsp_comparison/")
+
+GO_IPI_pairs_pmids_sel <- unique(select(GO_IPI_pairs_pmids, pair_id=pair_id_clean, pmid=pubid, GO_IPI = EBI_GOA_nonIntAct))
+GO_IPI_pairs <- unique(select(GO_IPI_pairs_pmids, pair_id=pair_id_clean,GO_IPI = EBI_GOA_nonIntAct))
+GO_IPI_pmids <- unique(select(GO_IPI_pairs_pmids, pmid=pubid,GO_IPI = EBI_GOA_nonIntAct))
+```
+
+ - GO IPI dataset: contains `r nrow(GO_IPI_pairs)` protein associations recorded in `r nrow(GO_IPI_pmids)` publications.
+ 
+```{r results='hide'}
+setwd("../OmniPath/results/")
+OmniPath_interaction_pairs_pmids <- fread("pairs_pmids_OmniPath_interactions_minimal.txt",header=T,sep="\t",colClasses=c("character","character","character","character","character","numeric"),data.table = T)
+setwd("../../dsp_comparison/")
+
+setwd("../OmniPath/results/")
+OmniPath_ptm_pairs_pmids <- fread("pairs_pmids_OmniPath_ptm_interactions_minimal.txt",header=T,sep="\t",colClasses=c("character","character","character","character","character","numeric"),data.table = T)
+setwd("../../dsp_comparison/")
+
+OmniPath_interaction_pairs_pmids_sel <- unique(select(OmniPath_interaction_pairs_pmids, pair_id=pair_id_clean, pmid=pubid, OmniPath_interactions))
+OmniPath_interaction_pairs <- unique(select(OmniPath_interaction_pairs_pmids, pair_id=pair_id_clean,OmniPath_interactions))
+OmniPath_interaction_pmids <- unique(select(OmniPath_interaction_pairs_pmids, pmid=pubid,OmniPath_interactions))
+
+OmniPath_ptm_pairs_pmids_sel <- unique(select(OmniPath_ptm_pairs_pmids, pair_id=pair_id_clean, pmid=pubid, OmniPath_ptm))
+OmniPath_ptm_pairs <- unique(select(OmniPath_ptm_pairs_pmids, pair_id=pair_id_clean,OmniPath_ptm))
+OmniPath_ptm_pmids <- unique(select(OmniPath_ptm_pairs_pmids, pmid=pubid,OmniPath_ptm))
+```
+
+```{r omnipath_merge, results='hide'}
+setnames(OmniPath_interaction_pairs_pmids, colnames(OmniPath_interaction_pairs_pmids)[6], "OmniPath")
+setnames(OmniPath_ptm_pairs_pmids, colnames(OmniPath_ptm_pairs_pmids)[6], "OmniPath")
+OmniPath_pairs_pmids = rbind(OmniPath_interaction_pairs_pmids, OmniPath_ptm_pairs_pmids)
+
+OmniPath_pairs_pmids_sel <- unique(select(OmniPath_pairs_pmids, pair_id=pair_id_clean, pmid=pubid, OmniPath))
+OmniPath_pairs <- unique(select(OmniPath_pairs_pmids, pair_id=pair_id_clean,OmniPath))
+OmniPath_pmids <- unique(select(OmniPath_pairs_pmids, pmid=pubid,OmniPath))
+```
+
+ - merged OmniPath interaction dataset and OmniPath ptm dataset: contains `r nrow(OmniPath_pairs)` protein associations recorded in `r nrow(OmniPath_pmids)` publications.
+ 
+```{r STRING, results='hide'}
+# read STRING_textmining table
+setwd("../STRING/results/")
+STRING_textmining <- fread("pairs_STRING_textmining.txt",header=T,sep="\t",colClasses=c("character","character","character","character","numeric","character","numeric"),data.table = T)
+STRING_textmining_pairs <- unique(select(STRING_textmining, pair_id=pair_id_clean,STRING_textmining))
+
+# read STRING_pathway_inference table
+STRING_pathway_inference <- fread("pairs_STRING_pathway_inference.txt",header=T,sep="\t",colClasses=c("character","character","character","character","numeric","character","numeric"),data.table = T)
+STRING_pathway_inference_pairs <- unique(select(STRING_pathway_inference, pair_id=pair_id_clean,STRING_pathway_inference))
+
+# read STRING_phylo_predictions table
+STRING_phylo_predictions <- fread("pairs_STRING_phylo_predictions.txt",header=T,sep="\t",colClasses=c("character","character","character","character","numeric","character","numeric"),data.table = T)
+STRING_phylo_predictions_pairs <- unique(select(STRING_phylo_predictions, pair_id=pair_id_clean,STRING_phylo_predictions))
+
+setwd("../../dsp_comparison/")
+
+```
+
+ - STRING textmining dataset: contains `r nrow(STRING_textmining_pairs)` protein associations.
+
+ - STRING pathway-based inference dataset: contains `r nrow(STRING_pathway_inference)` protein associations.
+
+ - STRING predictions dataset: contains `r nrow(STRING_phylo_predictions_pairs)` protein associations.
+
+Part 1: Comparison dataset at the pair level
+========================================================
+```{r}
+# Code below generates (to allow any number and any column names) and evaluates this:
+# paste0("all_df <- list(",paste0(grep("_pairs$", ls(), value = T), collapse= ","),")")
+# eval(parse(text=paste0("all_df <- list(",paste0(grep("_pairs$", ls(), value = T), collapse= ","),")")))
+# results in errors upstream
+
+all_df <- list(imex_pairs,reactome_pairs,tm_pairs,iid_pred_pairs, EVEX_pairs, BioGRID_pairs, GO_IPI_pairs, OmniPath_pairs, STRING_textmining_pairs, STRING_pathway_inference_pairs, STRING_phylo_predictions_pairs)
+
+comp_table <- Reduce(function(...) merge(..., all=TRUE), all_df)
+
+# I clean and replace all NAs if present.
+
+comp_table_final <- comp_table
+comp_table_final[is.na(comp_table_final <- comp_table)] <- 0
+comp_table_final = unique(comp_table_final)
+fwrite(comp_table_final,"./results/comp_table_final.txt",col.names=T,row.names=F,sep="\t",quote=F)
+system("gzip ./results/comp_table_final.txt --force")
+unlink("./results/comp_table_final.txt")
+```
+
+The comparison dataset gives a total number of `r nrow(comp_table_final)` potentially interacting pairs, of which `r nrow(comp_table_final[comp_table_final$imex==0,])` (`r round(nrow(comp_table_final[comp_table_final$imex==0,])*100/nrow(comp_table_final),2)`%) are not curated in IMEx. 
+The dataset can be accessed: https://github.com/vitkl/darkspaceproject/blob/master/dsp_comparison/results/comp_table_final.txt.gz 
+
+Overlaps at the pair level, summary:
+========================================================
+```{r visualize_overlaps, fig.height=9, fig.width=12, results='hide'}
+groups = colnames(comp_table_final)[2:ncol(comp_table_final)]
+# generate expression like this "comp_table_final[, overlaps := paste0(imex,reactome,tm_epmc,iid_pred,EVEX,BioGRID,GO_IPI,OmniPath)]" and evaluate it - this way the code is independent of column names
+eval(parse(text=paste0("comp_table_final[, overlaps := paste0(",paste0(groups, collapse= ","),")]")))
+eval(parse(text=paste0("comp_table_final[, N_overlaps := sum(",paste0(groups, collapse= ","),"), by = pair_id]")))
+
+comp_table_final[, N_per_overlaps := .N, by = overlaps]
+comp_table_final[, N_per_N_overlaps := .N, by = N_overlaps]
+
+N_overlaps = unique(comp_table_final[,.(N_overlaps, N_per_N_overlaps)])
+N_overlaps = N_overlaps[order(N_per_N_overlaps, decreasing = T),]
+qplot(label = N_overlaps$N_per_N_overlaps, y = N_overlaps$N_per_N_overlaps, x = N_overlaps$N_overlaps,  geom = "text") + scale_y_log10(labels = 10^c(1:7), breaks = 10^c(1:7)) +
+        ggtitle("The number of interacting pairs and the number of resources \n the pairs are shared between") + ylab("the number of interacting pairs, log10 scale")+ xlab("the number of resources")+scale_x_continuous(labels = N_overlaps$N_overlaps, breaks = N_overlaps$N_overlaps)+theme(text = element_text(size =18), title = element_text(size =24), legend.position="none")
+
+overlaps = unique(comp_table_final[,.(overlaps, N_per_overlaps)])
+overlaps = overlaps[order(N_per_overlaps, decreasing = T),]
+```
+
+
+Part 2: Comparison dataset at the publication level
+========================================================
+
+```{r, eval=T, results='hide'}
+allpub_df <- list(imex_pmids,reactome_pmids,tm_pmids, EVEX_pmids, BioGRID_pmids, GO_IPI_pmids, OmniPath_pmids)
+
+pubcomp_table <- Reduce(function(...) merge(..., all=TRUE), allpub_df)
+
+# I clean and replace all NAs if present.
+
+pubcomp_table_final <- pubcomp_table
+pubcomp_table_final[is.na(pubcomp_table_final <- pubcomp_table)] <- 0
+fwrite(pubcomp_table_final,"./results/pubcomp_table_final.txt",col.names=T,row.names=F,sep="\t",quote=F)
+system("gzip ./results/pubcomp_table_final.txt --force")
+```
+
+The comparison set gives a total number of `r nrow(pubcomp_table_final)` publications, of which `r nrow(pubcomp_table_final[pubcomp_table_final$imex==0,])` (`r round(nrow(pubcomp_table_final[pubcomp_table_final$imex==0,])*100/nrow(pubcomp_table_final),2)`%) are not curated in IMEx. 
+The dataset can be accessed: https://github.com/vitkl/darkspaceproject/blob/master/dsp_comparison/results/pubcomp_table_final.txt.gz 
+
+Overlaps at the publication level, summary:
+========================================================
+```{r visualize_overlaps_publications, fig.height=9, fig.width=12, results='hide'}
+pubgroups = colnames(pubcomp_table_final)[2:ncol(pubcomp_table_final)]
+pubcomp_table_final[, puboverlaps := paste0(imex, reactome, tm_epmc, EVEX, BioGRID, GO_IPI, OmniPath)]
+pubcomp_table_final[, N_puboverlaps := sum(imex, reactome, tm_epmc, EVEX, BioGRID, GO_IPI, OmniPath), by = pmid]
+pubcomp_table_final[, N_per_puboverlaps := .N, by = puboverlaps]
+pubcomp_table_final[, N_per_N_puboverlaps := .N, by = N_puboverlaps]
+
+N_puboverlaps = unique(pubcomp_table_final[,.(N_puboverlaps, N_per_N_puboverlaps)])
+N_puboverlaps = N_puboverlaps[order(N_per_N_puboverlaps, decreasing = T),]
+qplot(label = N_puboverlaps$N_per_N_puboverlaps, y = N_puboverlaps$N_per_N_puboverlaps, x = N_puboverlaps$N_puboverlaps,  geom = "text") + scale_y_log10(labels = 10^c(1:7), breaks = 10^c(1:7)) +
+        ggtitle("The number of publications and the number of resources \n the publications are shared between") + ylab("the number of publications, log10 scale")+ xlab("the number of resources")+scale_x_continuous(labels = N_puboverlaps$N_puboverlaps, breaks = N_puboverlaps$N_puboverlaps)+theme(text = element_text(size =15), title = element_text(size =24))
+```
+
+Part 3: Generating comparison dataset at the pair level taking the publication into account
+========================================================
+
+```{r, eval=T, results='hide'}
+prepubpaircomp_table_1 <- unique(merge(imex_human_sel,reactome_pairs_pmids,by=c("pair_id","pmid"),all=T))
+prepubpaircomp_table_1 <- unique(merge(prepubpaircomp_table_1,tm_pairs_pmids_sel,by=c("pair_id","pmid"),all=T))
+prepubpaircomp_table_1 <- unique(merge(prepubpaircomp_table_1,EVEX_pairs_pmids_sel,by=c("pair_id","pmid"),all=T))
+prepubpaircomp_table_1 <- unique(merge(prepubpaircomp_table_1,BioGRID_pairs_pmids_sel,by=c("pair_id","pmid"),all=T))
+prepubpaircomp_table_1 <- unique(merge(prepubpaircomp_table_1,GO_IPI_pairs_pmids_sel,by=c("pair_id","pmid"),all=T))
+prepubpaircomp_table_1 <- unique(merge(prepubpaircomp_table_1,OmniPath_pairs_pmids_sel,by=c("pair_id","pmid"),all=T))
+
+pubpaircomp_table <- unique(merge(prepubpaircomp_table_1,iid_pred_pairs,by=c("pair_id"),all=T))
+
+# I clean and replace all NAs if present.
+
+pubpaircomp_table_form <- pubpaircomp_table
+pubpaircomp_table_form[is.na(pubpaircomp_table_form)] <- 0
+```
+
+The comparison set gives a total number of `r nrow(pubpaircomp_table_form)` protein association pairs, of which `r nrow(pubpaircomp_table_form[pubpaircomp_table_form$imex==0,])` (`r round(nrow(pubpaircomp_table_form[pubpaircomp_table_form$imex==0,])*100/nrow(pubpaircomp_table_form),2)`%) are not curated in IMEx. In all these pairs the publication from which they were derived was also matched, so the overlaps and numbers differ from previous comparisons. 
+The dataset can be accessed: https://github.com/vitkl/darkspaceproject/blob/master/dsp_comparison/results/pubpaircomp_table_final.txt.tar.gz 
+
+Part 4: Comparing groups of resources
+========================================================
+type: section
+
+1 Pathways
+========================================================
+type: sub-section
+### Pathways group includes these datasets:  
+- Reactome. Manually created dataset. This resource provides a pair of proteins and an associated publication. [More details](https://github.com/vitkl/darkspaceproject/blob/master/reactome_interactions/reactome_vs_imex_lean.md)  
+- Omnipath (excluding interactions imported to Omnipath from IMEx databases, BioGRID, HPRD, STRING). This dataset combines Omnipath interaction dataset and Omnipath post-translational modifications dataset. Omnipath gathers it's data from many primary interaction and PTM databases including IntAct. In case the resource is presented independently in this comparison - all interactions imported in Omnipath from that resource are removed. This resource provides a pair of proteins and an associated publication. [More details](https://github.com/vitkl/darkspaceproject/blob/master/OmniPath/OmniPath_dsgen.md)  
+- STRING pathway-based inference. These are the interactions which are annotated in STRING with the detection method "psi-mi:"MI:0362"(inference)" and are primarily based on KEGG and Reactome pathway databases. This dataset may duplicate manually created Reactome dataset. This resource provides only a pair of proteins. [More details](https://github.com/vitkl/darkspaceproject/blob/master/STRING/STRING_dsgen.md)   
+
+Reactome vs Omnipath vs STRING pathway-based inference
+========================================================
+
+```{r Pathways_1, fig.width = 16, fig.height= 6}
+
+grid.newpage()
+plotname = paste0("Comparison of pathway resources: Reactome, Omnipath, STRING pathway-based inference")
+# setup grid
+pushViewport(viewport(layout=grid.layout(nrow = 3, ncol=5, widths = unit(c(1/14,4/14,4/14,4/14,1/14), "npc"), 
+                                         heights = unit(c(1/7, 1/7, 5/7), "npc"))))
+# plot names
+pushViewport(viewport(layout.pos.col=2, layout.pos.row = 1))
+x =grid.text(plotname, x = unit(1.6, "npc"),y= unit(0.5, "npc"), gp=gpar(fontsize=20))
+popViewport()
+
+# individual labels
+pushViewport(viewport(layout.pos.col=2, layout.pos.row = 2))
+x =grid.text("interacting pairs", x = unit(0.5, "npc"),y= unit(0.5, "npc"), gp=gpar(fontsize=20))
+popViewport()
+
+pushViewport(viewport(layout.pos.col=3, layout.pos.row = 2))
+x =grid.text("publications", x = unit(0.5, "npc"),y= unit(0.5, "npc"), gp=gpar(fontsize=20))
+popViewport()
+
+pushViewport(viewport(layout.pos.col=4, layout.pos.row = 2))
+x =grid.text("interacting pairs and publications", x = unit(0.5, "npc"),y= unit(0.5, "npc"), gp=gpar(fontsize=20))
+popViewport()
+
+# venn diagrams
+pushViewport(viewport(layout.pos.col=2, layout.pos.row = 3))
+
+Pathways_1 = unique(comp_table_final[,.(pair_id, reactome, OmniPath, STRING_pathway_inference)])
+venn_Pathways_1 = draw.triple.venn(area1 = Pathways_1[reactome == 1,.N], 
+                          area2 = Pathways_1[OmniPath == 1,.N], 
+                          area3 = Pathways_1[STRING_pathway_inference == 1,.N], 
+                          n12 = Pathways_1[reactome == 1 & OmniPath == 1,.N], 
+                          n23 = Pathways_1[OmniPath == 1 & STRING_pathway_inference == 1,.N],
+                          n13 = Pathways_1[reactome == 1 & STRING_pathway_inference == 1,.N],
+                          n123 = Pathways_1[reactome == 1 & OmniPath == 1 & STRING_pathway_inference == 1,.N], 
+                          category = c("Reactome", 
+                                       "OmniPath", 
+                                       "STRING_pathway_inference"), 
+                          lty = rep("blank", 3), 
+                          fill = c("blue", "red", "green"), 
+                          alpha = rep(0.5, 3), cat.pos = c(350, 25, 160), 
+                          cat.dist = c(0.08,0.035, 0.08), 
+                          cat.cex = c(1.4,1.4, 1.4), scaled = TRUE, euler.d = TRUE,  margin = 0.05,
+                          print.mode =  'raw',
+                          cex = 1.5
+)
+popViewport()
+
+pushViewport(viewport(layout.pos.col=3, layout.pos.row = 3))
+Pathways_2 = unique(pubcomp_table_final[,.(pmid, reactome, OmniPath)])
+venn_Pathways_2 = draw.pairwise.venn(area1 = Pathways_2[reactome == 1,.N], 
+                          area2 = Pathways_2[OmniPath == 1,.N], 
+                          cross.area = Pathways_2[reactome == 1 & OmniPath == 1,.N], 
+                          category = c("Reactome", 
+                                       "OmniPath"), 
+                          lty = rep("blank", 2), 
+                          fill = c("blue", "red"), 
+                          alpha = rep(0.5, 2), cat.pos = c(350, 25), 
+                          cat.dist = c(0.08,0.035), 
+                          cat.cex = c(1.4,1.4), scaled = TRUE, euler.d = TRUE,  margin = 0.05,
+                          print.mode =  'raw',
+                          cex = 1.5
+)
+popViewport()
+
+pushViewport(viewport(layout.pos.col=4, layout.pos.row = 3))
+Pathways_3 = unique(pubpaircomp_table_form[,.(pair_id, pmid, reactome, OmniPath)])
+venn_Pathways_3 = draw.pairwise.venn(area1 = Pathways_3[reactome == 1,.N], 
+                          area2 = Pathways_3[OmniPath == 1,.N], 
+                          cross.area = Pathways_3[reactome == 1 & OmniPath == 1,.N], 
+                          category = c("Reactome", 
+                                       "OmniPath"), 
+                          lty = rep("blank", 2), 
+                          fill = c("blue", "red"), 
+                          alpha = rep(0.5, 2), cat.pos = c(350, 25), 
+                          cat.dist = c(0.08,0.035), 
+                          cat.cex = c(1.4,1.4), scaled = TRUE, euler.d = TRUE,  margin = 0.05,
+                          print.mode =  'raw',
+                          cex = 1.5
+)
+popViewport()
+
+```
+
+2 Text-mining
+========================================================
+type: sub-section
+### Text-mining group includes these datasets:  
+- EPMC-TM. Text-mining effort of EPMC team to indentify interaction-containing papers. This text-mining project find pairs of proteins co-mentioned in sentences along with words describing interaction (for example, "... proteinA ... binds proteinB ..."). This resource provides a pair of proteins and an associated publication. [More details](https://github.com/vitkl/darkspaceproject/blob/master/epmc_text_mining/tm_epmc_tr_light.md)     
+- EVEX. Independent text-mining project (http://evexdb.org/faq/). EVEX uses natural language processing (NLP) algorithms to identify different types of interactions. EVEX uses Entrez gene id as a universal identifier which is converted to Uniprot IDs for this comparison. Many-to-many mapping artificially increases the number of protein-protein interactions. This resource provides a pair of proteins and an associated publication. [More details](https://github.com/vitkl/darkspaceproject/blob/master/EVEX/EVEX_dsgen.md)
+- STRING textmining. This dataset contains text-mining-based associations between pairs of proteins. An important distinction between STRING and other text-mining resources is that STRING doesn't use NPL, rather it associates proteins based on how many times they co-occur in Pubmed abstracts or PMC papers. This co-occurence is scored and then thresholded: only some of the interactions gather enough textmining hits to pass score threshold. This resource provides only a pair of proteins. [More details](https://github.com/vitkl/darkspaceproject/blob/master/STRING/STRING_dsgen.md)
+
+EPMC-TM vs EVEX vs STRING textmining
+========================================================
+```{r tm_1, fig.width = 16, fig.height= 6}
+{ 
+grid.newpage()
+plotname = paste0("Comparison of text-mining (NLP?) resources: EVEX and custom EPMC text-mining datasets")
+# setup grid
+pushViewport(viewport(layout=grid.layout(nrow = 3, ncol=5, widths = unit(c(1/14,4/14,4/14,4/14,1/14), "npc"), 
+                                         heights = unit(c(1/7, 1/7, 5/7), "npc"))))
+# plot names
+pushViewport(viewport(layout.pos.col=2, layout.pos.row = 1))
+x =grid.text(plotname, x = unit(1.3, "npc"),y= unit(0.5, "npc"), gp=gpar(fontsize=20))
+popViewport()
+
+# individual labels
+pushViewport(viewport(layout.pos.col=2, layout.pos.row = 2))
+x =grid.text("interacting pairs", x = unit(0.5, "npc"),y= unit(0.5, "npc"), gp=gpar(fontsize=20))
+popViewport()
+
+pushViewport(viewport(layout.pos.col=3, layout.pos.row = 2))
+x =grid.text("publications", x = unit(0.5, "npc"),y= unit(0.5, "npc"), gp=gpar(fontsize=20))
+popViewport()
+
+pushViewport(viewport(layout.pos.col=4, layout.pos.row = 2))
+x =grid.text("interacting pairs and publications", x = unit(0.5, "npc"),y= unit(0.5, "npc"), gp=gpar(fontsize=20))
+popViewport()
+
+# venn diagrams
+pushViewport(viewport(layout.pos.col=2, layout.pos.row = 3))
+textmining_1 = unique(comp_table_final[,.(pair_id, tm_epmc, EVEX, STRING_textmining)])
+venn_Interactions_1 = draw.triple.venn(area1 = textmining_1[tm_epmc == 1,.N], 
+                          area2 = textmining_1[EVEX == 1,.N], 
+                          area3 = textmining_1[STRING_textmining == 1,.N], 
+                          n12 = textmining_1[tm_epmc == 1 & EVEX == 1,.N], 
+                          n23 = textmining_1[EVEX == 1 & STRING_textmining == 1,.N],
+                          n13 = textmining_1[tm_epmc == 1 & STRING_textmining == 1,.N],
+                          n123 = textmining_1[tm_epmc == 1 & EVEX == 1 & STRING_textmining == 1,.N], 
+                          category = c("EPMC text-mining", 
+                                       "EVEX", 
+                                       "STRING_textmining"), 
+                          lty = rep("blank", 3), 
+                          fill = c("blue", "red", "green"), 
+                          alpha = rep(0.5, 3), cat.pos = c(350, 25, 160), 
+                          cat.dist = c(0.08,0.035, 0.08), 
+                          cat.cex = c(1.4,1.4, 1.4), scaled = TRUE, euler.d = TRUE,  margin = 0.05,
+                          print.mode =  'raw',
+                          cex = 1.5
+)
+popViewport()
+
+pushViewport(viewport(layout.pos.col=3, layout.pos.row = 3))
+textmining_2 = unique(pubcomp_table_final[,.(pmid, tm_epmc, EVEX)])
+venn_Pathways_2 = draw.pairwise.venn(area1 = textmining_2[tm_epmc == 1,.N], 
+                          area2 = textmining_2[EVEX == 1,.N], 
+                          cross.area = textmining_2[tm_epmc == 1 & EVEX == 1,.N], 
+                          category = c("EPMC text-mining", 
+                                       "EVEX"), 
+                          lty = rep("blank", 2), 
+                          fill = c("blue", "red"), 
+                          alpha = rep(0.5, 2), cat.pos = c(350, 25), 
+                          cat.dist = c(0.08,0.035), 
+                          cat.cex = c(1.4,1.4), scaled = TRUE, euler.d = TRUE,  margin = 0.05,
+                          print.mode =  'raw',
+                          cex = 1.5
+)
+popViewport()
+
+pushViewport(viewport(layout.pos.col=4, layout.pos.row = 3))
+textmining_3 = unique(pubpaircomp_table_form[,.(pair_id, pmid, tm_epmc, EVEX)])
+venn_Pathways_3 = draw.pairwise.venn(area1 = textmining_3[tm_epmc == 1,.N], 
+                          area2 = textmining_3[EVEX == 1,.N], 
+                          cross.area = textmining_3[tm_epmc == 1 & EVEX == 1,.N], 
+                          category = c("EPMC text-mining", 
+                                       "EVEX"), 
+                          lty = rep("blank", 2), 
+                          fill = c("blue", "red"), 
+                          alpha = rep(0.5, 2), cat.pos = c(350, 25), 
+                          cat.dist = c(0.08,0.035), 
+                          cat.cex = c(1.4,1.4), scaled = TRUE, euler.d = TRUE,  margin = 0.05,
+                          print.mode =  'raw',
+                          cex = 1.5
+)
+popViewport()
+}
+```
+
+3 Predictions
+========================================================
+type: sub-section
+### Predictions group includes these datasets:
+- IID. Uses FpClass algorithm and orthology to predict protein-protein interactions. This resource provides only a pair of proteins. [More details](https://github.com/vitkl/darkspaceproject/blob/master/iid_predictions/iid_vs_imex.md)   
+- STRING phylogeny- and orthology-based predictions. Assigns interactions based on interactions of orthologous proteins in other species, + two other minor methods. This resource provides only a pair of proteins. [More details](https://github.com/vitkl/darkspaceproject/blob/master/STRING/STRING_dsgen.md)   
+
+IID vs STRING phylogeny- and orthology-based predictions 
+========================================================
+
+```{r Predictions_1,  fig.width = 16, fig.height= 6}
+{ 
+grid.newpage()
+plotname = paste0("Comparison of predictions resources: IID and STRING phylogeny-/orthology-based predictions")
+# setup grid
+pushViewport(viewport(layout=grid.layout(nrow = 3, ncol=3, widths = unit(c(3/14,8/14,3/14), "npc"), 
+                                         heights = unit(c(1/7, 1/7, 5/7), "npc"))))
+# plot names
+pushViewport(viewport(layout.pos.col=2, layout.pos.row = 1))
+x =grid.text(plotname, x = unit(0.3, "npc"),y= unit(0.5, "npc"), gp=gpar(fontsize=20))
+popViewport()
+
+# individual labels
+pushViewport(viewport(layout.pos.col=2, layout.pos.row = 2))
+x =grid.text("interacting pairs", x = unit(0.5, "npc"),y= unit(0.5, "npc"), gp=gpar(fontsize=20))
+popViewport()
+
+# venn diagrams
+pushViewport(viewport(layout.pos.col=2, layout.pos.row = 3))
+Predictions_1 = unique(comp_table_final[,.(pair_id, iid_pred, STRING_phylo_predictions)])
+venn_Pathways_2 = draw.pairwise.venn(area1 = Predictions_1[iid_pred == 1,.N], 
+                          area2 = Predictions_1[STRING_phylo_predictions == 1,.N], 
+                          cross.area = Predictions_1[iid_pred == 1 & STRING_phylo_predictions == 1,.N], 
+                          category = c("IID predictions", 
+                                       "STRING predictions"), 
+                          lty = rep("blank", 2), 
+                          fill = c("blue", "red"), 
+                          alpha = rep(0.5, 2), cat.pos = c(350, 25), 
+                          cat.dist = c(0.08,0.035), 
+                          cat.cex = c(1.4,1.4), scaled = TRUE, euler.d = TRUE,  margin = 0.05,
+                          print.mode =  'raw',
+                          cex = 1.5
+)
+popViewport()
+}
+```
+
+4 Interactions
+========================================================
+type: sub-section
+
+- IMEx. Includes all IMEx databases and DIP (before merge with IntAct). This resource provides a pair of proteins and an associated publication. [More details](https://github.com/vitkl/darkspaceproject/blob/master/IMEx/IMEx_dsgen.md)  
+- Biogrid. Major active primary physical interaction database. This resource provides a pair of proteins and an associated publication. [More details](https://github.com/vitkl/darkspaceproject/blob/master/BioGRID/BioGRID_dsgen.md)  
+- GO IPI. This GO inferred-from-protein-interaction dataset excludes interactions already curated into IntAct (GOA-nonIntAct in PSICQUIC). Overlap seen may be due to DIP included in IMEx dataset. This resource provides a pair of proteins and an associated publication.  [More details](https://github.com/vitkl/darkspaceproject/blob/master/GO_IPI/GO_IPI_dsgen.md)  
+
+IMEx vs Biogrid vs GO IPI
+========================================================
+
+```{r Interactions_1, fig.width = 16, fig.height= 6}
+
+{
+grid.newpage()
+plotname = paste0("Comparison of interaction resources: IMEx, Biogrid, GO IPI")
+# setup grid
+pushViewport(viewport(layout=grid.layout(nrow = 3, ncol=5, widths = unit(c(1/14,4/14,4/14,4/14,1/14), "npc"), 
+                                         heights = unit(c(1/7, 1/7, 5/7), "npc"))))
+# plot names
+pushViewport(viewport(layout.pos.col=2, layout.pos.row = 1))
+x =grid.text(plotname, x = unit(0.7, "npc"),y= unit(0.5, "npc"), gp=gpar(fontsize=20))
+popViewport()
+
+# individual labels
+pushViewport(viewport(layout.pos.col=2, layout.pos.row = 2))
+x =grid.text("interacting pairs", x = unit(0.5, "npc"),y= unit(0.5, "npc"), gp=gpar(fontsize=20))
+popViewport()
+
+pushViewport(viewport(layout.pos.col=3, layout.pos.row = 2))
+x =grid.text("publications", x = unit(0.5, "npc"),y= unit(0.5, "npc"), gp=gpar(fontsize=20))
+popViewport()
+
+pushViewport(viewport(layout.pos.col=4, layout.pos.row = 2))
+x =grid.text("interacting pairs and publications", x = unit(0.5, "npc"),y= unit(0.5, "npc"), gp=gpar(fontsize=20))
+popViewport()
+
+# venn diagrams
+pushViewport(viewport(layout.pos.col=2, layout.pos.row = 3))
+Interactions_1 = unique(comp_table_final[,.(pair_id, imex, BioGRID, GO_IPI)])
+N_Interactions_1 = nrow(Interactions_1)
+venn_Interactions_1 = draw.triple.venn(area1 = Interactions_1[imex == 1,.N], 
+                          area2 = Interactions_1[BioGRID == 1,.N], 
+                          area3 = Interactions_1[GO_IPI == 1,.N], 
+                          n12 = Interactions_1[imex == 1 & BioGRID == 1,.N], 
+                          n23 = Interactions_1[BioGRID == 1 & GO_IPI == 1,.N],
+                          n13 = Interactions_1[imex == 1 & GO_IPI == 1,.N],
+                          n123 = Interactions_1[imex == 1 & BioGRID == 1 & GO_IPI == 1,.N], 
+                          category = c("IMEx", 
+                                       "BioGRID", 
+                                       "GO_IPI"), 
+                          lty = rep("blank", 3), 
+                          fill = c("blue", "red", "green"), 
+                          alpha = rep(0.5, 3), cat.pos = c(350, 25, 160), 
+                          cat.dist = c(0.08,0.035, 0.08), 
+                          cat.cex = c(1.4,1.4, 1.4), scaled = TRUE, euler.d = TRUE,  margin = 0.05,
+                          print.mode =  'raw',
+                          cex = 1.5
+)
+popViewport()
+
+pushViewport(viewport(layout.pos.col=3, layout.pos.row = 3))
+Interactions_2 = unique(pubcomp_table_final[,.(pmid, imex, BioGRID, GO_IPI)])
+N_Interactions_2 = nrow(Interactions_2)
+venn_Interactions_2 = draw.triple.venn(area1 = Interactions_2[imex == 1,.N], 
+                          area2 = Interactions_2[BioGRID == 1,.N], 
+                          area3 = Interactions_2[GO_IPI == 1,.N], 
+                          n12 = Interactions_2[imex == 1 & BioGRID == 1,.N], 
+                          n23 = Interactions_2[BioGRID == 1 & GO_IPI == 1,.N],
+                          n13 = Interactions_2[imex == 1 & GO_IPI == 1,.N],
+                          n123 = Interactions_2[imex == 1 & BioGRID == 1 & GO_IPI == 1,.N], 
+                          category = c("IMEx", 
+                                       "BioGRID", 
+                                       "GO_IPI"), 
+                          lty = rep("blank", 3), 
+                          fill = c("blue", "red", "green"), 
+                          alpha = rep(0.5, 3), cat.pos = c(350, 25, 160), 
+                          cat.dist = c(0.08,0.035, 0.08), 
+                          cat.cex = c(1.4,1.4, 1.4), scaled = TRUE, euler.d = TRUE,  margin = 0.05,
+                          print.mode =  'raw',
+                          cex = 1.5
+)
+popViewport()
+
+pushViewport(viewport(layout.pos.col=4, layout.pos.row = 3))
+Interactions_3 = unique(pubpaircomp_table_form[,.(pair_id, pmid, imex, BioGRID, GO_IPI)])
+N_Interactions_3 = nrow(Interactions_3)
+venn_Interactions_3 = draw.triple.venn(area1 = Interactions_3[imex == 1,.N], 
+                          area2 = Interactions_3[BioGRID == 1,.N], 
+                          area3 = Interactions_3[GO_IPI == 1,.N], 
+                          n12 = Interactions_3[imex == 1 & BioGRID == 1,.N], 
+                          n23 = Interactions_3[BioGRID == 1 & GO_IPI == 1,.N],
+                          n13 = Interactions_3[imex == 1 & GO_IPI == 1,.N],
+                          n123 = Interactions_3[imex == 1 & BioGRID == 1 & GO_IPI == 1,.N], 
+                          category = c("IMEx", 
+                                       "BioGRID", 
+                                       "GO_IPI"), 
+                          lty = rep("blank", 3), 
+                          fill = c("blue", "red", "green"), 
+                          alpha = rep(0.5, 3), cat.pos = c(350, 25, 160), 
+                          cat.dist = c(0.08,0.035, 0.08), 
+                          cat.cex = c(1.4,1.4, 1.4), scaled = TRUE, euler.d = TRUE,  margin = 0.05,
+                          print.mode =  'raw',
+                          cex = 1.5
+)
+popViewport()
+}
+```
+
+
+which resources are enriched in the publications containing interaction data?
+========================================================
+type: section
+hypergeometric test was used to evaluate enrichment of particular resource in publications already curated to IMEx
+
+========================================================
+type: sub-section
+## 1 Are particular resources enriched in the IMEx-curated publications ?
+
+```{r GeneID_to_publication_IDs, results='hide'}
+## getting the publication ID for each gene
+{
+geneID2pubmed_url = "ftp://ftp.ncbi.nih.gov/gene/DATA/gene2pubmed.gz"
+geneID2pubmed_filename = paste0("./geneID2pubmed_release_", format(Sys.Date(), "%m-%Y.gz"))
+geneID2pubmed_filename_txt = substr(geneID2pubmed_filename, 1, nchar(geneID2pubmed_filename)-3)
+if(!file.exists(geneID2pubmed_filename_txt)) {
+  downloader::download(geneID2pubmed_url, geneID2pubmed_filename)
+  R.utils::gunzip(geneID2pubmed_filename)
+  gitignore = c(readLines("../.gitignore"), paste0("/dsp_comparison/geneID2pubmed_release_", format(Sys.Date(), "%m-%Y")))
+  write(gitignore,"../.gitignore")
+}
+}
+
+# getting all pmids which have genes associated with them
+geneID2pubmed = fread(geneID2pubmed_filename_txt, colClasses = c("character","character","character"))
+pubmedIDs = geneID2pubmed[`#tax_id` == "9606",unique(PubMed_ID)]
+```
+
+As compared to NCBI gene to pubmed ID dataset (hypergeometric test, p-values):
+~ 0 means enriched, ~ 1 means depleted
+```{r}
+# enrichment of resources in imex-curated publications
+# all gene-assiciated pmids
+total_Npmids = length(pubmedIDs)
+imex_Npmids = length(pubcomp_table_final[imex == 1,unique(pmid)])
+# counting pmids in each of the resources
+resources = colnames(pubcomp_table_final)[2:8]
+resources_Npmids = sapply(resources, function(x) eval(parse(text=paste0("length(pubcomp_table_final[",x," == 1,unique(pmid)])"))))
+# how many pmids overlap with IMEx
+resources_Npmids_in_IMEx = sapply(resources, function(x) eval(parse(text=paste0("length(pubcomp_table_final[imex == 1 & ",x," == 1,unique(pmid)])"))))
+resources_Npmids2 = rbind(resources_Npmids, resources_Npmids_in_IMEx)
+# hypergeometric test
+apply(resources_Npmids2,2, function(x){
+                phyper(q = x[2], m = imex_Npmids, n = total_Npmids - imex_Npmids, k = x[1], lower.tail = F, log.p = FALSE)
+})
+```
+
+========================================================
+type: sub-section
+As compared to the union of all resources in this comparison (hypergeometric test, p-values):
+~ 0 means enriched, ~ 1 means depleted
+```{r}
+# all pmids in our resources
+total_Npmids_our = length(pubcomp_table_final[,unique(pmid)])
+# hypergeometric test
+apply(resources_Npmids2,2, function(x){
+                phyper(q = x[2], m = imex_Npmids, n = total_Npmids_our - imex_Npmids, k = x[1], lower.tail = F, log.p = FALSE)
+})
+```
+
+
+========================================================
+type: sub-section
+## 2 Are particular resources enriched in the BioGRID-curated publications ?
+
+As compared to NCBI gene to pubmed ID dataset (hypergeometric test, p-values):
+~ 0 means enriched, ~ 1 means depleted
+```{r}
+BioGRID_Npmids = length(pubcomp_table_final[BioGRID == 1,unique(pmid)])
+resources_Npmids_in_BioGRID = sapply(resources, function(x) eval(parse(text=paste0("length(pubcomp_table_final[BioGRID == 1 & ",x," == 1,unique(pmid)])"))))
+resources_Npmids2 = rbind(resources_Npmids, resources_Npmids_in_BioGRID)
+apply(resources_Npmids2,2, function(x){
+                phyper(q = x[2], m = BioGRID_Npmids, n = total_Npmids - BioGRID_Npmids, k = x[1], lower.tail = F, log.p = FALSE)
+})
+```
+
+
+========================================================
+type: sub-section
+## 3 Fractions: IMEx- and BioGRID-curated publications
+the fraction of publications in a particular resource which are also in IMEx or BioGRID
+
+```{r, fig.width = 12, fig.height= 6}
+# enrichment of resources in imex-curated publications
+# all gene-assiciated pmids
+total_NpmidsIMEx = length(pubmedIDs)
+imex_NpmidsIMEx = length(pubcomp_table_final[imex == 1,unique(pmid)])
+# counting pmids in each of the resources
+resourcesIMEx = colnames(pubcomp_table_final)[2:8]
+resources_NpmidsIMEx = sapply(resourcesIMEx, function(x) eval(parse(text=paste0("length(pubcomp_table_final[",x," == 1,unique(pmid)])"))))
+# how many pmids overlap with IMEx
+resources_Npmids_in_IMEx = sapply(resourcesIMEx, function(x) eval(parse(text=paste0("length(pubcomp_table_final[imex == 1 & ",x," == 1,unique(pmid)])"))))
+resources_Npmids2IMEx = rbind(resources_NpmidsIMEx, resources_Npmids_in_IMEx)
+resources_Npmids2IMEx = cbind(resources_Npmids2IMEx, gene2pubmed = c(total_NpmidsIMEx, imex_NpmidsIMEx))
+resources_Npmids2IMEx = rbind(resources_Npmids2IMEx, fraction = c(resources_Npmids2IMEx[2,]/resources_Npmids2IMEx[1,]))
+
+# enrichment of resources in BioGRID-curated publications
+# all gene-assiciated pmids
+total_NpmidsBioGRID = length(pubmedIDs)
+BioGRID_NpmidsBioGRID = length(pubcomp_table_final[BioGRID == 1,unique(pmid)])
+# counting pmids in each of the resources
+resourcesBioGRID = colnames(pubcomp_table_final)[2:8]
+resources_NpmidsBioGRID = sapply(resourcesBioGRID, function(x) eval(parse(text=paste0("length(pubcomp_table_final[",x," == 1,unique(pmid)])"))))
+# how many pmids overlap with BioGRID
+resources_Npmids_in_BioGRID = sapply(resourcesBioGRID, function(x) eval(parse(text=paste0("length(pubcomp_table_final[BioGRID == 1 & ",x," == 1,unique(pmid)])"))))
+resources_Npmids2BioGRID = rbind(resources_NpmidsBioGRID, resources_Npmids_in_BioGRID)
+resources_Npmids2BioGRID = cbind(resources_Npmids2BioGRID, gene2pubmed = c(total_NpmidsBioGRID, BioGRID_NpmidsBioGRID))
+resources_Npmids2BioGRID = rbind(resources_Npmids2BioGRID, fraction = c(resources_Npmids2BioGRID[2,]/resources_Npmids2BioGRID[1,]))
+
+resources_Npmids2IMEx = as.data.table(t(resources_Npmids2IMEx),keep.rownames = "resource")
+resources_Npmids2IMEx[, imex_biogrid := "IMEx"]
+colnames(resources_Npmids2IMEx)[2:3] = c("resources_Npmids", "resources_Npmids_in_resource")
+resources_Npmids2BioGRID = as.data.table(t(resources_Npmids2BioGRID),keep.rownames = "resource")
+resources_Npmids2BioGRID[, imex_biogrid := "BioGRID"]
+colnames(resources_Npmids2BioGRID)[2:3] = c("resources_Npmids", "resources_Npmids_in_resource")
+
+resources_Npmids2 = rbind(resources_Npmids2IMEx, resources_Npmids2BioGRID)
+resources_Npmids2[, label_col := paste0(signif(as.numeric(resources_Npmids_in_resource),3)," /\n",signif(as.numeric(resources_Npmids),3))]
+
+ggplot(data = resources_Npmids2, aes(x = resource, y = fraction, fill = imex_biogrid,label = label_col)) +
+        scale_y_continuous(breaks = seq(0,1.2,0.05))+
+        ylab("fraction of papers in IMEx, or BioGRID")+
+        xlab(NULL)+
+        theme(text = element_text(size = 17),
+              axis.text.x = element_text(angle =-25, vjust = 0.6, size = 17), 
+              #legend.position="none",
+              plot.margin = unit(c(1,1,1,1), "cm"))+
+        geom_bar(stat = "identity", width =0.9,  position = "dodge")+
+        geom_text(vjust = -0.15, position = position_dodge(width = 0.9))
+```
+
+========================================================
+type: sub-section
+## tm_epmc (old and new) is depleted in interaction-containing papers as compared to all gene-associated (NCBI) papers!
+
+========================================================
+type: sub-section
+## 4 Fractions: IMEx- or BioGRID curated interacting pairs
+the fraction of interacting pairs in a particular resource which are also in IMEx or BioGRID
+
+```{r, fig.width = 17, fig.height= 6}
+# enrichment of resources in imex- or biogrid-curated interacting pairs
+imex_NpmidsIMEx = length(comp_table_final[imex == 1,unique(pair_id)])
+# counting pair_ids in each of the resources
+resourcesIMEx = colnames(comp_table_final)[2:12]
+resources_Npair_idsIMEx = sapply(resourcesIMEx, function(x) eval(parse(text=paste0("length(comp_table_final[",x," == 1,unique(pair_id)])"))))
+# how many pair_ids overlap with IMEx
+resources_Npair_ids_in_IMEx = sapply(resourcesIMEx, function(x) eval(parse(text=paste0("length(comp_table_final[imex == 1 & ",x," == 1,unique(pair_id)])"))))
+resources_Npair_ids2IMEx = rbind(resources_Npair_idsIMEx, resources_Npair_ids_in_IMEx)
+resources_Npair_ids2IMEx = rbind(resources_Npair_ids2IMEx, fraction = c(resources_Npair_ids2IMEx[2,]/resources_Npair_ids2IMEx[1,]))
+
+# enrichment of resources in BioGRID-curated publications
+BioGRID_Npair_idsBioGRID = length(comp_table_final[BioGRID == 1,unique(pair_id)])
+# counting pair_ids in each of the resources
+resourcesBioGRID = colnames(comp_table_final)[2:12]
+resources_Npair_idsBioGRID = sapply(resourcesBioGRID, function(x) eval(parse(text=paste0("length(comp_table_final[",x," == 1,unique(pair_id)])"))))
+# how many pair_ids overlap with BioGRID
+resources_Npair_ids_in_BioGRID = sapply(resourcesBioGRID, function(x) eval(parse(text=paste0("length(comp_table_final[BioGRID == 1 & ",x," == 1,unique(pair_id)])"))))
+resources_Npair_ids2BioGRID = rbind(resources_Npair_idsBioGRID, resources_Npair_ids_in_BioGRID)
+resources_Npair_ids2BioGRID = rbind(resources_Npair_ids2BioGRID, fraction = c(resources_Npair_ids2BioGRID[2,]/resources_Npair_ids2BioGRID[1,]))
+
+resources_Npair_ids2IMEx = as.data.table(t(resources_Npair_ids2IMEx),keep.rownames = "resource")
+resources_Npair_ids2IMEx[, imex_biogrid := "IMEx"]
+colnames(resources_Npair_ids2IMEx)[2:3] = c("resources_Npair_ids", "resources_Npair_ids_in_resource")
+resources_Npair_ids2BioGRID = as.data.table(t(resources_Npair_ids2BioGRID),keep.rownames = "resource")
+resources_Npair_ids2BioGRID[, imex_biogrid := "BioGRID"]
+colnames(resources_Npair_ids2BioGRID)[2:3] = c("resources_Npair_ids", "resources_Npair_ids_in_resource")
+
+resources_Npair_ids2 = rbind(resources_Npair_ids2IMEx, resources_Npair_ids2BioGRID)
+resources_Npair_ids2[, label_col := paste0(signif(as.numeric(resources_Npair_ids_in_resource),3)," /\n",signif(as.numeric(resources_Npair_ids),3))]
+
+ggplot(data = resources_Npair_ids2, aes(x = resource, y = fraction, fill = imex_biogrid,label = label_col)) +
+        scale_y_continuous(breaks = seq(0,1.2,0.05))+
+        ylab("fraction of interacting pairs in IMEx or BioGRID")+
+        xlab(NULL)+
+        theme(text = element_text(size = 17),
+              axis.text.x = element_text(angle =-25, vjust = 0.6, size = 17), 
+              #legend.position="none",
+              plot.margin = unit(c(1,1,1,1), "cm"))+
+        geom_bar(stat = "identity", width =0.9,  position = "dodge")+
+        geom_text(vjust = -0.15, position = position_dodge(width = 0.9))
+```
+
+
+========================================================
+type: sub-section
+## groups of resources enriched in curated interaction data (IMEx+BioGRID+GO IPI)
+Comparing groups of resources (Interactions, Pathways, Text-mining, Predictions) rather than individual resouces. Interacting pairs not publications are considered.
+
+```{r, fig.width = 12, fig.height= 6}
+Interactions_ids = Interactions_1[imex == 1 | BioGRID == 1 | GO_IPI == 1, unique(pair_id)]
+Pathways_ids = Pathways_1[reactome == 1 | OmniPath == 1 | STRING_pathway_inference == 1, unique(pair_id)]
+textmining_ids = textmining_1[tm_epmc == 1 | EVEX == 1 | STRING_textmining == 1, unique(pair_id)]
+Predictions_ids = Predictions_1[iid_pred == 1 | STRING_phylo_predictions == 1, unique(pair_id)]
+
+
+area1 = length(Interactions_ids)
+area2 = length(Pathways_ids)
+area3 = length(textmining_ids)
+area4 = length(Predictions_ids)
+n12 = sum(!is.na(match(Interactions_ids, Pathways_ids)))
+n13 = sum(!is.na(match(Interactions_ids, textmining_ids)))
+n14 = sum(!is.na(match(Interactions_ids, Predictions_ids)))
+n23 = sum(!is.na(match(Pathways_ids, textmining_ids)))
+n24 = sum(!is.na(match(Pathways_ids, Predictions_ids)))
+n34 = sum(!is.na(match(textmining_ids, Predictions_ids)))
+n123 = length(intersect(intersect((Interactions_ids),(Pathways_ids)),(textmining_ids)))
+n124 = length(intersect(intersect((Interactions_ids),(Pathways_ids)),(Predictions_ids)))
+n134 = length(intersect(intersect((Interactions_ids),(textmining_ids)),(Predictions_ids)))
+n234 = length(intersect(intersect((Pathways_ids),(textmining_ids)),(Predictions_ids)))
+n1234 = length(intersect(intersect(intersect((Interactions_ids),(Pathways_ids)),(textmining_ids)), (Predictions_ids)))
+
+
+venn_Interactions_1 = draw.quad.venn(area1, area2, area3, area4, n12, n13, n14, n23, n24,
+    n34, n123, n124, n134, n234, n1234, 
+                          category = c("Interactions", 
+                                       "Pathways", 
+                                       "Textmining",
+                                       "Predictions"), 
+                          lty = rep("blank", 4), 
+                          fill = c("blue", "red", "green", "grey"), 
+                          alpha = rep(0.5, 4), cat.pos = c(350, 25, 160,45), 
+                          cat.dist = c(0.08,0.08, -0.08, 0.08), 
+                          cat.cex = c(1.4,1.4, 1.4, 1.4), scaled = TRUE, euler.d = TRUE,  margin = 0.05,
+                          print.mode =  'raw',
+                          cex = 1.5
+)
+```
+
+========================================================
+type: sub-section
+## groups of resources enriched in curated interaction data (IMEx+BioGRID+GO IPI)
+the fraction of interacting pairs in a particular group or a combination of groups which are also found in the interaction group (IMEx+BioGRID+GO IPI) 
+
+```{r, fig.width = 12, fig.height= 6}
+combs_groups = c("Pathways","Textmining","Predictions", "Pathways & Textmining", "Pathways & Predictions", "Textmining & Predictions", "Pathways & Textmining & Predictions")
+comp_final_dt <- data.table(group = combs_groups, 
+                            overlap = c(n12/area2, n13/area3, n14/area4, n123/n23, n124/n24, n134/n34, n1234/n234),
+                            label = c(paste0(signif(n12,3)," /\n",signif(area2,3)), 
+                                      paste0(signif(n13,3)," /\n",signif(area3,3)), 
+                                      paste0(signif(n14,3)," /\n",signif(area4,3)),
+                                      paste0(signif(n123,3)," /\n",signif(n23,3)),
+                                      paste0(signif(n124,3)," /\n",signif(n24,3)),
+                                      paste0(signif(n134,3)," /\n",signif(n34,3)),
+                                      paste0(signif(n1234,3)," /\n",signif(n234,3))),
+                            sort = c(3,1,2,6,4,5,7),
+                            col = c("slategray1","slategray1","slategray1","skyblue2","skyblue2","skyblue2","skyblue4"))
+
+
+g <- ggplot(comp_final_dt,aes(x=reorder(group,sort),y=overlap,fill=col))
+g <- g + geom_bar(stat="identity")
+g <- g + guides(fill=FALSE)
+g <- g + ylab("fraction of interacting pairs in IMEx")
+g <- g + scale_fill_manual(values=c("skyblue2","skyblue4","slategray1"))
+g <- g + geom_text(label = comp_final_dt$label, vjust = -0.5)+
+        geom_text(label = signif(c(n12/area2, n13/area3, n14/area4, n123/n23, n124/n24, n134/n34, n1234/n234),3), vjust = 1.4)
+g <- g + ylim(0, 1)
+g <- g + theme(plot.title = element_text(),
+                 panel.grid.major = element_blank(),
+                 panel.grid.minor = element_blank(),
+                 panel.background = element_blank(),
+                 axis.text.y = element_text(size=12),
+                 axis.text.x = element_text(size=12,angle =-45, vjust = 0.6),
+                 axis.title.y = element_text(size=12),
+               axis.title.x = element_blank())
+g
+```
