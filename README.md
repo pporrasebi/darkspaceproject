@@ -58,15 +58,15 @@ This a list of the different approaches considered in order to get an estimation
 
 These resources contain actual protein interaction data and can be used as reference to estimate if the external sources can actually provide molecular interaction data.
 
-	* IMEx dataset: 
-		* Our own molecular interaction data, blending all IMEx consortium databases curating into IntAct, plus DIP (soon to be updated, once the DIP import is complete.
+* IMEx dataset: 
+	* Our own molecular interaction data, blending all IMEx consortium databases curating into IntAct, plus DIP (soon to be updated, once the DIP import is complete.
 
-	* BioGRID data (https://thebiogrid.org/): 
-		* We need to identify how much information is curated in BioGrid as well, since any predicted interaction will be prioritized down if it is already curated there. 
-		* Since BioGRID maps its proteins to EntrezGeneIDs, we take its data from mentha, which has already translated them into UniProt accessions. 
+* BioGRID data (https://thebiogrid.org/): 
+	* We need to identify how much information is curated in BioGrid as well, since any predicted interaction will be prioritized down if it is already curated there. 
+	* Since BioGRID maps its proteins to EntrezGeneIDs, we take its data from mentha, which has already translated them into UniProt accessions. 
 		
-	* GO IPIs: 
-		* 'Inferred from Protein Interaction' annotations made by GO curators. Available through a new PSICQUIC server (EBI-GOA-nonIntAct).
+* GO IPIs: 
+	* 'Inferred from Protein Interaction' annotations made by GO curators. Available through a new PSICQUIC server (EBI-GOA-nonIntAct).
 
 #### Strategies we have considered, but have not been implemented
 
