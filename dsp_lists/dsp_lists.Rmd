@@ -250,6 +250,8 @@ Lists get divided into different priority tables and fed to GoogleDocs.
 dsp_priority = dsp_comp_export[BioGRID_publ=="no" & GO_IPI_publ=="no" & imex_publ=="no"]
 fwrite(head(dsp_priority,10000),"./results/dsp_priority.txt",col.names = T,row.names = F,sep="\t",quote=F)
 
+fwrite(dsp_priority,"./results/dsp_priority_full.txt",col.names = T,row.names = F,sep="\t",quote=F)
+
 dsp_biogrid_go = dsp_comp_export[BioGRID_publ=="yes" & GO_IPI_publ=="yes"]
 fwrite(dsp_biogrid_go,"./results/dsp_biogrid_go.txt",col.names = T,row.names = F,sep="\t",quote=F)
 ```

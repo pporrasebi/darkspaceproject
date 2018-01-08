@@ -146,10 +146,10 @@ pmids_checked$pmid &lt;- as.character(pmids_checked$pmid)</code></pre>
 <h4>Comparison lists</h4>
 <pre class="r"><code>dsp_comp_pubpair &lt;- fread(&quot;../dsp_comparison/results/pubpaircomp_table_final.txt&quot;,header=T,sep=&quot;\t&quot;)</code></pre>
 <pre><code>## 
-Read 43.5% of 2093151 rows
-Read 62.1% of 2093151 rows
-Read 83.6% of 2093151 rows
-Read 2093151 rows and 19 (of 19) columns from 0.112 GB file in 00:00:05</code></pre>
+Read 41.1% of 2093151 rows
+Read 60.2% of 2093151 rows
+Read 81.2% of 2093151 rows
+Read 2093151 rows and 19 (of 19) columns from 0.112 GB file in 00:00:06</code></pre>
 <pre class="r"><code>dsp_comp_publ &lt;- fread(input = &quot;zcat &lt; ../dsp_comparison/results/pubcomp_table_final.txt.gz&quot;,header=T,sep=&quot;\t&quot;)
 dsp_comp_publ &lt;- dsp_comp_publ[pmid!=&quot;0&quot; &amp; pmid!=&quot;-&quot; &amp; pmid!=&quot;&quot;]</code></pre>
 </div>
@@ -365,6 +365,8 @@ dsp_comp_export &lt;- dsp_comp_export[order(-contains_ints_man_check,
 <p>Lists get divided into different priority tables and fed to GoogleDocs.</p>
 <pre class="r"><code>dsp_priority = dsp_comp_export[BioGRID_publ==&quot;no&quot; &amp; GO_IPI_publ==&quot;no&quot; &amp; imex_publ==&quot;no&quot;]
 fwrite(head(dsp_priority,10000),&quot;./results/dsp_priority.txt&quot;,col.names = T,row.names = F,sep=&quot;\t&quot;,quote=F)
+
+fwrite(dsp_priority,&quot;./results/dsp_priority_full.txt&quot;,col.names = T,row.names = F,sep=&quot;\t&quot;,quote=F)
 
 dsp_biogrid_go = dsp_comp_export[BioGRID_publ==&quot;yes&quot; &amp; GO_IPI_publ==&quot;yes&quot;]
 fwrite(dsp_biogrid_go,&quot;./results/dsp_biogrid_go.txt&quot;,col.names = T,row.names = F,sep=&quot;\t&quot;,quote=F)</code></pre>

@@ -1,0 +1,56 @@
+---
+title: "DSP list checker script"
+author: "Pablo Porras"
+date: "08/01/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Summary
+
+Small script to check which papers contain certain UniProt accessions in the Dark Space Project prioritized lists. 
+
+#### Libraries
+```{r message=FALSE,warning=FALSE}
+require(data.table)
+require(xlsx)
+require(splitstackshape)
+```
+
+#### Data upload
+```{r message=FALSE,warning=FALSE}
+dsp_priority <- fread("../dsp_lists/results/dsp_priority.txt",header=T)
+dsp_priority_full <- fread("../dsp_lists/results/dsp_priority_full.txt",header=T)
+dsp_biogrid_go <- fread("../dsp_lists/results/dsp_biogrid_go.txt",header=T)
+
+query <- data.table(read.xlsx2("./source_data/176 BHF Willer list for comparison with Pablo's Dark Space Project binaries list.xlsx",header=T,sheetIndex=1))
+
+query_acs <- as.character(query$TOTL.1)
+```
+
+### Check which publications contain any of the proteins in the query list
+```{r build_queries}
+# DSP priority list (only 10000 first papers)
+dsp_priority <- dsp_priority[,prot_ac:=prot_pairs]
+dsp_priority_long_pt1 <- unique(cSplit(dsp_priority,splitCols="prot_ac",sep="|",direction="long"))
+dsp_priority_long <- unique(cSplit(dsp_priority_long_pt1,splitCols="prot_ac",sep="_",direction="long"))
+query_dsp <- dsp_priority_long[prot_ac %in% query_acs]
+fwrite(query_dsp,"./results/result_dsp10000.txt",col.names = T,row.names = F,sep="\t")
+
+# DSP priority full list
+dsp_priority_full <- dsp_priority_full[,prot_ac:=prot_pairs]
+dsp_priority_full_long_pt1 <- unique(cSplit(dsp_priority_full,splitCols="prot_ac",sep="|",direction="long"))
+dsp_priority_full_long <- unique(cSplit(dsp_priority_full_long_pt1,splitCols="prot_ac",sep="_",direction="long"))
+query_dsp_full <- dsp_priority_full_long[prot_ac %in% query_acs]
+fwrite(query_dsp_full,"./results/result_dsp_full.txt",col.names = T,row.names = F,sep="\t")
+
+# DSP in BioGRID and/or GO IPI list
+dsp_biogrid_go <- dsp_biogrid_go[,prot_ac:=prot_pairs]
+dsp_biogrid_go_long_pt1 <- unique(cSplit(dsp_biogrid_go,splitCols="prot_ac",sep="|",direction="long"))
+dsp_biogrid_go_long <- unique(cSplit(dsp_biogrid_go_long_pt1,splitCols="prot_ac",sep="_",direction="long"))
+query_bg_go <- dsp_biogrid_go_long[prot_ac %in% query_acs]
+fwrite(query_bg_go,"./results/result_bg_go.txt",col.names = T,row.names = F,sep="\t")
+```
