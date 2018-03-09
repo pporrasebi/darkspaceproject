@@ -11,6 +11,7 @@
 
 <meta name="author" content="Pablo Porras" />
 
+<meta name="date" content="2018-08-03" />
 
 <title>DSP lists to coordinate curation</title>
 
@@ -120,7 +121,7 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">DSP lists to coordinate curation</h1>
 <h4 class="author"><em>Pablo Porras</em></h4>
-<h4 class="date"><em>19/12/2017</em></h4>
+<h4 class="date"><em>08/03/2018</em></h4>
 
 </div>
 
@@ -130,9 +131,9 @@ $(document).ready(function () {
 <p>This is a set of scripts to generate a final curation list that can be used by IMEx curators in order to prioritize paper selection.</p>
 <div id="libraries" class="section level4">
 <h4>Libraries</h4>
-<pre class="r"><code>require(data.table)
-require(googlesheets)
-require(splitstackshape)</code></pre>
+<pre class="r"><code>library(data.table)
+library(googlesheets)
+library(splitstackshape)</code></pre>
 </div>
 <div id="upload-lists" class="section level3">
 <h3>Upload lists</h3>
@@ -146,10 +147,9 @@ pmids_checked$pmid &lt;- as.character(pmids_checked$pmid)</code></pre>
 <h4>Comparison lists</h4>
 <pre class="r"><code>dsp_comp_pubpair &lt;- fread(&quot;../dsp_comparison/results/pubpaircomp_table_final.txt&quot;,header=T,sep=&quot;\t&quot;)</code></pre>
 <pre><code>## 
-Read 41.1% of 2093151 rows
-Read 60.2% of 2093151 rows
-Read 81.2% of 2093151 rows
-Read 2093151 rows and 19 (of 19) columns from 0.112 GB file in 00:00:06</code></pre>
+Read 58.8% of 2093151 rows
+Read 82.7% of 2093151 rows
+Read 2093151 rows and 19 (of 19) columns from 0.112 GB file in 00:00:04</code></pre>
 <pre class="r"><code>dsp_comp_publ &lt;- fread(input = &quot;zcat &lt; ../dsp_comparison/results/pubcomp_table_final.txt.gz&quot;,header=T,sep=&quot;\t&quot;)
 dsp_comp_publ &lt;- dsp_comp_publ[pmid!=&quot;0&quot; &amp; pmid!=&quot;-&quot; &amp; pmid!=&quot;&quot;]</code></pre>
 </div>
@@ -160,6 +160,19 @@ dsp_comp_publ &lt;- dsp_comp_publ[pmid!=&quot;0&quot; &amp; pmid!=&quot;-&quot; 
 colnames(up_nocc) &lt;- &quot;upac&quot;
 
 up_nocc &lt;- up_nocc[,up_nocc:=&quot;1&quot;]</code></pre>
+</div>
+<div id="ranked-list-of-dsp-publications" class="section level4">
+<h4>Ranked list of DSP publications</h4>
+<p>As provided by Miguel Vázquez.</p>
+<pre class="r"><code>dsp_rank &lt;- fread(&quot;../../DarkSpace/manual_evaluation/round4/pmid_ranks.txt&quot;,
+                  header=T,
+                  sep=&quot;\t&quot;,
+                  check.names = T,
+                  stringsAsFactors = F)
+dsp_rank_sel &lt;- unique(dsp_rank[,.(pmid = as.character(X.PMID),
+                                   relevance = Relevance,
+                                   DS.interest = Dark.Space.interest,
+                                   DS.part_interest = Dark.Space..partial..interest)])</code></pre>
 </div>
 </div>
 <div id="putting-all-lists-together" class="section level3">
@@ -240,8 +253,14 @@ dsp_up_nocc &lt;- unique(dsp_plus_up_nocc[up_nocc==&quot;1&quot;,
                       all.x = T,
                       all.y = T)
 
-dsp_comp_final &lt;- merge(dsp_comp_pt3,
+dsp_comp_pt4 &lt;- merge(dsp_comp_pt3,
                         pmids_checked,
+                        by = &quot;pmid&quot;,
+                        all.x = T,
+                        all.y = F)
+
+dsp_comp_final &lt;- merge(dsp_comp_pt4,
+                        dsp_rank_sel,
                         by = &quot;pmid&quot;,
                         all.x = T,
                         all.y = F)</code></pre>
@@ -254,6 +273,9 @@ dsp_comp_final &lt;- merge(dsp_comp_pt3,
                                     curatable = &quot;&quot;,
                                     curator_comment = &quot;&quot;,
                                     prot_pairs,
+                                    relevance,
+                                    DS.interest,
+                                    DS.part_interest,
                                     ccline_uniprot,
                                     noncur_prot = ifelse(grepl(&quot;\\|&quot;,noncur_prot),
                                                        &quot;part&quot;,
@@ -363,8 +385,64 @@ dsp_comp_export &lt;- dsp_comp_export[order(-contains_ints_man_check,
 <div id="export-different-curation-tables-to-google-docs" class="section level4">
 <h4>Export different curation tables to google docs</h4>
 <p>Lists get divided into different priority tables and fed to GoogleDocs.</p>
-<pre class="r"><code>dsp_priority = dsp_comp_export[BioGRID_publ==&quot;no&quot; &amp; GO_IPI_publ==&quot;no&quot; &amp; imex_publ==&quot;no&quot;]
+<pre class="r"><code>dsp_priority_head_180308 &lt;- fread(&quot;./results/dsp_eval_180308.txt&quot;,
+                                  header = T,
+                                  stringsAsFactors = F,
+                                  sep = &quot;\t&quot;)
+dsp_priority_180308_sel &lt;- unique(dsp_priority_head_180308[,.(pmid=as.character(PMID),
+                                                              curator,
+                                                              curatable,
+                                                              curator_comment)])
+
+dsp_priority &lt;- dsp_comp_export[BioGRID_publ==&quot;no&quot; &amp; GO_IPI_publ==&quot;no&quot; &amp; imex_publ==&quot;no&quot;]
+dsp_priority &lt;- unique(merge(dsp_priority,
+                             dsp_priority_180308_sel,
+                             by = &quot;pmid&quot;,
+                             all.x = T,
+                             all.y = F))
+dsp_priority &lt;- dsp_priority[,.(pmid,
+                                curator = ifelse(is.na(curator.y),
+                                                 curator.x,
+                                                 curator.y),
+                                curatable = ifelse(is.na(curatable.y),
+                                                 curatable.x,
+                                                 curatable.y),
+                                curator_comment = ifelse(is.na(curator_comment.y),
+                                                 curator_comment.x,
+                                                 curator_comment.y),
+                                prot_pairs,
+                                relevance,
+                                DS.interest,
+                                DS.part_interest,
+                                ccline_uniprot,
+                                noncur_prot,
+                                contains_ints_man_check,
+                                contains_ints_man_check_comment,
+                                imex_publ,
+                                imex_pair,
+                                GO_IPI_publ,
+                                GO_IPI_pair,
+                                BioGRID_publ,
+                                BioGRID_pair,
+                                tm_epmc_publ,
+                                tm_epmc_pair,
+                                EVEX_publ,
+                                EVEX_pair,
+                                STRING_textmining_pair,
+                                reactome_publ,
+                                reactome_pair,
+                                OmniPath_interactions_publ,
+                                OmniPath_interactions_pair,
+                                OmniPath_ptm_publ,
+                                OmniPath_ptm_pair,
+                                STRING_pi_pair,
+                                iid_pred)]
+
+dsp_priority &lt;- dsp_priority[order(-curator,
+                                   -relevance)]
+
 fwrite(head(dsp_priority,10000),&quot;./results/dsp_priority.txt&quot;,col.names = T,row.names = F,sep=&quot;\t&quot;,quote=F)
+
 
 fwrite(dsp_priority,&quot;./results/dsp_priority_full.txt&quot;,col.names = T,row.names = F,sep=&quot;\t&quot;,quote=F)
 

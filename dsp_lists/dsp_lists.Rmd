@@ -1,7 +1,7 @@
 ---
 title: "DSP lists to coordinate curation"
 author: "Pablo Porras"
-date: "19/12/2017"
+date: "08/03/2018"
 output: html_document
 ---
 
@@ -15,9 +15,9 @@ This is a set of scripts to generate a final curation list that can be used by I
 
 #### Libraries
 ```{r libraries,message=FALSE,warning=FALSE}
-require(data.table)
-require(googlesheets)
-require(splitstackshape)
+library(data.table)
+library(googlesheets)
+library(splitstackshape)
 ```
 
 ### Upload lists
@@ -40,6 +40,20 @@ up_nocc <- fread("./source_data/20171219_uniprot-nocclines.txt",header=F,sep="\t
 colnames(up_nocc) <- "upac"
 
 up_nocc <- up_nocc[,up_nocc:="1"]
+```
+
+#### Ranked list of DSP publications
+As provided by Miguel Vázquez. 
+```{r rank,message=F,warning=F}
+dsp_rank <- fread("../../DarkSpace/manual_evaluation/round4/pmid_ranks.txt",
+                  header=T,
+                  sep="\t",
+                  check.names = T,
+                  stringsAsFactors = F)
+dsp_rank_sel <- unique(dsp_rank[,.(pmid = as.character(X.PMID),
+                                   relevance = Relevance,
+                                   DS.interest = Dark.Space.interest,
+                                   DS.part_interest = Dark.Space..partial..interest)])
 ```
 
 ### Putting all lists together
@@ -122,8 +136,14 @@ dsp_comp_pt3 <- merge(dsp_comp_pt2,
                       all.x = T,
                       all.y = T)
 
-dsp_comp_final <- merge(dsp_comp_pt3,
+dsp_comp_pt4 <- merge(dsp_comp_pt3,
                         pmids_checked,
+                        by = "pmid",
+                        all.x = T,
+                        all.y = F)
+
+dsp_comp_final <- merge(dsp_comp_pt4,
+                        dsp_rank_sel,
                         by = "pmid",
                         all.x = T,
                         all.y = F)
@@ -137,6 +157,9 @@ dsp_comp_export <- dsp_comp_final[!grepl("no",`contains interactions?`),
                                     curatable = "",
                                     curator_comment = "",
                                     prot_pairs,
+                                    relevance,
+                                    DS.interest,
+                                    DS.part_interest,
                                     ccline_uniprot,
                                     noncur_prot = ifelse(grepl("\\|",noncur_prot),
                                                        "part",
@@ -245,10 +268,66 @@ dsp_comp_export <- dsp_comp_export[order(-contains_ints_man_check,
 ```
 
 #### Export different curation tables to google docs
-Lists get divided into different priority tables and fed to GoogleDocs.
+Lists get divided into different priority tables and fed to GoogleDocs. 
 ```{r export}
-dsp_priority = dsp_comp_export[BioGRID_publ=="no" & GO_IPI_publ=="no" & imex_publ=="no"]
+dsp_priority_head_180308 <- fread("./results/dsp_eval_180308.txt",
+                                  header = T,
+                                  stringsAsFactors = F,
+                                  sep = "\t")
+dsp_priority_180308_sel <- unique(dsp_priority_head_180308[,.(pmid=as.character(PMID),
+                                                              curator,
+                                                              curatable,
+                                                              curator_comment)])
+
+dsp_priority <- dsp_comp_export[BioGRID_publ=="no" & GO_IPI_publ=="no" & imex_publ=="no"]
+dsp_priority <- unique(merge(dsp_priority,
+                             dsp_priority_180308_sel,
+                             by = "pmid",
+                             all.x = T,
+                             all.y = F))
+dsp_priority <- dsp_priority[,.(pmid,
+                                curator = ifelse(is.na(curator.y),
+                                                 curator.x,
+                                                 curator.y),
+                                curatable = ifelse(is.na(curatable.y),
+                                                 curatable.x,
+                                                 curatable.y),
+                                curator_comment = ifelse(is.na(curator_comment.y),
+                                                 curator_comment.x,
+                                                 curator_comment.y),
+                                prot_pairs,
+                                relevance,
+                                DS.interest,
+                                DS.part_interest,
+                                ccline_uniprot,
+                                noncur_prot,
+                                contains_ints_man_check,
+                                contains_ints_man_check_comment,
+                                imex_publ,
+                                imex_pair,
+                                GO_IPI_publ,
+                                GO_IPI_pair,
+                                BioGRID_publ,
+                                BioGRID_pair,
+                                tm_epmc_publ,
+                                tm_epmc_pair,
+                                EVEX_publ,
+                                EVEX_pair,
+                                STRING_textmining_pair,
+                                reactome_publ,
+                                reactome_pair,
+                                OmniPath_interactions_publ,
+                                OmniPath_interactions_pair,
+                                OmniPath_ptm_publ,
+                                OmniPath_ptm_pair,
+                                STRING_pi_pair,
+                                iid_pred)]
+
+dsp_priority <- dsp_priority[order(-curator,
+                                   -relevance)]
+
 fwrite(head(dsp_priority,10000),"./results/dsp_priority.txt",col.names = T,row.names = F,sep="\t",quote=F)
+
 
 fwrite(dsp_priority,"./results/dsp_priority_full.txt",col.names = T,row.names = F,sep="\t",quote=F)
 

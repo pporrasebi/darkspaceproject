@@ -71,10 +71,9 @@ tm_long$upac_1 <- as.character(tm_long$upac_1)
 tm_long$upac_2 <- as.character(tm_long$upac_2)
 
 publs <- unique(tm_long$pmid)
-pairs <- unique(tm_long$pair_id)
 ```
 
-Now I generate the pair ids for the text-mined datset.
+The data set contains `r length(publs)` publications potentially harbouring interaction data. Now I generate the pair ids for the text-mined dataset.
 
 ```{r,message=FALSE}
 library(dplyr)
@@ -82,9 +81,10 @@ tm_long$pair_id <- apply(select(tm_long,upac_1,upac_2), 1,function(i){
   paste(sort(i),collapse = "_")
 })
 tm_long$tm <- 1
+pairs <- unique(tm_long$pair_id)
 ```
 
-I also generate a count of the number of times the protein or the detection method have been found. 
+There are `r length(pairs)` unique putative protein pairs in the dataset. I also generate a count of the number of times the protein or the detection method have been found. 
 
 ```{r scoring,message=FALSE}
 library("stringr")
@@ -98,5 +98,40 @@ tm_lite <- unique(tm_long[,.(pair_id,pmid,tm,method_term,tm_pr_times_found,tm_dm
 write.table(tm_lite,"./results/pairs_pmids_tm.txt",col.names=T,row.names=F,quote=F,sep="\t")
 system("gzip ./results/pairs_pmids_tm.txt")
 ```
+#### Generating a version of the file where methods can be searched
 
+```{r}
+tm_lite_met_long <- unique(cSplit(tm_lite,
+                           splitCols = "method_term",
+                           sep = "||||",
+                           drop = F,
+                           direction = "long"))
+
+tm_lite_uniquemet <- tm_lite[!grepl("\\|\\|\\|\\|",method_term)]
+
+tm_lite_met <- unique(rbind(tm_lite_met_long,tm_lite_uniquemet))
+
+tm_lite_met <- tm_lite_met[,.(pair_id,
+                              pmid,
+                              tm,
+                              method_term_simple = gsub("s$","",tolower(gsub("__.*","",method_term))),
+                              tm_pr_times_found,
+                              tm_dm_times_found)]
+
+met_count <- data.table(table(tm_lite_met$method_term_simple,
+                        useNA = "ifany"))
+met_count[order(-N)]
+```
+
+##### Generating some stats for methods potentially detecting protein-nucleci acid interactions (PNAIs)
+```{r}
+potential_pnais <- tm_lite_met[grepl("one hybrid|one-hybrid|electrophoretic mobility shift assay|emsa|chromatin immunoprecipitation|chip|crac|y1h|clip",
+                                     method_term_simple)]
+pnais_count <- data.table(table(potential_pnais$method_term_simple,
+                        useNA = "ifany"))
+
+pnais_count[order(-N)]
+```
+Number of publications potentially containing PNAIs: `r nrow(unique(potential_pnais[,.(pmid)]))`.  
+Number of potential unique PNAIs pairs: `r nrow(unique(potential_pnais[,.(pair_id)]))`.   
 ************************************************************
