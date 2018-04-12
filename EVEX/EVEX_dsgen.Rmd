@@ -154,7 +154,7 @@ fwrite(x = unique(EVEX_pairs),
 N_EVEX = length(EVEX_pairs[,unique(pair_id_clean)])
 
 # saving minimal EVEX table with standard columns
-EVEX_pairs_s = EVEX_pairs[, .(pair_id_clean, ida_clean, idb_clean, pubid, taxon, EVEX)]
+EVEX_pairs_s = EVEX_pairs[, .(pair_id_clean, ida_clean, idb_clean, pubid, taxon, EVEX, evex_score = interaction_confidence)]
 fwrite(x = unique(EVEX_pairs_s), 
        file = "./results/pairs_pmids_EVEX_minimal.txt", sep = "\t")
 ```

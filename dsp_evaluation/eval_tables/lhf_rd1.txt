@@ -385,7 +385,7 @@ Q15542_Q7Z7C8	22441827	0	1	1	1	0	yes	no		Simona	All these proteins form a well k
 P01375_P78536	22479555	0	1	1	1	0	yes	no	Yes	Simona	the pair is correct and well-known but it is not direclty demonstrated in the pmid (in vivo use of inhibitors)		no
 O00206_P05109	22489132	0	1	1	1	0	no	yes		Simona	the pair is correct but the pmid  is a review		no
 P05109_P06702	22489132	0	1	1	1	0	no	yes		Simona	the pair is correct but the pmid  is a review		yes
-P78527_Q13426	22.529.269,00	0	1	1	1	0	yes	yes		Simona	Both interacts with Q96SD1 in a complex		yes
+P78527_Q13426	22529269	0	1	1	1	0	yes	yes		Simona	Both interacts with Q96SD1 in a complex		yes
 P15692_P35968	22689825	0	1	1	1	0	yes	no		Luana			
 P35968_Q9NP31	22689825	0	1	1	1	0	yes	yes		Luana			
 P31151_Q86SG5	22747601	0	1	1	1	1	yes	no		Luana	 2 homo-dimers but the 2 proteins are crystallized separately 		

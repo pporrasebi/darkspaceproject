@@ -1,0 +1,501 @@
+pmid	imex	reactome	tm_epmc	iid_pred	noncur_prot	Contains interactions?	Curator	Comments	Reserved for curation
+28066721	0	0	1	1	1	yes	Pablo		
+22028876	0	0	1	0	1	no	Pablo	structural modelling paper	
+24727733	0	0	1	0	0	no	Pablo	protein array used in non-interaction detection experiment	
+25742010	0	0	1	1	0	yes	Pablo		
+27308354	0	0	1	0	0	yes	Pablo	very short paper with just text and no data shown, not curatable	
+21900492	0	0	1	0	1	no	Pablo	FRET assay used to check sterol transfer to liposomes, no interaction data	
+21818277	0	0	1	0	0	yes	Pablo	ChIP data	
+24688304	0	0	1	1	0	no	Pablo	Apoptosis paper, CASP3 assays on lysates	
+24392163	0	0	1	0	0	yes	Pablo		
+21998301	0	0	1	0	1	yes	Pablo		
+19584867	0	0	1	1	0	no	Pablo		
+24040095	0	0	1	0	1	no	Pablo	Bacteria-protein interactions detected	
+21986938	0	0	1	0	0	yes	Pablo		
+22207579	0	0	1	0	0	yes	Pablo		
+20842112	0	0	1	1	0	yes	Pablo	ChIP data	
+22731636	0	0	1	0	0	yes	Pablo		
+23096115	0	0	1	1	0	yes	Pablo		
+27109047	0	0	1	0	0	yes	Pablo		
+22908313	0	0	1	1	0	yes	Pablo		
+24361124	0	0	1	0	0	yes	Pablo	ChIP data	
+26700459	0	0	1	0	0	yes	Pablo		
+23724047	0	0	1	0	1	yes	Pablo	RNA interactions	
+25973173	0	0	1	1	0	no	Pablo		
+25816367	0	0	1	0	0	yes	Pablo		
+26541268	0	0	1	0	0	no	Pablo	host-pathogen / inter-pathway interactions mentioned	
+25515237	0	0	1	0	0	no	Pablo		
+27545878	0	0	1	0	0	yes	Pablo		
+21291561	0	0	1	1	0	no	Pablo	enzymatic assays used on lysates	
+24349009	0	0	1	0	0	yes	Pablo		
+25365359	0	0	1	1	0	no	Pablo	enzymatic assays used on lysates	
+23349666	0	0	1	0	0	no	Pablo	enzymatic assays used on lysates	
+27619510	0	0	1	1	0	yes	Pablo		
+26571013	0	0	1	1	1	yes	Pablo	ChIP data	
+23844208	0	0	1	0	0	no	Pablo		
+23733784	0	0	1	0	0	yes	Pablo	ChIP data	
+23806657	0	0	1	0	0	yes	Pablo		
+23902727	0	0	1	0	0	no	Pablo	Immunoprecipitation (no coIP)	
+21967847	0	0	1	0	1	yes	Pablo		
+22567123	0	0	1	0	0	yes	Pablo		
+24204564	0	0	1	0	0	yes	Pablo	ChIP data	
+24584857	0	0	1	0	0	yes	Pablo	ChIP data	
+21572106	0	0	1	0	0	yes	Pablo		
+25719671	0	0	1	0	0	yes	Pablo	RNA interactions	
+20062533	0	0	1	1	0	yes	Pablo	ChIP data	
+26416881	0	0	1	0	0	yes	Pablo		
+25834832	0	0	1	0	0	no	Pablo		
+27274716	0	0	1	1	1	no	Pablo	affinity purification used to clean samples and make them more specific for gag-binding proteins	
+26918455	0	0	1	0	0	no	Pablo	immunoprecipitation used to quantify levels of a target protein	
+25531315	0	0	1	0	0	yes	Pablo		
+12213837	0	0	1	1	0	yes	Pablo		
+25072851	0	0	1	0	0	no	Pablo		
+27897222	0	0	1	0	0	no	Pablo	enzymatic assays used on lysates	
+18332182	0	0	1	0	1	yes	Pablo		
+26702435	0	0	1	1	0	yes	Pablo		
+16582100	0	0	1	0	0	yes	Pablo	ChIP data	
+25312253	0	0	1	0	0	no	Pablo	enzymatic assays used on lysates, affinity purification used to monitor binding to cells	
+23691243	0	0	1	0	0	no	Pablo		
+21931555	0	0	1	0	1	yes	Pablo		
+27486982	0	0	1	0	0	yes	Pablo	ChIP data	
+22444868	0	0	1	1	0	no	Pablo	in situ hybridization to monitor RNA levels of specific genes	
+25823818	0	0	1	0	0	yes	Pablo	ChIP & EMSA data	
+26243517	0	0	1	0	0	yes	Pablo		
+28039457	0	0	1	1	1	no	Pablo		
+28051183	0	0	1	0	0	yes	Pablo		
+25306110	0	0	1	0	0	yes	Pablo	ChIP data	
+23300710	0	0	1	1	0	yes	Pablo		
+28212564	0	0	1	0	0	yes	Pablo		
+24138815	0	0	1	1	0	no	Pablo		
+25762619	0	0	1	0	0	no	Pablo		
+25970784	0	0	1	0	0	yes	Pablo		
+24143245	0	0	1	0	0	yes	Pablo		
+24879641	0	0	1	1	0	yes	Pablo	variants paper	
+25056273	0	0	1	1	0	yes	Pablo		
+25023518	0	0	1	1	0	yes	Pablo		
+25756178	0	0	1	0	0	yes	Luana	ChIP data	
+20861162	0	0	1	0	0	no	Luana		
+27055101	0	0	1	0	0	yes	Luana		
+27982078	0	0	1	1	0	yes	Luana	only as a positive control	
+16859511	0	0	1	0	0	yes	Luana		
+27902969	0	0	1	0	0	no	Luana		
+27932493	0	0	1	0	0	yes	Luana		
+17375192	0	0	1	1	0	no	Luana	RETRACTED ARTICLE	
+25002860	0	0	1	0	0	no	Luana		
+27456665	0	0	1	0	0	no	Luana		
+18606856	0	0	1	1	0	no	Luana		
+26265185	0	0	1	0	0	yes	Luana		
+12756238	0	0	1	1	0	yes	Luana	EMSA	
+25887124	0	0	1	0	0	no	Luana	Flow cytometry and cell sorting, RNA extraction and real-time PCR analysis	
+25336618	0	0	1	0	0	no	Luana		
+24510188	0	0	1	1	0	no	Luana	RNA analysis	
+25190493	0	0	1	1	0	yes	Luana		
+17557078	0	0	1	1	1	yes	Luana		
+24510189	0	0	1	1	0	yes	Luana		
+25510503	0	0	1	0	0	yes	Luana	ChIP data	
+25726523	0	0	1	0	1	yes	Luana		
+27270970	0	0	1	0	0	yes	Luana		
+22583596	0	0	1	0	0	no	Luana	cell migration, gene expression, ...	
+23637832	0	0	1	0	0	yes	Luana		
+22956765	0	0	1	0	1	yes	Luana		
+27051413	0	0	1	1	0	yes	Luana		
+20565882	0	0	1	0	0	yes	Luana	ChIP data	
+27989102	0	0	1	0	0	yes	Luana		
+27849571	0	0	1	0	0	yes	Luana		
+22972948	0	0	1	0	1	no	Luana	clinical and molecular investigations	
+20368408	0	0	1	0	0	no	Luana	migration assay	
+19891780	0	0	1	1	0	yes	Luana		
+26034986	0	0	1	0	0	yes	Luana		
+24244542	0	0	1	0	0	yes	Luana	ChIP data	
+22905201	0	0	1	1	0	no	Luana	surface biotinylation assay	
+28141831	0	0	1	1	0	yes	Luana	ChIP data	
+25878769	0	0	1	1	0	yes	Luana		
+26813342	0	0	1	1	0	no	Luana	There is a CoIP but no interactions	
+24498420	0	0	1	0	0	yes	Luana		
+26344567	0	0	1	1	0	yes	Luana		
+23785295	0	0	1	1	0	no	Luana		
+23082233	0	0	1	0	0	yes	Luana		
+22140559	0	0	1	1	0	yes	Luana		
+25849286	0	0	1	0	0	yes	Luana	ChIP data	
+25476240	0	0	1	1	0	yes	Luana	ChIP data	
+24710573	0	0	1	0	0	no	Luana	FRAP to study lamellipodial F-actin dynamics	
+24453954	0	0	1	1	0	no	Luana	simulation	
+26687479	0	0	1	1	0	yes	Luana		
+23293603	0	0	1	0	0	yes	Luana		
+23409128	0	0	1	0	0	no	Luana		
+24391497	0	0	1	0	1	yes	Luana		
+17606866	0	0	1	0	0	no	Luana		
+25682869	0	0	1	1	0	yes	Luana		
+25713299	0	0	1	0	1	yes	Luana		
+26652601	0	0	1	1	0	no	Luana	ChIP data and RhoA-GTP pulldown assays	
+24614757	0	0	1	0	1	yes	Luana	ChIP data	
+23179371	0	0	1	0	0	yes	Luana		
+28373282	0	0	1	1	0	no	Luana	binding with metformin	
+24206648	0	0	1	0	0	no	Luana		
+22404908	0	0	1	0	0	yes	Luana		
+26076379	0	0	1	0	0	no	Luana		
+11956289	0	0	1	0	0	yes	Luana		
+26694840	0	0	1	0	0	yes	Luana	colocalization	
+27479603	0	0	1	0	0	yes	Luana		
+25417702	0	0	1	0	0	yes	Luana		
+25855965	0	0	1	0	0	no	Luana		
+24904622	0	0	1	1	0	no	Luana	study on fruit weight and shape	
+24714389	0	0	1	0	1	no	Luana	CoIP with phosphoserine	
+20209098	0	0	1	1	0	no	Luana		
+27590350	0	0	1	1	0	yes	Luana	ChIP data	
+23819014	0	0	1	0	0	yes	Luana	EMSA	
+23559008	0	0	1	0	0	yes	Luana		
+26828592	0	0	1	0	1	no	Luana	pull-down assay for activated RhoA	
+22359584	0	0	1	0	0	no	Luana	CoIP but not to study interactions	
+23290522	0	0	1	1	0	yes	Luana		
+22797943	0	0	1	1	0	yes	Luana	ChIP data and EMSA	
+21291561	0	0	1	0	0	no	Luana	CoIP with anti-pTyr antibody	
+27759077	0	0	1	0	0	no	Luana		
+27551498	0	0	1	0	0	no	Luana		
+21239502	0	0	1	0	0	yes	Luana		
+24567509	0	0	1	0	0	no	Luana		
+25029497	0	0	1	1	0	yes	Luana		
+20305814	0	0	1	0	0	yes	Luana		
+27738385	0	0	1	0	0	no	Luana		
+27904655	0	0	1	0	1	yes	Luana	ChIP data 	
+21887223	0	0	1	0	0	yes	Luana		
+28128295	0	0	1	0	1	yes	Luana		
+22675463	0	0	1	1	1	no	Luana	spr but (data not shown)	
+27641145	0	0	1	0	0	yes	Luana		
+25832730	0	0	1	0	0	no	Luana		
+23555273	0	0	1	1	0	yes	Luana	but not curable, CoIP with anti-Ub	
+18606850	0	0	1	0	1	yes	Luana		
+22143888	0	0	1	0	0	yes	Luana	ChIP data	
+25405912	0	0	1	0	0	no	Luana		
+26763441	0	0	1	0	0	yes	Luana		
+28420882	0	0	1	0	0	yes	Luana		
+21930777	0	0	1	0	0	yes	Luana		
+19424502	0	0	1	0	0	yes	Luana		
+24877091	0	0	1	0	0	yes	Luana	ChIP data	
+23285096	0	0	1	1	0	yes	Luana	ChIP data	
+21859844	0	0	1	0	1	no	Luana		
+19654328	0	0	1	0	0	yes	Luana		
+24844638	0	0	1	0	0	yes	Luana		
+27300479	0	0	1	1	0	no	Luana	pull down assays for Cdc42 and Rac1 activation	
+20808826	0	0	1	0	0	yes	Luana	proteins colocalization	
+26876216	0	0	1	1	0	yes	Luana	ChIP data	
+19243468	0	0	1	1	0	yes	Luana		
+22403301	0	0	1	1	0	yes	Luana	ChIP data	
+17954568	0	0	1	0	0	yes	Luana	ChIP data	
+26474850	0	0	1	1	0	no	Luana		
+28424452	0	0	1	1	0	no	Luana	FRET not to detect interactions	
+23555303	0	0	1	0	0	yes	Luana		
+27434182	0	0	1	0	0	yes	Luana		
+25506548	0	0	1	0	1	no	Luana		
+10899904	0	0	1	0	0	no	Luana		
+21701047	0	0	1	0	0	no	Luana	CoIP not to study interactions	
+19917778	0	0	1	1	0	yes	Luana		
+18769617	0	0	1	0	0	no	Luana		
+16282588	0	0	1	0	0	yes	Luana		
+21220513	0	0	1	1	0	yes	Luana		
+24357799	0	0	1	0	0	no	Luana		
+26408034	0	0	1	0	0	no	Luana		
+18159247	0	0	1	1	0	yes	Luana	ChIP data	
+25310726	0	0	1	1	0	no	Luana		
+24390248	0	0	1	0	0	no	Luana		
+21492422	0	0	1	0	0	no	Luana		
+26269577	0	0	1	0	0	yes	Luana		
+25237378	0	0	1	0	0	no	Luana		
+26635867	0	0	1	1	1	yes	Luana	ChIP data	
+18793716	0	0	1	1	0	yes	Luana		
+23717538	0	0	1	1	0	yes	Luana	EMSA	
+21876773	0	0	1	0	0	yes	Luana		
+25797257	0	0	1	1	0	no	Luana		
+26754771	0	0	1	0	0	yes	Luana		
+26948869	0	0	1	0	0	no	Luana	n silico HMGB1—PK M2 protein docking studies	
+22545131	0	0	1	0	0	no	Luana		
+18498667	0	0	1	1	0	yes	Luana		
+11381079	0	0	1	0	0	yes	Luana		
+20098423	0	0	1	1	0	yes	Luana		
+19826415	0	0	1	1	0	yes	Luana		
+11956293	0	0	1	0	0	yes	Luana		
+21218122	0	0	1	0	0	no	Luana		
+25774694	0	0	1	0	0	yes	Luana		
+23974117	0	0	1	1	1	no	Luana	Radioligand binding assays OF cell membranes	
+22199256	0	0	1	1	0	yes	Luana		
+19304746	0	0	1	1	0	yes	Luana		
+24136461	0	0	1	1	0	no	Luana	Subcellular fractionation	
+27542279	0	0	1	0	0	yes	Luana	ChIP data	
+27517492	0	0	1	0	0	yes	Luana		
+26205790	0	0	1	0	1	yes	Luana	ChRIP	
+27345400	0	0	1	0	0	yes	Luana		
+21552570	0	0	1	1	0	yes	Luana		
+25934638	0	0	1	0	0	no	Luana	Machine Learning techniques	
+18226221	0	0	1	0	0	yes	Luana	ChIP data	
+16418392	0	0	1	0	0	no	Luana		
+23738000	0	0	1	0	0	yes	Luana		
+25859289	0	0	1	0	0	no	Luana		
+28286521	0	0	1	0	0	yes	Luana		
+27128349	0	0	1	0	0	no	Luana	NGS	
+26313918	0	0	1	1	0	no	Luana		
+20614012	0	0	1	0	0	yes	Luana		
+24616631	0	0	1	0	0	no	Luana	xenopus	
+26683936	0	0	1	0	0	yes	Luana		
+20101261	0	0	1	0	1	yes	Luana	ChIP data	
+24525567	0	0	1	0	0	no	Luana	pull down not to study interactions and in vitro phosphorylation in oocytes (xenopus)	
+28496990	0	0	1	1	1	no	Luana		
+16618814	0	0	1	1	0	yes	Luana		
+27362806	0	0	1	0	0	yes	Luana		
+24468059	0	0	1	0	0	yes	Luana		
+22754626	0	0	1	0	0	no	Luana	review 	
+18086704	0	0	1	1	0	yes	Luana	ChIP data and EMSA	
+21092294	0	0	1	0	1	no	Luana		
+22046272	0	0	1	1	0	no	Luana		
+19017360	0	0	1	0	0	no	Luana		
+24786584	0	0	1	0	0	yes	Luana	Drosophila	
+18588690	0	0	1	0	0	yes	Luana	EMSA	
+25658447	0	0	1	1	0	no	Luana		
+25436971	0	0	1	0	0	yes	Luana		
+23919615	0	0	1	1	0	no	Luana	in vivo phosphorylation	
+26966684	0	0	1	1	0	yes	Luana		Luana
+22297294	0	0	1	0	0	yes	Luana	ChIP data	
+28395174	0	0	1	1	0	yes	Luana		
+26814702	0	0	1	0	0	yes	Luana	ChIP data (zebrafish)	
+28457889	0	0	1	0	0	yes	Luana		
+21297943	0	0	1	1	0	no	Luana		
+28338009	0	0	1	0	0	yes	Luana	EMSA	
+24250750	0	0	1	0	1	yes	Luana	ChIP data	
+27623766	0	0	1	0	0	no	Luana		
+23554170	0	0	1	0	0	yes	Luana		
+27867358	0	0	1	1	0	no	Luana	Antibody-Capture Scintillation Proximity Assay (SPA)	
+10662779	0	0	1	0	1	no	Luana	In vitro Phosphorilation with immunoprecipitated proteins	
+23949224	0	0	1	1	0	yes	Luana	ChIP data	
+26371475	0	0	1	0	0	no	Luana	SPR but no interactions	
+23995757	0	0	1	1	0	yes	Luana		
+18281698	0	0	1	1	0	yes	Luana	PPI and P-RNA-interactions	
+24819779	0	0	1	0	1	no	Luana		
+27089879	0	0	1	0	0	no	Luana	immunoprecipitation but no interactions	
+12392597	0	0	1	1	0	no	Luana	Phosphorilation with immunoprecipitated proteins	
+23799881	0	0	1	0	0	yes	Luana		
+24424410	0	0	1	1	0	yes	Luana		
+26666268	0	0	1	0	1	yes	Luana		
+25029256	0	0	1	0	1	yes	Luana		
+26598605	0	0	1	1	0	yes	Luana		
+17096843	0	0	1	0	0	no	Luana		
+21177859	0	0	1	0	1	yes	Luana	PPI and P-RNA-interactions	
+27143934	0	0	1	0	0	no	Luana	protein microarray not for interactions	
+26578599	0	0	1	0	0	yes	Luana	ChIP data	
+18586828	0	0	1	0	1	yes	Luana	ChIP data	
+21665565	0	0	1	1	0	yes	Luana	ChIP data	
+27524201	0	0	1	1	1	yes	Luana		
+27571165	0	0	1	0	0	yes	Luana		
+15479736	0	0	1	0	1	yes	Luana	colocalization	
+24966277	0	0	1	0	1	yes	Luana		
+27301828	0	0	1	0	0	no	Luana		
+26269257	0	0	1	1	0	yes	Luana	ChIP data	
+19580544	0	0	1	1	0	yes	Luana		
+26203351	0	0	1	0	1	yes	Luana	RNA-Proteins	
+26881882	0	0	1	0	1	yes	Luana		
+28475649	0	0	1	1	0	no	Luana		
+27019748	0	0	1	1	0	no	Luana	FRET to measure enzyme activity	
+17786190	0	0	1	1	0	no	Luana	Phosphorilation with immunoprecipitated proteins	
+23634218	0	0	1	0	0	yes	Luana	EMSA	
+21209915	0	0	1	1	0	yes	Luana	EMSA	
+19583962	0	0	1	0	0	yes	Luana		
+28038685	0	0	1	1	0	no	Luana		
+23361462	0	0	1	0	1	yes	Luana		
+20383197	0	0	1	1	0	no	Luana	Pull down for Rac1 activity assay	
+12615900	0	0	1	0	1	no	Luana		
+26214021	0	0	1	1	0	no	Luana	Immunoprecipitation not for PPI study	
+26431330	0	0	1	1	0	yes	Luana		
+24232453	0	0	1	0	0	yes	Luana		
+22457629	0	0	1	0	0	yes	Luana		
+22768064	0	0	1	1	0	yes	Luana		
+28128332	0	0	1	1	0	yes	Luana		
+28176834	0	0	1	0	1	yes	Luana		
+22210319	0	0	1	1	0	no	Luana		
+21304987	0	0	1	0	0	no	Luana	Rac1 Activation Assay	
+26689258	0	0	1	1	0	yes	Luana		
+23469201	0	0	1	0	0	no	Luana	Zebrafish	
+28159912	0	0	1	1	0	yes	Luana		
+24404189	0	0	1	1	0	yes	Luana		
+25962635	0	0	1	0	0	no	Luana	RIP-Chip	
+19179453	0	0	1	1	0	no	Luana		
+24804940	0	0	1	0	1	yes	Luana	EMSA	
+21685449	0	0	1	0	0	yes	Luana	RNA-binding assays	
+25389390	0	0	1	0	0	no	Luana		
+20034391	0	0	1	0	0	yes	Luana		
+25217585	0	0	1	0	1	yes	Luana		
+23731702	0	0	1	1	0	no	Luana		
+26464434	0	0	1	0	0	no	Luana	Genome-wide studies	
+22174879	0	0	1	0	0	no	Luana		
+25175916	0	0	1	1	0	yes	Luana		
+23345592	0	0	1	1	0	yes	Luana		
+21930770	0	0	1	1	1	no	Luana	bindin assay to lymphocytes	
+25762445	0	0	1	0	0	yes	Luana		
+17227585	0	0	1	0	0	yes	Luana		
+27616981	0	0	1	0	1	no	Luana		
+27412013	0	0	1	0	0	yes	Luana		
+23185455	0	0	1	0	0	yes	Luana	RNA-protein	
+27503072	0	0	1	0	0	no	Luana	IP but not PPIs	
+10637280	0	0	1	0	0	no	Luana	IP but not PPIs	
+26452029	0	0	1	1	0	yes	Luana	ChIP data	
+22879953	0	0	1	0	0	yes	Luana	ChIP data	
+25888394	0	0	1	0	1	yes	Luana		
+25352544	0	0	1	0	1	no	Luana	IP but not PPIs	
+27448983	0	0	1	1	0	yes	Luana		
+18053089	0	0	1	1	0	yes	Luana		
+27226900	0	0	1	0	0	yes	Luana		
+12615911	0	0	1	0	1	yes	Luana		
+21138966	0	0	1	1	1	yes	Luana	EMSA	
+16103132	0	0	1	0	1	yes	Luana		
+0	0	0	1	1	0		Luana	?	
+28122643	0	0	1	0	0	no	Luana		
+27323401	0	0	1	0	0	yes	Luana	ChIP data	
+25261367	0	0	1	0	0	no	Luana		
+26934656	0	0	1	0	0	yes	Luana	ChIP data	
+25362471	0	0	1	1	0	yes	Luana		
+28182009	0	0	1	1	0	yes	Luana		
+23284890	0	0	1	0	0	no	Luana		
+21399697	0	0	1	1	0	yes	Luana	Colocalization	
+27191968	0	0	1	0	0	yes	Luana	EMSA	
+24790097	0	0	1	0	0	yes	Luana		
+27144523	0	0	1	0	0	yes	Luana		
+19142223	0	0	1	0	1	yes	Luana		
+21931631	0	0	1	1	0	yes	Luana		
+25530838	0	0	1	0	0	no	Luana		
+25659151	0	0	1	0	0	yes	Luana		
+18382669	0	0	1	1	1	no	Luana		
+26693911	0	0	1	1	0	no	Luana		
+24595334	0	0	1	0	0	yes	Luana	ChIP data	
+20949035	0	0	1	1	0	no	Luana		
+26766589	0	0	1	0	0	yes	Luana		
+18779368	0	0	1	1	0	yes	Luana	colocalization	
+24411736	0	0	1	0	0	yes	Luana		
+27765933	0	0	1	0	0	yes	Luana		
+19144997	0	0	1	0	0	no	Luana	IP but not PPIs	
+21996749	0	0	1	1	0	yes	Luana		
+22580716	0	0	1	1	0	no	Luana		
+27802161	0	0	1	0	0	yes	Luana		
+26608463	0	0	1	1	0	no	Luana		
+23924897	0	0	1	0	0	no	Luana		
+25191528	0	0	1	0	0	no	Luana		
+16172258	0	0	1	0	1	no	Luana		
+23519116	0	0	1	0	0	yes	Luana		
+18365011	0	0	1	1	0	yes	Luana		
+23427270	0	0	1	1	0	yes	Luana	Caenorhabditis	
+25349260	0	0	1	1	0	yes	Luana	in Supp.materials	
+25516224	0	0	1	1	0	no	Luana		
+25010983	0	0	1	0	0	yes	Luana		
+23300728	0	0	1	1	0	no	Luana		
+27841353	0	0	1	1	0	yes	Luana		
+27788246	0	0	1	0	0	no	Luana	Caenorhabditis	
+25223785	0	0	1	1	0	yes	Luana		
+27566588	0	0	1	0	0	yes	Luana		
+22212389	0	0	1	0	1	no	Luana	IP but not PPIs	
+28399880	0	0	1	0	0	no	Luana	Co-IP withUb	
+22195017	0	0	1	0	0	yes	Luana		
+18366812	0	0	1	0	0	yes	Luana	ChIP data	
+27279728	0	0	1	0	0	no	Luana		
+27802336	0	0	1	0	1	yes	Luana		
+15804357	0	0	1	0	0	no	Luana		
+22855535	0	0	1	1	0	yes	Luana		
+24349523	0	0	1	0	0	yes	Luana	ChIP analysis in yeast	
+23983009	0	0	1	1	0	no	Luana	short paper on PPIs	
+21698215	0	0	1	0	0	yes	Luana		
+25644492	0	0	1	0	0	no	Luana		
+26930004	0	0	1	0	0	yes	Luana	RNA-protein UV cross-linking and immunoprecipitation	
+22028876	0	0	1	0	0	no	Luana	docking simulation	
+22172159	0	0	1	1	0	no	Luana		
+24939902	0	0	1	0	0	yes	Luana		
+18953413	0	0	1	0	1	no	Luana	FRET assay no interaction data	
+21119010	0	0	1	0	1	yes	Luana		
+17670796	0	0	1	0	1	yes	Luana		
+25180771	0	0	1	0	0	yes	Luana		
+21423673	0	0	1	0	0	no	Luana		
+26725083	0	0	1	1	0	yes	Luana		
+22876279	0	0	1	1	0	yes	Luana		
+11927604	0	0	1	0	0	yes	Luana		
+24732467	0	0	1	0	0	no	Luana		
+28414785	0	0	1	1	0	yes	Luana		
+20877569	0	0	1	0	0	no	Luana		
+21773019	0	0	1	0	0	yes	Luana	EMSA	
+17327823	0	0	1	0	0	yes	Luana		
+26673819	0	0	1	0	1	no	Luana	ChIP data	
+24843023	0	0	1	0	0	yes	Luana		
+21445058	0	0	1	0	0	yes	Luana		
+28169360	0	0	1	0	0	yes	Luana		
+24236052	0	0	1	0	0	yes	Luana		
+27907189	0	0	1	0	0	yes	Luana		
+26551700	0	0	1	0	0	yes	Luana		
+21969857	0	0	1	0	0	no	Luana		
+23056207	0	0	1	1	0	no	Luana		
+27876799	0	0	1	1	0	yes	Luana		
+20485285	0	0	1	1	0	no	Luana	immunoprecipitation mentioned in the M&M but not in the paper	
+28330493	0	0	1	1	0	no	Luana	Immunoprecipitation of conditioned media	
+27415018	0	0	1	0	1	no	Luana		
+25909160	0	0	1	1	0	yes	Luana		
+20631154	0	0	1	1	0	yes	Luana		
+28121484	0	0	1	0	0	yes	Luana		
+27517496	0	0	1	0	0	yes	Luana		
+24949884	0	0	1	0	0	no	Luana		
+20093365	0	0	1	0	1	no	Luana	IP but not PPIs	
+21853095	0	0	1	0	1	yes	Luana		
+19088845	0	0	1	1	0	no	Luana		
+27636895	0	0	1	1	0	no	Luana		
+25101252	0	0	1	1	0	no	Luana		
+20409077	0	0	1	0	0	yes	Luana		
+22747786	0	0	1	0	1	yes	Luana	ChIP data	
+24394769	0	0	1	0	0	yes	Luana		
+27448983	0	0	1	0	0	yes	Luana		
+19843608	0	0	1	1	0	yes	Luana	ChIP data	
+23223571	0	0	1	1	0	yes	Luana		
+24743732	0	0	1	0	0	no	Luana		
+10747099	0	0	1	1	0	yes	Luana		
+22492511	0	0	1	0	0	yes	Luana		
+27399334	0	0	1	0	0	yes	Luana		
+25944859	0	0	1	1	0	yes	Luana		
+27582551	0	0	1	1	0	yes	Luana		
+25512384	0	0	1	0	0	yes	Luana	ChIP data	
+25650738	0	0	1	1	0	no	Luana	FRET assay no interaction data	
+23950931	0	0	1	0	0	no	Luana		
+24659245	0	0	1	0	1	yes	Luana		
+25433655	0	0	1	0	0	no	Luana	Nematostella vectensis	
+18377662	0	0	1	1	0	yes	Luana		
+20637660	0	0	1	0	0	yes	Luana	ChIP data	
+24176114	0	0	1	0	0	no	Luana		
+19364924	0	0	1	0	0	yes	Luana		
+24416724	0	0	1	1	0	no	Luana		
+18952837	0	0	1	1	0	no	Luana		
+25890358	0	0	1	1	0	yes	Luana		
+25291178	0	0	1	1	0	no	Luana		
+27236187	0	0	1	1	0	yes	Luana	ChIP data	
+22496420	0	0	1	1	0	yes	Luana		
+21931591	0	0	1	0	1	yes	Luana		
+25623282	0	0	1	0	0	yes	Luana		
+22363747	0	0	1	0	0	yes	Luana		
+26577226	0	0	1	0	0	yes	Luana		
+26036343	0	0	1	0	0	yes	Luana		
+18225953	0	0	1	0	1	yes	Luana		
+28325761	0	0	1	1	0	no	Luana		
+23871147	0	0	1	0	0	no	Luana	non-specific DNA-proteins	
+27938392	0	0	1	1	0	yes	Luana		
+22984505	0	0	1	0	0	yes	Luana		
+24441036	0	0	1	0	1	no	Luana		
+26702077	0	0	1	1	0	no	Luana		
+19997487	0	0	1	1	0	yes	Luana		
+27829229	0	0	1	0	0	yes	Luana		
+23198089	0	0	1	0	0	yes	Luana		
+26822058	0	0	1	0	0	yes	Luana		
+24523459	0	0	1	0	0	no	Luana		
+26331536	0	0	1	1	0	yes	Luana		
+27559307	0	0	1	0	1	yes	Luana		
+18268102	0	0	1	0	0	no	Luana		
+25085554	0	0	1	0	0	yes	Luana		
+12810851	0	0	1	0	0	no	Luana		
+25601894	0	0	1	0	0	no	Luana		
+27724964	0	0	1	0	0	yes	Luana		
+19128178	0	0	1	0	0	no	Luana		
+17542650	0	0	1	1	0	yes	Luana	ChIP data	
+26259872	0	0	1	0	0	yes	Luana		
+28259907	0	0	1	1	0	no	Luana		
+25107275	0	0	1	1	0	yes	Luana		Luana
+27896950	0	0	1	1	0	no	Luana	IP but not PPIs	
+12629052	0	0	1	0	1	yes	Luana		
+22305495	0	0	1	0	0	yes	Luana		Luana
+21798038	0	0	1	0	0	yes	Luana	Already in IntAct	

@@ -336,4 +336,368 @@ write.table(tmpubl_sample,"./results/tmpubl_sample.txt",col.names = T,row.names 
 
 Low-hanging fruit and Reactome/TM evaluation lists can be checked and accessed at https://docs.google.com/spreadsheets/d/1tL1HtVD3-BxHxKuXbIYhcFjmCptGVEOD5aFJCZw6CZk/edit?usp=sharing. 
 
+### Part 7: Testing for accuracy of pair identification
+
+First I put together a table for full comparison. 
+```{r pair_acc_estimate}
+pubpair_pair_acc_pt1 <- unique(merge(pubpaircomp_table_final,
+                                     pubcomp_table_final,
+                                     by="pmid",
+                                     all = T)) 
+
+# Select only publication curated in IMEx
+pubpair_pair_acc_pt2 <- pubpair_pair_acc_pt1[imex.y=="1",
+                                             .(pmid,
+                                               pair_id,
+                                               pubpair_intdbs = ifelse(
+                                                       imex.x=="1" | 
+                                                       GO_IPI.x == "1" | 
+                                                       BioGRID.x == "1",
+                                                                    "1",
+                                                                    "0"),
+                                               pubpair_imex = imex.x,
+                                               pubpair_biogrid = BioGRID.x,
+                                               pubpair_goipi = GO_IPI.x,
+                                               pubpair_tm_epmc = tm_epmc.x,
+                                               pubpair_tm_evex = EVEX.x,
+                                               pubpair_tm_string = STRING_textmining,
+                                               pubpair_pw_reactome = reactome.x,
+                                               pubpair_pw_op_ints = OmniPath_interactions.x,
+                                               pubpair_pw_op_ptm = OmniPath_ptm.x,
+                                               pubpair_pred_string = STRING_pi,
+                                               pubpair_pred_iid = iid_pred,
+                                               pub_imex = imex.y,
+                                               pub_biogrid = BioGRID.y,
+                                               pub_goipi = GO_IPI.y,
+                                               pub_tm_epmc = tm_epmc.y,
+                                               pub_tm_evex = EVEX.y,
+                                               pub_pw_reactome = reactome.y,
+                                               pub_pw_op_ints = OmniPath_interactions.y,
+                                               pub_pw_op_ptm = OmniPath_ptm.y)]
+```
+
+##### Pair-id concordance estimations between interaction DBs
+```{r pubpair_acc_intDBs}
+
+pubpair_pair_acc_intDBs <- unique(pubpair_pair_acc_pt2[,
+                                             .(pmid,
+                                               pair_id,
+                                               pubpair_intdbs,
+                                               pubpair_imex,
+                                               pubpair_biogrid,
+                                               pubpair_goipi,
+                                               pub_imex,
+                                               pub_biogrid,
+                                               pub_goipi)])
+
+# pubpair_pair_acc_intDBs_check <- unique(pubpair_pair_acc_intDBs[pub_imex=="1" & pub_biogrid=="1" & pub_goipi=="1",
+#                                                                 .(pubpair_intdbs_check = paste(unique(pubpair_intdbs),collapse="|")),
+#                                                                 by="pmid"])
+# table(pubpair_pair_acc_intDBs_check$pubpair_intdbs_check,useNA = "ifany")
+
+pubpair_pair_acc_intDBs_eval_pt1 <- unique(pubpair_pair_acc_intDBs[pub_imex=="1" & 
+                                                                       pub_biogrid=="1" & 
+                                                                       pub_goipi=="1" & 
+                                                                       pubpair_intdbs == "1",
+                                                               .(pmid,
+                                                                 pair_id,
+                                                                 pubpair_imex,
+                                                                 pubpair_biogrid,
+                                                                 pubpair_goipi)])
+pubpair_pair_acc_intDBs_eval <- unique(pubpair_pair_acc_intDBs_eval_pt1[,
+                                                                        .(pmid,
+                                                                          pair_id,
+                                                                          pair_check = ifelse(
+                                                                                  pubpair_imex == "1" &
+                                                                                          pubpair_biogrid == "1" &
+                                                                                          pubpair_goipi == "1",
+                                                                                  "full agreement",
+                                                                                  ifelse(
+                                                                                          pubpair_imex == "1" &
+                                                                                          pubpair_biogrid == "0" &
+                                                                                          pubpair_goipi == "1",
+                                                                                          "IMEx + GO IPI",
+                                                                                          ifelse(
+                                                                                                  pubpair_imex == "1" &
+                                                                                                          pubpair_biogrid == "1" &
+                                                                                                          pubpair_goipi == "0",
+                                                                                                  "IMEx + BioGRID",
+                                                                                                  ifelse(
+                                                                                                          pubpair_imex == "0" & 
+                                                                                                                  pubpair_biogrid == "1" & 
+                                                                                                                  pubpair_goipi == "1",
+                                                                                                          "GO IPI + BioGRID",
+                                                                                                          ifelse(
+                                                                                                                  pubpair_imex == "1" & 
+                                                                                                                  pubpair_biogrid == "0" & 
+                                                                                                                  pubpair_goipi == "0",
+                                                                                                                  "IMEx",
+                                                                                                                  ifelse(
+                                                                                                                          pubpair_imex == "0" & 
+                                                                                                                                  pubpair_biogrid == "1" & 
+                                                                                                                                  pubpair_goipi == "0",
+                                                                                                                          "BioGRID",
+                                                                                                                          "GO IPI")))))))])
+
+pubpair_pair_acc_intDBs_eval$pair_check <- factor(pubpair_pair_acc_intDBs_eval$pair_check, 
+                                                  levels = c("full agreement",
+                                                             "IMEx + BioGRID",
+                                                             "IMEx + GO IPI",
+                                                             "GO IPI + BioGRID",
+                                                             "IMEx",
+                                                             "BioGRID",
+                                                             "GO IPI"))
+
+table(pubpair_pair_acc_intDBs_eval$pair_check,useNA = "ifany")
+
+
+```
+
+###### Plot: Pair-id concordance estimations between interaction DBs 
+```{r pubpair_acc_intDBs_plot,echo=FALSE,message=FALSE,warning=FALSE,fig.height=6}
+g <- ggplot(pubpair_pair_acc_intDBs_eval,
+            aes(x=pair_check,
+                fill=pair_check)) +
+        geom_histogram(stat = "count") +
+        ggtitle("Pair-id concordance estimations between interaction DBs") +
+        ylab("Number of pairs identified\nin specific publications") +
+        xlab("Overlap in different interaction DBs") +
+        scale_fill_manual(values=c("dodgerblue",
+                                   "khaki3",
+                                   "khaki2",
+                                   "khaki1",
+                                   "darkolivegreen4",
+                                   "darkolivegreen3",
+                                   "darkolivegreen2")) +
+        theme(plot.title = element_text(size = 18),
+               panel.grid.major = element_blank(),
+               panel.grid.minor = element_blank(),
+               panel.background = element_blank(),
+               legend.position="none",
+               legend.title=element_blank(),
+               axis.title = element_text(size = 14),
+               axis.text.x = element_text(size = 12, angle = 45,vjust=0.5),
+               axis.text.y = element_text(size = 12),
+               axis.line = element_line())
+g
+```
+
+##### Pair-id concordance estimations between interaction data and text-mining resources
+```{r pubpair_acc_tm}
+pubpair_pair_acc_tm <- unique(pubpair_pair_acc_pt2[,
+                                             .(pmid,
+                                               pair_id,
+                                               pubpair_intdbs,
+                                               pubpair_tm_epmc,
+                                               pubpair_tm_evex,
+                                               pubpair_tm_string,
+                                               pub_tm_epmc,
+                                               pub_tm_evex)])
+
+pubpair_pair_acc_tm_eval_pt1 <- unique(pubpair_pair_acc_tm[pub_tm_epmc=="1" & pub_tm_evex=="1",
+                                                               .(pmid,
+                                                                 pair_id,
+                                                                 pubpair_intdbs,
+                                                                 pubpair_tm_epmc,
+                                                                 pubpair_tm_evex,
+                                                                 pubpair_tm_string)])
+                                                                 
+pubpair_pair_acc_tm_eval <- unique(pubpair_pair_acc_tm_eval_pt1[,
+                                                                .(pmid,
+                                                                  pair_id,
+                                                                  pair_check = ifelse(
+                                                                          pubpair_intdbs == "1" &
+                                                                                  pubpair_tm_epmc == "1" &
+                                                                                  pubpair_tm_evex == "1" &
+                                                                                  pubpair_tm_string == "1",
+                                                                          "full agreement",
+                                                                          ifelse(
+                                                                                  pubpair_intdbs == "0" &
+                                                                                          pubpair_tm_epmc == "1" &
+                                                                                          pubpair_tm_evex == "1" &
+                                                                                          pubpair_tm_string == "1",
+                                                                                  "agreement in text-mining sources",
+                                                                                  ifelse(
+                                                                                          pubpair_intdbs == "1" &
+                                                                                                  pubpair_tm_epmc == "1" &
+                                                                                                  (pubpair_tm_evex == "0" |
+                                                                                                            pubpair_tm_string == "0"),
+                                                                                          "IntDBs + EPMC",
+                                                                                          ifelse(
+                                                                                                  pubpair_intdbs == "1" &
+                                                                                                          pubpair_tm_string == "1" &
+                                                                                                          (pubpair_tm_evex == "0" |
+                                                                                                                    pubpair_tm_epmc == "0"),
+                                                                                                  "IntDBs + STRING",
+                                                                                                  ifelse(
+                                                                                                          pubpair_intdbs == "1" &
+                                                                                  	      							pubpair_tm_evex == "1" &
+                                                                                  	      							        (pubpair_tm_epmc == "0" |
+                                                                                  	      							                 pubpair_tm_string == "0"),
+                                                                                  	      							"IntDBs + EVEX",
+                                                                                  	      							"found only in one or two text-mining sources"))))))])
+
+pubpair_pair_acc_tm_eval$pair_check <- factor(pubpair_pair_acc_tm_eval$pair_check, 
+                                                  levels = c("full agreement",
+                                                             "agreement in text-mining sources",
+                                                             "IntDBs + EPMC",
+                                                             "IntDBs + EVEX",
+                                                             "IntDBs + STRING",
+                                                             "found only in one or two text-mining sources"))
+
+table(pubpair_pair_acc_tm_eval$pair_check,useNA = "ifany")
+```
+
+###### Plot: Pair-id concordance estimations between interaction data and text-mining resources (full)
+```{r pubpair_acc_tm_plot_full,echo=FALSE,message=FALSE,warning=FALSE,fig.height=6}
+g1 <- ggplot(pubpair_pair_acc_tm_eval,
+            aes(x=pair_check,
+                fill=pair_check)) +
+        geom_histogram(stat = "count") +
+        ggtitle("Pair-id concordance estimations between\ninteraction data and text-mining resources") +
+        ylab("Number of pairs\nin specific publications") +
+        xlab("Overlap between interaction DBs\nand text-mining resources") +
+        scale_fill_manual(values=c("dodgerblue",
+                                   "darkslategray4",
+                                   "darkseagreen3",
+                                   "darkseagreen2",
+                                   "darkseagreen1",
+                                   "goldenrod")) +
+        scale_x_discrete(breaks=c("full agreement",
+                                  "agreement in text-mining sources",
+                                  "IntDBs + EPMC",
+                                  "IntDBs + EVEX",
+                                  "IntDBs + STRING",
+                                  "found only in one or two text-mining sources"),
+                         labels=c("full agreement",
+                                  "agreement in\ntext-mining sources",
+                                  "IntDBs + EPMC",
+                                  "IntDBs + EVEX",
+                                  "IntDBs + STRING",
+                                  "found only in one or two\ntext-mining sources")) +
+        theme(plot.title = element_text(size = 18),
+               panel.grid.major = element_blank(),
+               panel.grid.minor = element_blank(),
+               panel.background = element_blank(),
+               legend.position="none",
+               legend.title=element_blank(),
+               axis.title = element_text(size = 14),
+               axis.text.x = element_text(size = 12, angle = 45,vjust=0.5),
+               axis.text.y = element_text(size = 12),
+               axis.line = element_line())
+g1
+```
+
+###### Plot: Pair-id concordance estimations between interaction data and text-mining resources (eliminating those found in one or two tm resources only)
+```{r pubpair_acc_tm_plot_sel,echo=FALSE,message=FALSE,warning=FALSE,fig.height=6}
+g2 <- ggplot(pubpair_pair_acc_tm_eval[pair_check!="found only in one or two text-mining sources"],
+            aes(x=pair_check,
+                fill=pair_check)) +
+        geom_histogram(stat = "count") +
+        ggtitle("Pair-id concordance estimations between\ninteraction data and text-mining resources") +
+        ylab("Number of pairs\nin specific publications") +
+        xlab("Overlap between interaction DBs\nand text-mining resources") +
+        scale_fill_manual(values=c("dodgerblue",
+                                   "darkslategray4",
+                                   "darkseagreen3",
+                                   "darkseagreen2",
+                                   "darkseagreen1")) +
+        scale_x_discrete(breaks=c("full agreement",
+                                  "agreement in text-mining sources",
+                                  "IntDBs + EPMC",
+                                  "IntDBs + EVEX",
+                                  "IntDBs + STRING"),
+                         labels=c("full agreement",
+                                  "agreement in\ntext-mining sources",
+                                  "IntDBs + EPMC",
+                                  "IntDBs + EVEX",
+                                  "IntDBs + STRING")) +
+        theme(plot.title = element_text(size = 18),
+               panel.grid.major = element_blank(),
+               panel.grid.minor = element_blank(),
+               panel.background = element_blank(),
+               legend.position="none",
+               legend.title=element_blank(),
+               axis.title = element_text(size = 14),
+               axis.text.x = element_text(size = 12, angle = 45,vjust=0.5),
+               axis.text.y = element_text(size = 12),
+               axis.line = element_line())
+g2
+```
+
+##### Pair-id concordance estimations between interaction data and pathway resources
+```{r pubpair_acc_pw}
+pubpair_pair_acc_pw <- unique(pubpair_pair_acc_pt2[,
+                                             .(pmid,
+                                               pair_id,
+                                               pubpair_intdbs,
+                                               pubpair_pw_reactome,
+                                               pubpair_pw_op = ifelse(
+                                                       pubpair_pw_op_ints=="1" | pubpair_pw_op_ptm == "1",
+                                                       "1",
+                                                       "0"
+                                                       ),
+                                               pub_pw_reactome,
+                                               pub_pw_op = ifelse(
+                                                       pub_pw_op_ints=="1" | pub_pw_op_ptm == "1",
+                                                       "1",
+                                                       "0"
+                                                       ))])
+
+pubpair_pair_acc_pw_eval_pt1 <- unique(pubpair_pair_acc_pw[pub_pw_reactome=="1" & pub_pw_op=="1" & pubpair_intdbs == "1",
+                                                               .(pmid,
+                                                                 pair_id,
+                                                                 pubpair_intdbs,
+                                                                 pubpair_pw_reactome,
+                                                                 pubpair_pw_op)])
+
+pubpair_pair_acc_pw_eval <- unique(pubpair_pair_acc_pw_eval_pt1[,
+                                                                .(pmid,
+                                                                  pair_id,
+                                                                  pair_check = ifelse(
+                                                                          pubpair_intdbs == "1" &
+                                                                                  pubpair_pw_reactome == "1" &
+                                                                                  pubpair_pw_op == "1",
+                                                                          "full agreement",
+                                                                          ifelse(
+                                                                                  pubpair_intdbs == "1" &
+                                                                                  pubpair_pw_reactome == "1" &
+                                                                                  pubpair_pw_op == "0",
+                                                                                  "IntDBs + Reactome",
+                                                                                  ifelse(
+                                                                                          pubpair_intdbs == "1" &
+                                                                                                  pubpair_pw_reactome == "0" &
+                                                                                                  pubpair_pw_op == "1",
+                                                                                          "IntDBs + OmniPath",
+                                                                                          "Reactome + OmniPath"))))])
+
+table(pubpair_pair_acc_pw_eval$pair_check,useNA = "ifany")
+```
+
+###### Plot: Pair-id concordance estimations between interaction data and pathway resources
+```{r pubpair_acc_pw_plot,echo=FALSE,message=FALSE,warning=FALSE,fig.height=6}
+g3 <- ggplot(pubpair_pair_acc_pw_eval,
+            aes(x=pair_check,
+                fill=pair_check)) +
+        geom_histogram(stat = "count") +
+        ggtitle("Pair-id concordance estimations between\ninteraction data and text-mining resources") +
+        ylab("Number of pairs\nin specific publications") +
+        xlab("Overlap between interaction DBs\nand pathway resources") +
+        scale_fill_manual(values=c("dodgerblue",
+                                   "lightgoldenrod3",
+                                   "lightgoldenrod",
+                                   "lightgoldenrod1")) +
+        theme(plot.title = element_text(size = 18),
+               panel.grid.major = element_blank(),
+               panel.grid.minor = element_blank(),
+               panel.background = element_blank(),
+               legend.position="none",
+               legend.title=element_blank(),
+               axis.title = element_text(size = 14),
+               axis.text.x = element_text(size = 12, angle = 45,vjust=0.5),
+               axis.text.y = element_text(size = 12),
+               axis.line = element_line())
+g3
+```
+
 ********************************************************************************************

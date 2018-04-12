@@ -1,0 +1,987 @@
+pmid	contains_interactions	correct_pairs	curator
+978134	no		Mgt
+2147944	no		Luana
+7806582	yes	yes	Mgt
+8609172	yes	no	Mgt
+9199170	yes	yes	Mgt
+9412458	yes	no	Mgt
+9472046	yes	yes|no	Mgt
+9490716	yes	no	Mgt
+9625766	yes	yes	Luana
+9647643	yes	yes	Mgt
+10037799	no	no	Simona
+10049942	yes	yes	Luana
+10224278	yes	yes	Simona
+10225955	yes	no	Simona
+10499918	yes	no	Simona|Luana
+10601333	yes	yes	Simona
+10704444	yes	no	Simona
+10725331	yes	yes|no	Simona
+10725339	yes	yes	Simona
+10769018	yes	no	Simona
+10811835	yes	no	Simona
+10871282	yes	no	Simona
+11018049	yes	yes	Simona
+11331308	yes	yes	Simona
+11489943	yes	yes	Luana
+11535616	yes	yes	Simona
+11602640	yes	yes	Luana
+11739401	yes	yes	Simona
+11748249	yes	yes	Simona
+11839770	yes	yes	Simona
+11927603	yes	yes	Simona
+12070132	yes	yes	Simona
+12810700	no	no	Simona
+12874265	yes	yes|no	Simona
+12925712	yes	no	Simona
+14511394	yes	no	Simona
+14517278	yes	no	Simona
+14662753	yes	no	Simona
+14718519	yes	no|yes	Simona
+15007061	yes	yes	Simona
+15024032	no	no	Simona
+15210733	yes	no	Simona
+15210742	no	no	Simona
+15289496	no	no	Simona
+15534001	yes	yes	Simona
+15557120	yes	no	Simona
+15699075	yes	no	Simona
+15737063	yes	no	Simona
+15767370	yes	yes|no	Luana
+16030353	yes	no	Luana
+16301747	yes	no|yes	Luana
+16402859	yes	yes	Luana
+16702231	yes	no|yes	Luana
+16879721	no		Luana
+17030947	no		Luana
+17030981	yes	no	Luana
+17283181	yes	no	Luana
+17426132	yes	yes|no	Luana
+17452530	yes	yes	Luana
+17485511	yes	no	Luana
+17760859	yes	yes	Luana
+18046455	yes	no|yes	Luana
+18166656	yes	yes	Luana
+18195106	yes	|no|yes	Simona
+18307765	no	no	Simona
+18412956	yes	yes|no	Simona
+18447585	yes	yes	Simona
+18654640	no	no	Simona
+18676979	yes	no|yes	Simona
+18974846	yes	no|yes	Simona|Luana
+18997794	yes	no|yes	Simona
+19056823	yes	no|yes	Simona
+19079338	yes	yes|no	Simona
+19107203	yes	no	Simona
+19234442	yes	no	Simona
+19357644	yes	no	Simona
+19398759	yes	yes	Simona
+19451267	yes	yes	Simona
+19478851	yes	yes	Simona
+19479062	yes	no|yes	Simona
+19484123	yes	yes|no	Simona
+19675569	yes	no|yes	Simona
+19701457	yes	no	Simona
+19737400	yes	no|yes	Simona
+19749790	no	no	Simona
+19783983	yes	yes	Simona
+19814798	no	no	Simona
+19858347	yes	yes	Luana
+19893624	yes	no|yes	Luana
+20037584	yes	yes	Luana
+20083603	yes	no	Luana
+20129943	yes	yes	Luana
+20141835	yes	no	Luana
+20154325	no	no	Luana
+20160730	no	no	Luana
+20164921	yes	no	Luana
+20231386	yes	yes	Luana
+20421966	yes	no	Luana
+20485341	yes	no	Luana
+20526328	yes	no	Luana
+20541997	no	no	Luana
+20566683	no	no	Luana
+20696707	no	no	Luana
+20713597	yes	yes|no	Luana
+20838592	no	no	Luana
+20841325	no	no	Luana
+20871616	yes	no	Luana
+20921139	yes	yes|no	Luana
+21224387	yes	yes	Luana
+21282463	no	no	Luana
+21284855	yes	yes	Luana
+21293379	yes	no	Luana
+21298097	yes	yes	Luana
+21299499	yes	yes	Luana
+21375726	no	no	Luana
+21378119	yes	yes	Luana
+21408196	yes	yes	Luana
+21445324	no	no	Luana
+21680713	yes	no	Simona
+21695114	yes	no	Simona
+21737330	yes	no|yes	Simona
+21768289	yes	yes|no	Simona
+21799911	yes	yes	Simona
+21804533	yes	no	Simona
+21807881	yes	yes	Simona
+21966355	no	no	Simona
+22101327	no	no	Simona
+22110043	yes	yes	Simona
+22118466	yes	no	Simona
+22164301	yes	yes|no	Simona|Luana
+22179575	yes	no|yes	Luana
+22190735	yes	yes	Luana
+22231403	yes	no|yes	Luana
+22234877	yes	no|yes	Luana
+22287633	no	no	Luana
+22297296	yes	no|yes	Luana
+22348533	no	yes	Luana
+22363791	yes	no|yes	Luana
+22441827	yes	no	Simona
+22479555	yes	no	Simona
+22489132	no	yes	Simona
+22529269	yes	yes	Simona
+22689825	yes	no|yes	Luana
+22747601	yes	no	Luana
+22764087	yes	no	Luana
+22792074	yes	no|yes	Luana
+22800433	no	no	Luana
+22848449	yes	no|yes	Luana
+22888000	no		Luana
+22977173	yes	yes|no	Luana
+22986494	no	no	Luana
+23045548	yes	yes|no	Luana
+23222130	yes	no	Luana
+23236473	yes	no|yes	Luana
+23251783	yes	yes	Luana
+23305486	no	no	Luana
+23326524	no	no	Luana
+23400999	yes	no	Luana
+23462996	yes	no|yes	Luana
+23468639	yes	yes|no	Luana
+23567335	no	no	Luana
+23575685	yes	no|yes	Luana
+23685627	yes	yes	Luana
+23723247	yes	no	Luana
+23747254	yes	yes	Luana
+23751493	yes	no|yes	Luana
+23789104	yes	no	Luana
+23825189	yes	yes	Luana
+23945166	no	no	Luana
+24053599	no	no	Luana
+24096481	no	no	Luana
+24098568	yes	no	Luana
+24141787	yes	no	Luana
+24298274	no	no	Luana
+24371268	yes	no	Luana
+24389026	yes	no	Luana
+24432023	no		Luana
+24623813	no	no	Luana
+24726323	yes	yes	Luana
+24905007	yes	no|yes	Luana
+25081058	yes	yes|no	Mgt
+25107275	yes	no	Mgt
+25154395	yes	no	Mgt
+25202235	no		Mgt
+25364732	no		Mgt
+25793518	yes	no	Mgt
+25938342	no		Mgt
+26042670	yes	no|yes	Mgt
+26151477	yes	no	Mgt
+26751287	yes	no	Mgt
+21092115	no		Pablo
+26900403	no		Pablo
+23029326	no		Pablo
+24599309	no		Pablo
+16260491	no		Pablo
+25489419	no		Pablo
+27308325	no		Pablo
+20139419	no		Pablo
+21559420	no		Pablo
+23870279	no		Pablo
+24944773	no		Pablo
+19642985	no		Pablo
+26273588	no		Pablo
+20931347	no		Pablo
+20085636	no		Pablo
+23690665	no		Pablo
+26506385	no		Pablo
+22110701	no		Pablo
+27274237	no		Pablo
+20603627	no		Pablo
+22272000	no		Pablo
+26648539	no		Pablo
+23978163	no		Pablo
+20046643	no		Pablo
+20433758	no		Pablo
+22295098	no		Pablo
+25502816	no		Pablo
+24911652	no		Pablo
+15018649	no		Pablo
+12438421	no		Pablo
+25313791	no		Pablo
+25916467	no		Pablo
+22682496	no		Pablo
+24559316	no		Pablo
+22130959	no		Pablo
+24312311	no		Pablo
+23737792	no		Pablo
+24096827	no		Pablo
+23852044	no		Pablo
+23554628	no		Pablo
+24718026	no		Pablo
+11581317	no		Pablo
+19363483	no		Pablo
+24286034	no		Pablo
+24894704	no		Pablo
+25221777	no		Pablo
+21630250	no		Pablo
+26569409	no		Pablo
+23994953	no		Pablo
+25884811	no		Pablo
+23324445	no		Pablo
+26221561	no		Pablo
+21167041	no		Pablo
+22741534	no		Pablo
+24124474	no		Pablo
+26909338	no		Pablo
+25350109	no		Pablo
+25144367	no		Pablo
+26950245	no		Pablo
+24782595	no		Pablo
+14662745	no		Pablo
+21203464	no		Pablo
+22662165	no		Pablo
+23408898	no		Pablo
+20077143	no		Pablo
+26675397	no		Pablo
+22754427	no		Pablo
+22984550	no		Pablo
+23565803	no		Pablo
+23617958	no		Pablo
+27057457	no		Pablo
+19250527	no		Pablo
+22379607	no		Pablo
+26503331	no		Pablo
+21533169	no		Pablo
+27218071	no		Pablo
+27187477	no		Pablo
+26129651	no		Pablo
+20696699	no		Pablo
+23825942	no		Pablo
+22970174	no		Pablo
+21423803	yes		Pablo
+25147208	yes		Pablo
+19293931	yes		Pablo
+8707857	yes		Pablo
+25652644	yes		Pablo
+20660630	yes		Pablo
+26635974	yes		Pablo
+24834072	yes		Pablo
+25051175	yes		Pablo
+21478866	yes		Pablo
+17292838	yes		Pablo
+23940460	yes		Pablo
+26186728	yes		Pablo
+25658767	yes		Pablo
+26068791	yes		Pablo
+9024699	yes		Pablo
+22723832	yes		Pablo
+24614595	yes		Pablo
+25889084	yes		Pablo
+9151903	no		Pablo
+9687524	no		Pablo
+19399179	no		Pablo
+21187328	no		Pablo
+22909087	no		Pablo
+23365679	no		Pablo
+24555771	no		Pablo
+25886468	no		Pablo
+11015444	no		Pablo
+18096080	no		Pablo
+18494935	no		Pablo
+19289576	no		Pablo
+19906289	no		Pablo
+20025763	no		Pablo
+20544025	no		Pablo
+20646316	no		Pablo
+20809954	no		Pablo
+20860785	no		Pablo
+20863384	no		Pablo
+21854562	no		Pablo
+21949767	no		Pablo
+22509149	no		Pablo
+22619362	no		Pablo
+22762240	no		Pablo
+22812567	no		Pablo
+22943793	no		Pablo
+23213379	no		Pablo
+23236489	no		Pablo
+23554785	no		Pablo
+23671671	no		Pablo
+23734074	no		Pablo
+23750231	no		Pablo
+23900414	no		Pablo
+23995793	no		Pablo
+24079333	no		Pablo
+24086708	no		Pablo
+24113180	no		Pablo
+24185641	no		Pablo
+24448360	no		Pablo
+24675768	no		Pablo
+24796752	no		Pablo
+24849514	no		Pablo
+25058650	no		Pablo
+25165884	no		Pablo
+25411358	no		Pablo
+25490199	no		Pablo
+25544763	no		Pablo
+25816130	no		Pablo
+25821324	no		Pablo
+26001832	no		Pablo
+26087309	no		Pablo
+26265053	no		Pablo
+26437439	no		Pablo
+26536662	no		Pablo
+26561346	no		Pablo
+26950201	no		Pablo
+27066371	no		Pablo
+27175745	no		Pablo
+27325206	no		Pablo
+27597876	no		Pablo
+27612385	no		Pablo
+20414334	yes		Pablo
+21062477	yes		Pablo
+22371556	yes		Pablo
+23335559	yes		Pablo
+10601358	yes		Pablo
+10880522	yes		Pablo
+15983061	yes		Pablo
+17389238	yes		Pablo
+17682053	yes		Pablo
+18628979	yes		Pablo
+19182790	yes		Pablo
+20174559	yes		Pablo
+20733035	yes		Pablo
+20810787	yes		Pablo
+21148293	yes		Pablo
+21264300	yes		Pablo
+21464960	yes		Pablo
+21915273	yes		Pablo
+22069470	yes		Pablo
+22194892	yes		Pablo
+22711529	yes		Pablo
+22869599	yes		Pablo
+23951545	yes		Pablo
+24465219	yes		Pablo
+24628426	yes		Pablo
+24919192	yes		Pablo
+25294809	yes		Pablo
+25347121	yes		Pablo
+25462070	yes		Pablo
+25503988	yes		Pablo
+26498358	yes		Pablo
+26556630	yes		Pablo
+26578682	yes		Pablo
+26655089	yes		Pablo
+26848522	yes		Pablo
+26982091	yes		Pablo
+26986514	yes		Pablo
+27006775	yes		Pablo
+27047331	yes		Pablo
+25296364	no		Luana
+21533021	no		Luana
+23209281	no		Luana
+25620558	yes		Luana
+26329458	no		Luana
+21934682	no		Luana
+26354767	no		Luana
+25070343	no		Luana
+26807859	no		Luana
+21304979	no		Luana
+24967632	no		Luana
+22577363	no		Luana
+26807792	no		Luana
+24240690	no		Luana
+24475194	yes		Luana
+26100948	no		Luana
+19228394	no		Luana
+26630389	no		Luana
+26512919	no		Luana
+25950182	no		Luana
+27229734	no		Luana
+27069021	yes		Luana
+24145170	no		Luana
+24141789	no		Luana
+27064042	no		Luana
+15837803	yes		Luana
+19825784	no		Luana
+23894351	no		Luana
+26446321	no		Luana
+23749465	no		Luana
+25211142	no		Luana
+23272175	no		Luana
+25991918	no		Luana
+24972069	no		Luana
+21695169	no		Luana
+25428364	yes		Luana
+26966681	no		Luana
+27598132	no		Luana
+24207123	yes		Luana
+25854583	no		Luana
+24395528	no		Luana
+23235461	yes		Luana
+27378781	yes		Luana
+26982737	no		Luana
+26392272	no		Luana
+26122509	no		Luana
+24644423	no		Luana
+26575169	no		Luana
+24302884	yes		Luana
+25254342	no		Luana
+27207922	yes		Luana
+20730086	no		Luana
+19531470	no		Luana
+26848653	no		Luana
+16707008	no		Luana
+23469178	no		Luana
+21060840	no		Luana
+23396447	no		Luana
+22762240	no		Luana
+25848255	no		Luana
+23555257	no		Luana
+27686325	no		Luana
+26324419	no		Luana
+19142234	no		Luana
+22251375	yes		Luana
+27119508	no		Luana
+27548616	no		Luana
+17375204	no		Luana
+26569621	no		Luana
+25768017	no		Luana
+24426774	no		Luana
+23708522	no		Luana
+19820721	no		Luana
+23267329	no		Luana
+22299029	no		Luana
+21926273	no		Luana
+21829721	yes		Luana
+27445980	no		Luana
+26006045	no		Luana
+24997568	no		Luana
+24646941	no		Luana
+27698945	yes		Luana
+17261635	no		Luana
+23755918	no		Luana
+23418049	no		Luana
+25134527	no		Luana
+26188084	yes		Luana
+27500235	no		Luana
+26007655	no		Luana
+26014856	no		Luana
+21596782	yes		Luana
+20037628	yes		Luana
+23505568	no		Luana
+27250711	no		Luana
+22708048	no		Luana
+24733347	no		Luana
+26312502	yes		Luana
+21912513	yes		Luana
+21189249	yes		Luana
+24637012	no		Luana
+28066721	yes		Pablo
+22028876	no		Pablo|Luana
+24727733	no		Pablo
+25742010	yes		Pablo
+27308354	yes		Pablo
+21900492	no		Pablo
+21818277	yes		Pablo
+24688304	no		Pablo
+24392163	yes		Pablo
+21998301	yes		Pablo
+19584867	no		Pablo
+24040095	no		Pablo
+21986938	yes		Pablo
+22207579	yes		Pablo
+20842112	yes		Pablo
+22731636	yes		Pablo
+23096115	yes		Pablo
+27109047	yes		Pablo
+22908313	yes		Pablo
+24361124	yes		Pablo
+26700459	yes		Pablo
+23724047	yes		Pablo
+25973173	no		Pablo
+25816367	yes		Pablo
+26541268	no		Pablo
+25515237	no		Pablo
+27545878	yes		Pablo
+21291561	no		Pablo|Luana
+24349009	yes		Pablo
+25365359	no		Pablo
+23349666	no		Pablo
+27619510	yes		Pablo
+26571013	yes		Pablo
+23844208	no		Pablo
+23733784	yes		Pablo
+23806657	yes		Pablo
+23902727	no		Pablo
+21967847	yes		Pablo
+22567123	yes		Pablo
+24204564	yes		Pablo
+24584857	yes		Pablo
+21572106	yes		Pablo
+25719671	yes		Pablo
+20062533	yes		Pablo
+26416881	yes		Pablo
+25834832	no		Pablo
+27274716	no		Pablo
+26918455	no		Pablo
+25531315	yes		Pablo
+12213837	yes		Pablo
+25072851	no		Pablo
+27897222	no		Pablo
+18332182	yes		Pablo
+26702435	yes		Pablo
+16582100	yes		Pablo
+25312253	no		Pablo
+23691243	no		Pablo
+21931555	yes		Pablo
+27486982	yes		Pablo
+22444868	no		Pablo
+25823818	yes		Pablo
+26243517	yes		Pablo
+28039457	no		Pablo
+28051183	yes		Pablo
+25306110	yes		Pablo
+23300710	yes		Pablo
+28212564	yes		Pablo
+24138815	no		Pablo
+25762619	no		Pablo
+25970784	yes		Pablo
+24143245	yes		Pablo
+24879641	yes		Pablo
+25056273	yes		Pablo
+25023518	yes		Pablo
+25756178	yes		Luana
+20861162	no		Luana
+27055101	yes		Luana
+27982078	yes		Luana
+16859511	yes		Luana
+27902969	no		Luana
+27932493	yes		Luana
+17375192	no		Luana
+25002860	no		Luana
+27456665	no		Luana
+18606856	no		Luana
+26265185	yes		Luana
+12756238	yes		Luana
+25887124	no		Luana
+25336618	no		Luana
+24510188	no		Luana
+25190493	yes		Luana
+17557078	yes		Luana
+24510189	yes		Luana
+25510503	yes		Luana
+25726523	yes		Luana
+27270970	yes		Luana
+22583596	no		Luana
+23637832	yes		Luana
+22956765	yes		Luana
+27051413	yes		Luana
+20565882	yes		Luana
+27989102	yes		Luana
+27849571	yes		Luana
+22972948	no		Luana
+20368408	no		Luana
+19891780	yes		Luana
+26034986	yes		Luana
+24244542	yes		Luana
+22905201	no		Luana
+28141831	yes		Luana
+25878769	yes		Luana
+26813342	no		Luana
+24498420	yes		Luana
+26344567	yes		Luana
+23785295	no		Luana
+23082233	yes		Luana
+22140559	yes		Luana
+25849286	yes		Luana
+25476240	yes		Luana
+24710573	no		Luana
+24453954	no		Luana
+26687479	yes		Luana
+23293603	yes		Luana
+23409128	no		Luana
+24391497	yes		Luana
+17606866	no		Luana
+25682869	yes		Luana
+25713299	yes		Luana
+26652601	no		Luana
+24614757	yes		Luana
+23179371	yes		Luana
+28373282	no		Luana
+24206648	no		Luana
+22404908	yes		Luana
+26076379	no		Luana
+11956289	yes		Luana
+26694840	yes		Luana
+27479603	yes		Luana
+25417702	yes		Luana
+25855965	no		Luana
+24904622	no		Luana
+24714389	no		Luana
+20209098	no		Luana
+27590350	yes		Luana
+23819014	yes		Luana
+23559008	yes		Luana
+26828592	no		Luana
+22359584	no		Luana
+23290522	yes		Luana
+22797943	yes		Luana
+27759077	no		Luana
+27551498	no		Luana
+21239502	yes		Luana
+24567509	no		Luana
+25029497	yes		Luana
+20305814	yes		Luana
+27738385	no		Luana
+27904655	yes		Luana
+21887223	yes		Luana
+28128295	yes		Luana
+22675463	no		Luana
+27641145	yes		Luana
+25832730	no		Luana
+23555273	yes		Luana
+18606850	yes		Luana
+22143888	yes		Luana
+25405912	no		Luana
+26763441	yes		Luana
+28420882	yes		Luana
+21930777	yes		Luana
+19424502	yes		Luana
+24877091	yes		Luana
+23285096	yes		Luana
+21859844	no		Luana
+19654328	yes		Luana
+24844638	yes		Luana
+27300479	no		Luana
+20808826	yes		Luana
+26876216	yes		Luana
+19243468	yes		Luana
+22403301	yes		Luana
+17954568	yes		Luana
+26474850	no		Luana
+28424452	no		Luana
+23555303	yes		Luana
+27434182	yes		Luana
+25506548	no		Luana
+10899904	no		Luana
+21701047	no		Luana
+19917778	yes		Luana
+18769617	no		Luana
+16282588	yes		Luana
+21220513	yes		Luana
+24357799	no		Luana
+26408034	no		Luana
+18159247	yes		Luana
+25310726	no		Luana
+24390248	no		Luana
+21492422	no		Luana
+26269577	yes		Luana
+25237378	no		Luana
+26635867	yes		Luana
+18793716	yes		Luana
+23717538	yes		Luana
+21876773	yes		Luana
+25797257	no		Luana
+26754771	yes		Luana
+26948869	no		Luana
+22545131	no		Luana
+18498667	yes		Luana
+11381079	yes		Luana
+20098423	yes		Luana
+19826415	yes		Luana
+11956293	yes		Luana
+21218122	no		Luana
+25774694	yes		Luana
+23974117	no		Luana
+22199256	yes		Luana
+19304746	yes		Luana
+24136461	no		Luana
+27542279	yes		Luana
+27517492	yes		Luana
+26205790	yes		Luana
+27345400	yes		Luana
+21552570	yes		Luana
+25934638	no		Luana
+18226221	yes		Luana
+16418392	no		Luana
+23738000	yes		Luana
+25859289	no		Luana
+28286521	yes		Luana
+27128349	no		Luana
+26313918	no		Luana
+20614012	yes		Luana
+24616631	no		Luana
+26683936	yes		Luana
+20101261	yes		Luana
+24525567	no		Luana
+28496990	no		Luana
+16618814	yes		Luana
+27362806	yes		Luana
+24468059	yes		Luana
+22754626	no		Luana
+18086704	yes		Luana
+21092294	no		Luana
+22046272	no		Luana
+19017360	no		Luana
+24786584	yes		Luana
+18588690	yes		Luana
+25658447	no		Luana
+25436971	yes		Luana
+23919615	no		Luana
+26966684	yes		Luana
+22297294	yes		Luana
+28395174	yes		Luana
+26814702	yes		Luana
+28457889	yes		Luana
+21297943	no		Luana
+28338009	yes		Luana
+24250750	yes		Luana
+27623766	no		Luana
+23554170	yes		Luana
+27867358	no		Luana
+10662779	no		Luana
+23949224	yes		Luana
+26371475	no		Luana
+23995757	yes		Luana
+18281698	yes		Luana
+24819779	no		Luana
+27089879	no		Luana
+12392597	no		Luana
+23799881	yes		Luana
+24424410	yes		Luana
+26666268	yes		Luana
+25029256	yes		Luana
+26598605	yes		Luana
+17096843	no		Luana
+21177859	yes		Luana
+27143934	no		Luana
+26578599	yes		Luana
+18586828	yes		Luana
+21665565	yes		Luana
+27524201	yes		Luana
+27571165	yes		Luana
+15479736	yes		Luana
+24966277	yes		Luana
+27301828	no		Luana
+26269257	yes		Luana
+19580544	yes		Luana
+26203351	yes		Luana
+26881882	yes		Luana
+28475649	no		Luana
+27019748	no		Luana
+17786190	no		Luana
+23634218	yes		Luana
+21209915	yes		Luana
+19583962	yes		Luana
+28038685	no		Luana
+23361462	yes		Luana
+20383197	no		Luana
+12615900	no		Luana
+26214021	no		Luana
+26431330	yes		Luana
+24232453	yes		Luana
+22457629	yes		Luana
+22768064	yes		Luana
+28128332	yes		Luana
+28176834	yes		Luana
+22210319	no		Luana
+21304987	no		Luana
+26689258	yes		Luana
+23469201	no		Luana
+28159912	yes		Luana
+24404189	yes		Luana
+25962635	no		Luana
+19179453	no		Luana
+24804940	yes		Luana
+21685449	yes		Luana
+25389390	no		Luana
+20034391	yes		Luana
+25217585	yes		Luana
+23731702	no		Luana
+26464434	no		Luana
+22174879	no		Luana
+25175916	yes		Luana
+23345592	yes		Luana
+21930770	no		Luana
+25762445	yes		Luana
+17227585	yes		Luana
+27616981	no		Luana
+27412013	yes		Luana
+23185455	yes		Luana
+27503072	no		Luana
+10637280	no		Luana
+26452029	yes		Luana
+22879953	yes		Luana
+25888394	yes		Luana
+25352544	no		Luana
+27448983	yes		Luana
+18053089	yes		Luana
+27226900	yes		Luana
+12615911	yes		Luana
+21138966	yes		Luana
+16103132	yes		Luana
+28122643	no		Luana
+27323401	yes		Luana
+25261367	no		Luana
+26934656	yes		Luana
+25362471	yes		Luana
+28182009	yes		Luana
+23284890	no		Luana
+21399697	yes		Luana
+27191968	yes		Luana
+24790097	yes		Luana
+27144523	yes		Luana
+19142223	yes		Luana
+21931631	yes		Luana
+25530838	no		Luana
+25659151	yes		Luana
+18382669	no		Luana
+26693911	no		Luana
+24595334	yes		Luana
+20949035	no		Luana
+26766589	yes		Luana
+18779368	yes		Luana
+24411736	yes		Luana
+27765933	yes		Luana
+19144997	no		Luana
+21996749	yes		Luana
+22580716	no		Luana
+27802161	yes		Luana
+26608463	no		Luana
+23924897	no		Luana
+25191528	no		Luana
+16172258	no		Luana
+23519116	yes		Luana
+18365011	yes		Luana
+23427270	yes		Luana
+25349260	yes		Luana
+25516224	no		Luana
+25010983	yes		Luana
+23300728	no		Luana
+27841353	yes		Luana
+27788246	no		Luana
+25223785	yes		Luana
+27566588	yes		Luana
+22212389	no		Luana
+28399880	no		Luana
+22195017	yes		Luana
+18366812	yes		Luana
+27279728	no		Luana
+27802336	yes		Luana
+15804357	no		Luana
+22855535	yes		Luana
+24349523	yes		Luana
+23983009	no		Luana
+21698215	yes		Luana
+25644492	no		Luana
+26930004	yes		Luana
+22172159	no		Luana
+24939902	yes		Luana
+18953413	no		Luana
+21119010	yes		Luana
+17670796	yes		Luana
+25180771	yes		Luana
+21423673	no		Luana
+26725083	yes		Luana
+22876279	yes		Luana
+11927604	yes		Luana
+24732467	no		Luana
+28414785	yes		Luana
+20877569	no		Luana
+21773019	yes		Luana
+17327823	yes		Luana
+26673819	no		Luana
+24843023	yes		Luana
+21445058	yes		Luana
+28169360	yes		Luana
+24236052	yes		Luana
+27907189	yes		Luana
+26551700	yes		Luana
+21969857	no		Luana
+23056207	no		Luana
+27876799	yes		Luana
+20485285	no		Luana
+28330493	no		Luana
+27415018	no		Luana
+25909160	yes		Luana
+20631154	yes		Luana
+28121484	yes		Luana
+27517496	yes		Luana
+24949884	no		Luana
+20093365	no		Luana
+21853095	yes		Luana
+19088845	no		Luana
+27636895	no		Luana
+25101252	no		Luana
+20409077	yes		Luana
+22747786	yes		Luana
+24394769	yes		Luana
+19843608	yes		Luana
+23223571	yes		Luana
+24743732	no		Luana
+10747099	yes		Luana
+22492511	yes		Luana
+27399334	yes		Luana
+25944859	yes		Luana
+27582551	yes		Luana
+25512384	yes		Luana
+25650738	no		Luana
+23950931	no		Luana
+24659245	yes		Luana
+25433655	no		Luana
+18377662	yes		Luana
+20637660	yes		Luana
+24176114	no		Luana
+19364924	yes		Luana
+24416724	no		Luana
+18952837	no		Luana
+25890358	yes		Luana
+25291178	no		Luana
+27236187	yes		Luana
+22496420	yes		Luana
+21931591	yes		Luana
+25623282	yes		Luana
+22363747	yes		Luana
+26577226	yes		Luana
+26036343	yes		Luana
+18225953	yes		Luana
+28325761	no		Luana
+23871147	no		Luana
+27938392	yes		Luana
+22984505	yes		Luana
+24441036	no		Luana
+26702077	no		Luana
+19997487	yes		Luana
+27829229	yes		Luana
+23198089	yes		Luana
+26822058	yes		Luana
+24523459	no		Luana
+26331536	yes		Luana
+27559307	yes		Luana
+18268102	no		Luana
+25085554	yes		Luana
+12810851	no		Luana
+25601894	no		Luana
+27724964	yes		Luana
+19128178	no		Luana
+17542650	yes		Luana
+26259872	yes		Luana
+28259907	no		Luana
+25107275	yes		Luana
+27896950	no		Luana
+12629052	yes		Luana
+22305495	yes		Luana
+21798038	yes		Luana

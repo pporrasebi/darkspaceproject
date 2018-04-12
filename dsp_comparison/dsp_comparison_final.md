@@ -1,6 +1,14 @@
-# Comparison of IMEx with other protein association datasets
-Pablo Porras  
-2017-07-28  
+---
+title: "Comparison of IMEx with other protein association datasets"
+author: "Pablo Porras"
+date: '2017-07-28'
+output:
+  html_document:
+    fig_height: 16
+    fig_width: 8
+    keep_md: yes
+    toc: yes
+---
 
 Estimating the size of the uncurated interactome
 ========================================================
@@ -47,7 +55,7 @@ imex_pairs <- unique(select(imex_human,pair_id=pair_id_clean,imex))
 imex_pmids <- unique(select(imex_human,pmid=pubid,imex))
 ```
 
-The dataset contains 158689 protein interactions recorded in 8988 publications.
+The dataset contains 141262 protein interactions recorded in 8821 publications.
 
 ##### BioGRID data
 
@@ -77,7 +85,7 @@ GO_IPI_pairs <- unique(select(GO_IPI_pairs_pmids, pair_id=pair_id_clean,GO_IPI =
 GO_IPI_pmids <- unique(select(GO_IPI_pairs_pmids, pmid=pubid,GO_IPI = EBI_GOA_nonIntAct))
 ```
 
-The GO IPI dataset contains 9095 protein associations recorded in 5032 publications.
+The GO IPI dataset contains 8321 protein associations recorded in 4648 publications.
 
 #### Pathway datasets
 
@@ -134,7 +142,7 @@ string_pi_pairs <- unique(string_pi[,.(STRING_pi_score_ave=mean(STRING_score),ST
 string_pi_pairs <- string_pi_pairs[,.(pair_id=pair_id_clean,STRING_pi_score_ave,STRING_pi)]
 ```
 
-The STRING pathway-inference dataset contains 191335 protein associations, no PMIDs provided in this case.
+The STRING pathway-inference dataset contains 191043 protein associations, no PMIDs provided in this case.
 
 #### Text-mining datasets
 
@@ -171,7 +179,7 @@ EVEX_pmids <- unique(EVEX_pairs_pmids[,.(EVEX,evex_score_ave=mean(evex_score)),b
 EVEX_pmids <- EVEX_pmids[,.(pmid=pubid,EVEX,evex_score_ave)]
 ```
 
-The text-mining EVEX dataset contains 540400 protein associations recorded in 54320 publications.
+The text-mining EVEX dataset contains 536341 protein associations recorded in 54315 publications.
 
 ##### Text-mining STRING data
 
@@ -181,7 +189,7 @@ string_tm_pairs <- unique(string_tm[,.(STRING_tm_score_ave=mean(STRING_score),ST
 string_tm_pairs <- string_tm_pairs[,.(pair_id=pair_id_clean,STRING_tm_score_ave,STRING_textmining)]
 ```
 
-The STRING text-mining dataset contains 167668 protein associations, no PMIDs provided in this case.
+The STRING text-mining dataset contains 167611 protein associations, no PMIDs provided in this case.
 
 #### Prediction datasets
 
@@ -192,7 +200,7 @@ The STRING text-mining dataset contains 167668 protein associations, no PMIDs pr
 iid_pred_pairs <- fread("../iid_predictions/results/pairs_iid_pred.txt",header=T,sep="\t",colClasses=c("character","numeric"),data.table=T)
 ```
 
-The IID-predictions dataset contains 706228 protein associations.
+The IID-predictions dataset contains 707917 protein associations.
 
 ##### STRING predictions data
 
@@ -202,7 +210,7 @@ string_phylo_pairs <- unique(string_phylo[,.(STRING_phylo_score_ave=mean(STRING_
 string_phylo_pairs <- string_phylo_pairs[,.(pair_id=pair_id_clean,STRING_phylo_score_ave,STRING_phylo)]
 ```
 
-The STRING phylogenetic predictions dataset contains 242503 protein associations.
+The STRING phylogenetic predictions dataset contains 242030 protein associations.
 
 ### Part 2: Generating comparison dataset at the pair level
 
@@ -227,7 +235,7 @@ system("gzip ./results/paircomp_table_final.txt --force")
 unlink("./results/paircomp_table_final.txt")
 ```
 
-The comparison set gives a total number of 1937544 potentially interacting pairs, of which 1778855 (91.81%) are not curated in IMEx. 
+The comparison set gives a total number of 1916581 potentially interacting pairs, of which 1775319 (92.63%) are not curated in IMEx. 
 
 ### Part 3: Generating comparison dataset at the publication level
 
@@ -245,7 +253,7 @@ fwrite(pubcomp_table_final,"./results/pubcomp_table_final.txt",col.names=T,row.n
 system("gzip ./results/pubcomp_table_final.txt --force")
 ```
 
-The comparison set gives a total number of 114374 publications, of which 105386 (92.14%) are not curated in IMEx. 
+The comparison set gives a total number of 114078 publications, of which 105257 (92.27%) are not curated in IMEx. 
 
 ### Part 4: Generating comparison dataset at the pair level taking the publication into account
 
@@ -267,7 +275,7 @@ pubpaircomp_table_form <- pubpaircomp_table
 pubpaircomp_table_form[is.na(pubpaircomp_table_form <- pubpaircomp_table)] <- 0
 ```
 
-The comparison set gives a total number of 2093151 protein association pairs, of which 1912240 (91.36%) are not curated in IMEx. In all these pairs the publication from which they were derived was also matched, so the overlaps and numbers differ from my previous comparisons. 
+The comparison set gives a total number of 2068845 protein association pairs, of which 1907687 (92.21%) are not curated in IMEx. In all these pairs the publication from which they were derived was also matched, so the overlaps and numbers differ from my previous comparisons. 
 
 ### Part 5: Checking how many of the pair/publication combos involved uncurated proteins
 
@@ -345,5 +353,280 @@ write.table(tmpubl_sample,"./results/tmpubl_sample.txt",col.names = T,row.names 
 ```
 
 Low-hanging fruit and Reactome/TM evaluation lists can be checked and accessed at https://docs.google.com/spreadsheets/d/1tL1HtVD3-BxHxKuXbIYhcFjmCptGVEOD5aFJCZw6CZk/edit?usp=sharing. 
+
+### Part 7: Testing for accuracy of pair identification
+
+First I put together a table for full comparison. 
+
+```r
+pubpair_pair_acc_pt1 <- unique(merge(pubpaircomp_table_final,
+                                     pubcomp_table_final,
+                                     by="pmid",
+                                     all = T)) 
+
+# Select only publication curated in IMEx
+pubpair_pair_acc_pt2 <- pubpair_pair_acc_pt1[imex.y=="1",
+                                             .(pmid,
+                                               pair_id,
+                                               pubpair_intdbs = ifelse(
+                                                       imex.x=="1" | 
+                                                       GO_IPI.x == "1" | 
+                                                       BioGRID.x == "1",
+                                                                    "1",
+                                                                    "0"),
+                                               pubpair_imex = imex.x,
+                                               pubpair_biogrid = BioGRID.x,
+                                               pubpair_goipi = GO_IPI.x,
+                                               pubpair_tm_epmc = tm_epmc.x,
+                                               pubpair_tm_evex = EVEX.x,
+                                               pubpair_tm_string = STRING_textmining,
+                                               pubpair_pw_reactome = reactome.x,
+                                               pubpair_pw_op_ints = OmniPath_interactions.x,
+                                               pubpair_pw_op_ptm = OmniPath_ptm.x,
+                                               pubpair_pred_string = STRING_pi,
+                                               pubpair_pred_iid = iid_pred,
+                                               pub_imex = imex.y,
+                                               pub_biogrid = BioGRID.y,
+                                               pub_goipi = GO_IPI.y,
+                                               pub_tm_epmc = tm_epmc.y,
+                                               pub_tm_evex = EVEX.y,
+                                               pub_pw_reactome = reactome.y,
+                                               pub_pw_op_ints = OmniPath_interactions.y,
+                                               pub_pw_op_ptm = OmniPath_ptm.y)]
+```
+
+##### Pair-id concordance estimations between interaction DBs
+
+```r
+pubpair_pair_acc_intDBs <- unique(pubpair_pair_acc_pt2[,
+                                             .(pmid,
+                                               pair_id,
+                                               pubpair_intdbs,
+                                               pubpair_imex,
+                                               pubpair_biogrid,
+                                               pubpair_goipi,
+                                               pub_imex,
+                                               pub_biogrid,
+                                               pub_goipi)])
+
+# pubpair_pair_acc_intDBs_check <- unique(pubpair_pair_acc_intDBs[pub_imex=="1" & pub_biogrid=="1" & pub_goipi=="1",
+#                                                                 .(pubpair_intdbs_check = paste(unique(pubpair_intdbs),collapse="|")),
+#                                                                 by="pmid"])
+# table(pubpair_pair_acc_intDBs_check$pubpair_intdbs_check,useNA = "ifany")
+
+pubpair_pair_acc_intDBs_eval_pt1 <- unique(pubpair_pair_acc_intDBs[pub_imex=="1" & 
+                                                                       pub_biogrid=="1" & 
+                                                                       pub_goipi=="1" & 
+                                                                       pubpair_intdbs == "1",
+                                                               .(pmid,
+                                                                 pair_id,
+                                                                 pubpair_imex,
+                                                                 pubpair_biogrid,
+                                                                 pubpair_goipi)])
+pubpair_pair_acc_intDBs_eval <- unique(pubpair_pair_acc_intDBs_eval_pt1[,
+                                                                        .(pmid,
+                                                                          pair_id,
+                                                                          pair_check = ifelse(
+                                                                                  pubpair_imex == "1" &
+                                                                                          pubpair_biogrid == "1" &
+                                                                                          pubpair_goipi == "1",
+                                                                                  "full agreement",
+                                                                                  ifelse(
+                                                                                          pubpair_imex == "1" &
+                                                                                          pubpair_biogrid == "0" &
+                                                                                          pubpair_goipi == "1",
+                                                                                          "IMEx + GO IPI",
+                                                                                          ifelse(
+                                                                                                  pubpair_imex == "1" &
+                                                                                                          pubpair_biogrid == "1" &
+                                                                                                          pubpair_goipi == "0",
+                                                                                                  "IMEx + BioGRID",
+                                                                                                  ifelse(
+                                                                                                          pubpair_imex == "0" & 
+                                                                                                                  pubpair_biogrid == "1" & 
+                                                                                                                  pubpair_goipi == "1",
+                                                                                                          "GO IPI + BioGRID",
+                                                                                                          ifelse(
+                                                                                                                  pubpair_imex == "1" & 
+                                                                                                                  pubpair_biogrid == "0" & 
+                                                                                                                  pubpair_goipi == "0",
+                                                                                                                  "IMEx",
+                                                                                                                  ifelse(
+                                                                                                                          pubpair_imex == "0" & 
+                                                                                                                                  pubpair_biogrid == "1" & 
+                                                                                                                                  pubpair_goipi == "0",
+                                                                                                                          "BioGRID",
+                                                                                                                          "GO IPI")))))))])
+
+pubpair_pair_acc_intDBs_eval$pair_check <- factor(pubpair_pair_acc_intDBs_eval$pair_check, 
+                                                  levels = c("full agreement",
+                                                             "IMEx + BioGRID",
+                                                             "IMEx + GO IPI",
+                                                             "GO IPI + BioGRID",
+                                                             "IMEx",
+                                                             "BioGRID",
+                                                             "GO IPI"))
+
+table(pubpair_pair_acc_intDBs_eval$pair_check,useNA = "ifany")
+```
+
+```
+## 
+##   full agreement   IMEx + BioGRID    IMEx + GO IPI GO IPI + BioGRID 
+##              722             1609              169              104 
+##             IMEx          BioGRID           GO IPI 
+##             3009              776              102
+```
+
+###### Plot: Pair-id concordance estimations between interaction DBs 
+![](dsp_comparison_final_files/figure-html/pubpair_acc_intDBs_plot-1.png)<!-- -->
+
+##### Pair-id concordance estimations between interaction data and text-mining resources
+
+```r
+pubpair_pair_acc_tm <- unique(pubpair_pair_acc_pt2[,
+                                             .(pmid,
+                                               pair_id,
+                                               pubpair_intdbs,
+                                               pubpair_tm_epmc,
+                                               pubpair_tm_evex,
+                                               pubpair_tm_string,
+                                               pub_tm_epmc,
+                                               pub_tm_evex)])
+
+pubpair_pair_acc_tm_eval_pt1 <- unique(pubpair_pair_acc_tm[pub_tm_epmc=="1" & pub_tm_evex=="1",
+                                                               .(pmid,
+                                                                 pair_id,
+                                                                 pubpair_intdbs,
+                                                                 pubpair_tm_epmc,
+                                                                 pubpair_tm_evex,
+                                                                 pubpair_tm_string)])
+                                                                 
+pubpair_pair_acc_tm_eval <- unique(pubpair_pair_acc_tm_eval_pt1[,
+                                                                .(pmid,
+                                                                  pair_id,
+                                                                  pair_check = ifelse(
+                                                                          pubpair_intdbs == "1" &
+                                                                                  pubpair_tm_epmc == "1" &
+                                                                                  pubpair_tm_evex == "1" &
+                                                                                  pubpair_tm_string == "1",
+                                                                          "full agreement",
+                                                                          ifelse(
+                                                                                  pubpair_intdbs == "0" &
+                                                                                          pubpair_tm_epmc == "1" &
+                                                                                          pubpair_tm_evex == "1" &
+                                                                                          pubpair_tm_string == "1",
+                                                                                  "agreement in text-mining sources",
+                                                                                  ifelse(
+                                                                                          pubpair_intdbs == "1" &
+                                                                                                  pubpair_tm_epmc == "1" &
+                                                                                                  (pubpair_tm_evex == "0" |
+                                                                                                            pubpair_tm_string == "0"),
+                                                                                          "IntDBs + EPMC",
+                                                                                          ifelse(
+                                                                                                  pubpair_intdbs == "1" &
+                                                                                                          pubpair_tm_string == "1" &
+                                                                                                          (pubpair_tm_evex == "0" |
+                                                                                                                    pubpair_tm_epmc == "0"),
+                                                                                                  "IntDBs + STRING",
+                                                                                                  ifelse(
+                                                                                                          pubpair_intdbs == "1" &
+                                                                                  	      							pubpair_tm_evex == "1" &
+                                                                                  	      							        (pubpair_tm_epmc == "0" |
+                                                                                  	      							                 pubpair_tm_string == "0"),
+                                                                                  	      							"IntDBs + EVEX",
+                                                                                  	      							"found only in one or two text-mining sources"))))))])
+
+pubpair_pair_acc_tm_eval$pair_check <- factor(pubpair_pair_acc_tm_eval$pair_check, 
+                                                  levels = c("full agreement",
+                                                             "agreement in text-mining sources",
+                                                             "IntDBs + EPMC",
+                                                             "IntDBs + EVEX",
+                                                             "IntDBs + STRING",
+                                                             "found only in one or two text-mining sources"))
+
+table(pubpair_pair_acc_tm_eval$pair_check,useNA = "ifany")
+```
+
+```
+## 
+##                               full agreement 
+##                                           46 
+##             agreement in text-mining sources 
+##                                           17 
+##                                IntDBs + EPMC 
+##                                          179 
+##                                IntDBs + EVEX 
+##                                           87 
+##                              IntDBs + STRING 
+##                                          451 
+## found only in one or two text-mining sources 
+##                                        15986
+```
+
+###### Plot: Pair-id concordance estimations between interaction data and text-mining resources (full)
+![](dsp_comparison_final_files/figure-html/pubpair_acc_tm_plot_full-1.png)<!-- -->
+
+###### Plot: Pair-id concordance estimations between interaction data and text-mining resources (eliminating those found in one or two tm resources only)
+![](dsp_comparison_final_files/figure-html/pubpair_acc_tm_plot_sel-1.png)<!-- -->
+
+##### Pair-id concordance estimations between interaction data and pathway resources
+
+```r
+pubpair_pair_acc_pw <- unique(pubpair_pair_acc_pt2[,
+                                             .(pmid,
+                                               pair_id,
+                                               pubpair_intdbs,
+                                               pubpair_pw_reactome,
+                                               pubpair_pw_op = ifelse(
+                                                       pubpair_pw_op_ints=="1" | pubpair_pw_op_ptm == "1",
+                                                       "1",
+                                                       "0"
+                                                       ),
+                                               pub_pw_reactome,
+                                               pub_pw_op = ifelse(
+                                                       pub_pw_op_ints=="1" | pub_pw_op_ptm == "1",
+                                                       "1",
+                                                       "0"
+                                                       ))])
+
+pubpair_pair_acc_pw_eval_pt1 <- unique(pubpair_pair_acc_pw[pub_pw_reactome=="1" & pub_pw_op=="1" & pubpair_intdbs == "1",
+                                                               .(pmid,
+                                                                 pair_id,
+                                                                 pubpair_intdbs,
+                                                                 pubpair_pw_reactome,
+                                                                 pubpair_pw_op)])
+
+pubpair_pair_acc_pw_eval <- unique(pubpair_pair_acc_pw_eval_pt1[,
+                                                                .(pmid,
+                                                                  pair_id,
+                                                                  pair_check = ifelse(
+                                                                          pubpair_intdbs == "1" &
+                                                                                  pubpair_pw_reactome == "1" &
+                                                                                  pubpair_pw_op == "1",
+                                                                          "full agreement",
+                                                                          ifelse(
+                                                                                  pubpair_intdbs == "1" &
+                                                                                  pubpair_pw_reactome == "1" &
+                                                                                  pubpair_pw_op == "0",
+                                                                                  "IntDBs + Reactome",
+                                                                                  ifelse(
+                                                                                          pubpair_intdbs == "1" &
+                                                                                                  pubpair_pw_reactome == "0" &
+                                                                                                  pubpair_pw_op == "1",
+                                                                                          "IntDBs + OmniPath",
+                                                                                          "Reactome + OmniPath"))))])
+
+table(pubpair_pair_acc_pw_eval$pair_check,useNA = "ifany")
+```
+
+```
+## 
+##      full agreement   IntDBs + OmniPath   IntDBs + Reactome Reactome + OmniPath 
+##                   5                   8                  18                  73
+```
+
+###### Plot: Pair-id concordance estimations between interaction data and pathway resources
+![](dsp_comparison_final_files/figure-html/pubpair_acc_pw_plot-1.png)<!-- -->
 
 ********************************************************************************************
