@@ -154,7 +154,7 @@ $(document).ready(function () {
 <div id="uploading-the-text-mined-dataset" class="section level4">
 <h4>Uploading the text-mined dataset</h4>
 <p>I upload only the fields I need, so the file size does not get out of hand.</p>
-<pre class="r"><code>require(data.table)
+<pre class="r"><code>library(data.table)
 
 setwd(&quot;./source_files/&quot;)
 system(&quot;gunzip ./OA.PPI.June17.txt.gz&quot;)
@@ -261,8 +261,30 @@ pnais_count[order(-N)]</code></pre>
 ## 22:                              hits clip    2
 ##                                         V1    N</code></pre>
 <p>Number of publications potentially containing PNAIs: 2618.<br />
-Number of potential unique PNAIs pairs: 9792.<br />
-************************************************************</p>
+Number of potential unique PNAIs pairs: 9792.</p>
+</div>
+<div id="generating-some-stats-for-methods-potentially-detecting-rna-interactions" class="section level5">
+<h5>Generating some stats for methods potentially detecting RNA interactions</h5>
+<pre class="r"><code>potential_rnais &lt;- tm_lite_met[grepl(&quot;clash|clip|clip-seq|RNA immunoprecipitation|chemical rna modification plus base pairing prediction|miRNA interference luciferase assay|chemical rna modification plus base pairing prediction|cross-linking, ligation, and sequencing of hybrids|CLASH|cross linking immunoprecipitation|UV cross-linking immunoprecipitation combined with high-throughput sequencing|HITS-CLIP|CLIP-Seq&quot;,
+                                     method_term_simple)]
+rnais_count &lt;- data.table(table(potential_rnais$method_term_simple,
+                        useNA = &quot;ifany&quot;))
+
+rnais_count[order(-N)]</code></pre>
+<pre><code>##                                    V1   N
+##  1:                              clip 847
+##  2:                          par-clip 188
+##  3:                             iclip 181
+##  4:                          clip-seq 169
+##  5:                         hits-clip  99
+##  6:                          clip seq  19
+##  7:                           clipseq  14
+##  8: cross linking immunoprecipitation   8
+##  9:                           parclip   5
+## 10:                             clash   2
+## 11:                         hits clip   2</code></pre>
+<p>Number of publications potentially containing RNAIs: 264.<br />
+Number of potential unique RNAIs pairs: 925. ************************************************************</p>
 </div>
 </div>
 </div>

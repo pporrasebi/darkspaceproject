@@ -1,0 +1,391 @@
+---
+title: "DSP evaluation April 2018"
+author: "Pablo Porras"
+date: "09/04/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Synopsys
+
+Evaluation for a DSP report tobe used in PSI and EMBO Networks meetings in Heidelberg. 
+
+#### Libraries
+```{r libraries,message=FALSE,warning=FALSE}
+library(data.table)
+library(dplyr)
+library(stringr)
+library(ggplot2)
+library(PSICQUIC)
+```
+
+### Evaluate how many publications contained interaction data per source
+
+I download the information from the manual evaluation Google doc at https://docs.google.com/spreadsheets/d/1tL1HtVD3-BxHxKuXbIYhcFjmCptGVEOD5aFJCZw6CZk/edit#gid=0. This is done manually for convenience. 
+
+I put together an updated list with all evaluated publications.
+
+##### Upload data
+```{r man_eval_upload}
+lhf <- fread("./eval_tables/lhf_rd1.txt",
+             header = T,
+             sep = "\t",
+             colClasses = "character",
+             check.names = T,
+             stringsAsFactors = F)
+
+tm_it1 <- fread("./eval_tables/tm_it1.txt",
+             header = T,
+             sep = "\t",
+             colClasses = "character",
+             check.names = T,
+             stringsAsFactors = F)
+
+tm_it2 <- fread("./eval_tables/tm_it2.txt",
+             header = T,
+             sep = "\t",
+             colClasses = "character",
+             check.names = T,
+             stringsAsFactors = F)
+
+tm_it3 <- fread("./eval_tables/tm_it3.txt",
+             header = T,
+             sep = "\t",
+             colClasses = "character",
+             check.names = T,
+             stringsAsFactors = F)
+
+tm_it4 <- fread("./eval_tables/tm_it4.txt",
+             header = T,
+             sep = "\t",
+             colClasses = "character",
+             check.names = T,
+             stringsAsFactors = F)
+
+dsp_priority <- fread("./eval_tables/20180409_dsp_priority.txt",
+             header = T,
+             sep = "\t",
+             colClasses = "character",
+             check.names = T,
+             stringsAsFactors = F)
+
+dsp_priority_eval <- unique(dsp_priority[curatable!=""])
+```
+
+##### Process data
+```{r man_eval_proc}
+lhf_sel <- unique(lhf[,.(contains_interactions = Contains.interactions.,
+                         correct_pairs = paste(unique(Are.pairs.correct.),collapse = "|"),
+                         curator = paste(unique(Curator),collapse="|")),
+                      by = "pmid"])
+tm_it1_sel <- unique(tm_it1[,.(contains_interactions = Contains.interactions.,
+                               correct_pairs = "",
+                               curator = paste(unique(Curator),collapse="|")),
+                            by = "pmid"])
+
+tm_it2_sel <- unique(tm_it2[,.(contains_interactions = Contains.interactions.,
+                               correct_pairs = "",
+                               curator = paste(unique(Curator),collapse="|")),
+                            by = "pmid"])
+
+tm_it3_sel <- unique(tm_it3[,.(contains_interactions = Contains.interactions.,
+                               correct_pairs = "",
+                               curator = paste(unique(Curator),collapse="|")),
+                            by = "pmid"])
+
+tm_it4_sel <- unique(tm_it4[,.(contains_interactions = Contains.interactions.,
+                               correct_pairs = "",
+                               curator = paste(unique(Curator),collapse="|")),
+                            by = "pmid"])
+
+all_pmids_eval <- unique(rbind(lhf_sel,
+                               tm_it1_sel,
+                               tm_it2_sel,
+                               tm_it3_sel,
+                               tm_it4_sel))
+all_pmids_eval <- all_pmids_eval[pmid!="0"]
+fwrite(all_pmids_eval,
+       "./processed/all_pmids_eval.txt",
+       col.names = T,
+       row.names = F,
+       sep = "\t",
+       quote = F)
+```
+
+#### Obtain source information
+```{r dsp_source,message=FALSE,warning=FALSE}
+if(!exists("dsp_comp")){
+        system("gunzip -k ../dsp_comparison/results/pubpaircomp_table_final.txt.gz")
+        dsp_comp <- fread("../dsp_comparison/results/pubpaircomp_table_final.txt",
+              header = T,
+              colClasses = "character",
+              stringsAsFactors = F)
+        system("rm ../dsp_comparison/results/pubpaircomp_table_final.txt")
+}
+
+dsp_source_pmid <- unique(dsp_comp[,.(noncur_prot = paste(unique(noncur_prot),collapse="|"),
+                                      imex = paste(unique(imex),collapse="|"),
+                                      GO_IPI = paste(unique(GO_IPI),collapse="|"),
+                                      BioGRID = paste(unique(BioGRID),collapse="|"),
+                                      tm_epmc = paste(unique(tm_epmc),collapse="|"),
+                                      tm_pr_times_found_total = sum(as.numeric(tm_pr_times_found)),
+                                      tm_dm_times_found_total = sum(as.numeric(tm_dm_times_found)),
+                                      EVEX = paste(unique(EVEX),collapse="|"),
+                                      evex_score_ave = mean(as.numeric(evex_score)),
+                                      STRING_textmining = paste(unique(STRING_textmining),collapse="|"),
+                                      STRING_tm_score_ave = mean(as.numeric(STRING_tm_score_ave)),
+                                      reactome = paste(unique(reactome),collapse="|"),
+                                      OmniPath_interactions = paste(unique(OmniPath_interactions),collapse="|"),
+                                      OmniPath_ptm = paste(unique(OmniPath_ptm),collapse="|"),
+                                      STRING_pi = paste(unique(STRING_pi),collapse="|"),
+                                      STRING_pi_score_ave = mean(as.numeric(STRING_pi_score_ave)),
+                                      iid_pred = paste(unique(iid_pred),collapse="|")),
+                                   by = "pmid"])
+
+dsp_source_pmid_clean <- dsp_source_pmid %>% 
+  mutate_all(funs(str_replace(.,"1\\|0|0\\|1", "1")))
+
+dsp_source_pmid_clean <- data.table(dsp_source_pmid_clean)
+```
+
+#### Check publications containing interaction data accuracy by comparison with IMEx & other interaction sources
+
+```{r check_ints}
+dsp_source_pmid_simple <- dsp_source_pmid_clean[,.(pmid,
+                                                   int_dbs = ifelse(imex=="1" | GO_IPI == "1" | BioGRID == "1",
+                                                                    "curated",
+                                                                    "not curated"),
+                                                   tm_epmc,
+                                                   EVEX,
+                                                   reactome,
+                                                   OmniPath_interactions,
+                                                   OmniPath_ptm)]
+
+dsp_source_pmid_stats <- unique(dsp_source_pmid_simple[,.(
+        tm_epmc = sum(as.numeric(tm_epmc)),
+        tm_evex = sum(as.numeric(EVEX)),
+        pw_reactome = sum(as.numeric(reactome)),
+        pw_omnipath_ints = sum(as.numeric(OmniPath_interactions)),
+        pw_omnipath_ptm = sum(as.numeric(OmniPath_ptm))
+        ),
+        by = "int_dbs"
+        ])
+
+dsp_source_pmid_stats_long <- melt(
+   dsp_source_pmid_stats,
+   id.vars = "int_dbs",
+   measure.vars = c("tm_epmc","tm_evex","pw_reactome","pw_omnipath_ints","pw_omnipath_ptm"),
+   value.factor=TRUE, na.rm=TRUE
+)
+
+dsp_source_pmid_stats_wide <- dcast(
+        dsp_source_pmid_stats_long,
+        formula = variable ~ int_dbs,
+        drop=T
+)
+dsp_source_pmid_stats_totals <- unique(dsp_source_pmid_stats_wide[,.(variable,
+                                                                   totals = curated+`not curated`)])
+
+dsp_source_pmid_stats_long <- unique(merge(dsp_source_pmid_stats_long,
+                                           dsp_source_pmid_stats_totals,
+                                           by = "variable",
+                                           all = T))
+
+dsp_source_pmid_stats_long <- dsp_source_pmid_stats_long[,perc:=round(value*100/totals,1)]
+```
+###### Plot overlap curated vs text-mining sources
+```{r plot_curvstm,echo=FALSE}
+g <- ggplot(dsp_source_pmid_stats_long[grepl("tm_",variable)],
+            aes(x=variable,
+                y=value,
+                fill=int_dbs,
+                label=perc)) +
+        geom_bar(stat = "identity",position = "stack") +
+        geom_text(vjust=1,position="stack") +
+        ggtitle("Overlap of text-mining results with\ncurated interaction DBs in terms of publications") +
+        ylab("Number of publications") +
+        xlab("DSP source") +
+        theme(plot.title = element_text(size = 18),
+               panel.grid.major = element_blank(),
+               panel.grid.minor = element_blank(),
+               panel.background = element_blank(),
+               legend.position="bottom",
+               legend.title=element_blank(),
+               axis.title = element_text(size = 14),
+               axis.text = element_text(size = 12),
+               axis.line = element_line())
+g
+```
+
+###### Plot overlap curated vs pathway DB sources
+```{r plot_curvspw,echo=FALSE}
+g1 <- ggplot(dsp_source_pmid_stats_long[grepl("pw_",variable)],
+            aes(x=variable,
+                y=value,
+                fill=int_dbs,
+                label=perc)) +
+        geom_bar(stat = "identity",position = "stack") +
+        geom_text(vjust=1,position="stack") +
+        ggtitle("Overlap of pathway DBs with\ncurated interaction DBs in terms of publications") +
+        ylab("Number of publications") +
+        xlab("DSP source") +
+        scale_fill_manual(values=c("dodgerblue","lightgoldenrod")) +
+        theme(plot.title = element_text(size = 18),
+               panel.grid.major = element_blank(),
+               panel.grid.minor = element_blank(),
+               panel.background = element_blank(),
+               legend.position="bottom",
+               legend.title=element_blank(),
+               axis.title = element_text(size = 14),
+               axis.text = element_text(size = 12),
+               axis.line = element_line())
+g1
+```
+
+#### Check publications containing interaction data accuracy in manual evaluation
+
+There is a number of publications that were evaluated for older tm_empc pipelines. I will discard those and the publications that have already been curated in any interaction database. 
+```{r man_eval_pmids}
+man_eval_source <- unique(merge(all_pmids_eval,
+                                dsp_source_pmid_simple,
+                                by = "pmid",
+                                all.x = T,
+                                all.y = F))
+man_eval_source_sel <- unique(man_eval_source[!is.na(int_dbs) & int_dbs=="not curated",
+                                              .(contains_interactions = paste(unique(contains_interactions),collapse="|"),
+                                                tm_epmc = paste(unique(tm_epmc),collapse="|"),
+                                                tm_evex = paste(unique(EVEX),collapse="|"),
+                                                tm_string = paste(unique(STRING_textmining),collapse="|"),
+                                                pw_reactome = paste(unique(reactome),collapse="|"),
+                                                pw_omnipath_ints = paste(unique(OmniPath_interactions),collapse="|"),
+                                                pw_omnipath_ptm = paste(unique(OmniPath_ptm),collapse="|")),
+                                              by = "pmid"])
+
+man_eval_source_sel_stats <- unique(man_eval_source_sel[,.(
+        tm_epmc = sum(as.numeric(tm_epmc)),
+        tm_evex = sum(as.numeric(tm_evex)),
+        tm_string = sum(as.numeric(tm_string)),
+        pw_reactome = sum(as.numeric(pw_reactome)),
+        pw_omnipath_ints = sum(as.numeric(pw_omnipath_ints)),
+        pw_omnipath_ptm = sum(as.numeric(pw_omnipath_ptm))
+        ),
+        by = "contains_interactions"
+        ])
+
+man_eval_source_sel_stats_long <- melt(
+   man_eval_source_sel_stats,
+   id.vars = "contains_interactions",
+   measure.vars = c("tm_epmc","tm_evex","tm_string","pw_reactome","pw_omnipath_ints","pw_omnipath_ptm"),
+   value.factor=TRUE, na.rm=TRUE
+)
+
+man_eval_source_sel_stats_wide <- dcast(
+        man_eval_source_sel_stats_long,
+        formula = variable ~ contains_interactions,
+        drop=T
+)
+
+man_eval_source_sel_stats_totals <- unique(man_eval_source_sel_stats_wide[,.(variable,
+                                                                   totals = yes+no)])
+
+man_eval_source_sel_stats_long <- unique(merge(man_eval_source_sel_stats_long,
+                                           man_eval_source_sel_stats_totals,
+                                           by = "variable",
+                                           all = T))
+
+man_eval_source_sel_stats_long <- man_eval_source_sel_stats_long[,perc:=round(value*100/totals,1)]
+```
+
+###### Plot accuracy text-mining sources in detecting PMIDs containing interaction data
+```{r plot_accurvstm,echo=FALSE}
+g2 <- ggplot(man_eval_source_sel_stats_long[grepl("tm_",variable)],
+            aes(x=variable,
+                y=value,
+                fill=contains_interactions,
+                label=perc)) +
+        geom_bar(stat = "identity",position = "stack") +
+        geom_text(vjust=1,position="stack") +
+        ggtitle("Percentage of text-mining predicted\npublications containing interaction data") +
+        ylab("Number of publications") +
+        xlab("DSP source") +
+        theme(plot.title = element_text(size = 18),
+               panel.grid.major = element_blank(),
+               panel.grid.minor = element_blank(),
+               panel.background = element_blank(),
+               legend.position="bottom",
+               legend.title=element_blank(),
+               axis.title = element_text(size = 14),
+               axis.text = element_text(size = 12),
+               axis.line = element_line())
+g2
+```
+
+##### Non-EPMC check
+These percentages are biased since the manual evaluation dataset has been selected mostly for the EPMC pipeline evaluation. Those that have not been found in this pipeline have been selected as a result of the ranking algorithm that Miguel put together. I check the percentage of correctly identified publications in EVEX and STRING_tm in those cases where no hits were found in the EPMC pipeline. 
+```{r non-EPMC_check}
+man_eval_source_no_epmc <- man_eval_source[tm_epmc=="0"]
+
+man_eval_source_no_epmc_stats <- unique(man_eval_source_no_epmc[,.(
+        tm_evex = sum(as.numeric(EVEX)),
+        tm_string = sum(as.numeric(STRING_textmining)),
+        pw_reactome = sum(as.numeric(reactome)),
+        pw_omnipath_ints = sum(as.numeric(OmniPath_interactions)),
+        pw_omnipath_ptm = sum(as.numeric(OmniPath_ptm))
+        ),
+        by = "contains_interactions"
+        ])
+
+man_eval_source_no_epmc_stats_long <- melt(
+   man_eval_source_no_epmc_stats,
+   id.vars = "contains_interactions",
+   measure.vars = c("tm_evex","tm_string","pw_reactome","pw_omnipath_ints","pw_omnipath_ptm"),
+   value.factor=TRUE, na.rm=TRUE
+)
+
+man_eval_source_no_epmc_stats_wide <- dcast(
+        man_eval_source_no_epmc_stats_long,
+        formula = variable ~ contains_interactions,
+        drop=T
+)
+
+man_eval_source_no_epmc_stats_totals <- unique(man_eval_source_no_epmc_stats_wide[,.(variable,
+                                                                   totals = yes+no)])
+
+man_eval_source_no_epmc_stats_long <- unique(merge(man_eval_source_no_epmc_stats_long,
+                                           man_eval_source_no_epmc_stats_totals,
+                                           by = "variable",
+                                           all = T))
+
+man_eval_source_no_epmc_stats_long <- man_eval_source_no_epmc_stats_long[,perc:=round(value*100/totals,1)]
+```
+
+###### Plot accuracy non-EPMC text-mining sources in detecting PMIDs containing interaction data
+```{r plot_accurvsnonEPMCtm,echo=FALSE}
+g3 <- ggplot(man_eval_source_no_epmc_stats_long[grepl("tm_",variable)],
+            aes(x=variable,
+                y=value,
+                fill=contains_interactions,
+                label=perc)) +
+        geom_bar(stat = "identity",position = "stack") +
+        geom_text(vjust=1,position="stack") +
+        ggtitle("Percentage of non-EPMC text-mining predicted\npublications containing interaction data") +
+        ylab("Number of publications") +
+        xlab("DSP source") +
+        theme(plot.title = element_text(size = 18),
+               panel.grid.major = element_blank(),
+               panel.grid.minor = element_blank(),
+               panel.background = element_blank(),
+               legend.position="bottom",
+               legend.title=element_blank(),
+               axis.title = element_text(size = 14),
+               axis.text = element_text(size = 12),
+               axis.line = element_line())
+g3
+```
+
+This is not very reliable due to the bias created by the algorithm and the low numbers, so best not to draw any conclusions from it. 
+
+**************

@@ -35,6 +35,7 @@ library(UpSetR)
 library(splitstackshape)
 library(ggplot2)
 library(htmlwidgets)
+library(VennDiagram)
 })
 ```
 ### Part 1: Load datasets
@@ -570,63 +571,47 @@ table(pubpair_pair_acc_tm_eval$pair_check,useNA = "ifany")
 ###### Plot: Pair-id concordance estimations between interaction data and text-mining resources (eliminating those found in one or two tm resources only)
 ![](dsp_comparison_final_files/figure-html/pubpair_acc_tm_plot_sel-1.png)<!-- -->
 
-##### Pair-id concordance estimations between interaction data and pathway resources
+
+##### Pair-id concordance estimations between interaction data and Reactome
 
 ```r
-pubpair_pair_acc_pw <- unique(pubpair_pair_acc_pt2[,
+pubpair_pair_acc_reac <- unique(pubpair_pair_acc_pt2[,
                                              .(pmid,
                                                pair_id,
                                                pubpair_intdbs,
                                                pubpair_pw_reactome,
-                                               pubpair_pw_op = ifelse(
-                                                       pubpair_pw_op_ints=="1" | pubpair_pw_op_ptm == "1",
-                                                       "1",
-                                                       "0"
-                                                       ),
-                                               pub_pw_reactome,
-                                               pub_pw_op = ifelse(
-                                                       pub_pw_op_ints=="1" | pub_pw_op_ptm == "1",
-                                                       "1",
-                                                       "0"
-                                                       ))])
+                                               pub_pw_reactome)])
 
-pubpair_pair_acc_pw_eval_pt1 <- unique(pubpair_pair_acc_pw[pub_pw_reactome=="1" & pub_pw_op=="1" & pubpair_intdbs == "1",
+pubpair_pair_acc_reac_eval_pt1 <- unique(pubpair_pair_acc_reac[pub_pw_reactome=="1",
                                                                .(pmid,
                                                                  pair_id,
                                                                  pubpair_intdbs,
-                                                                 pubpair_pw_reactome,
-                                                                 pubpair_pw_op)])
+                                                                 pubpair_pw_reactome)])
 
-pubpair_pair_acc_pw_eval <- unique(pubpair_pair_acc_pw_eval_pt1[,
+pubpair_pair_acc_reac_eval <- unique(pubpair_pair_acc_reac_eval_pt1[,
                                                                 .(pmid,
                                                                   pair_id,
                                                                   pair_check = ifelse(
                                                                           pubpair_intdbs == "1" &
-                                                                                  pubpair_pw_reactome == "1" &
-                                                                                  pubpair_pw_op == "1",
-                                                                          "full agreement",
+                                                                                  pubpair_pw_reactome == "1",
+                                                                          "agreement",
                                                                           ifelse(
                                                                                   pubpair_intdbs == "1" &
-                                                                                  pubpair_pw_reactome == "1" &
-                                                                                  pubpair_pw_op == "0",
-                                                                                  "IntDBs + Reactome",
-                                                                                  ifelse(
-                                                                                          pubpair_intdbs == "1" &
-                                                                                                  pubpair_pw_reactome == "0" &
-                                                                                                  pubpair_pw_op == "1",
-                                                                                          "IntDBs + OmniPath",
-                                                                                          "Reactome + OmniPath"))))])
+                                                                                  pubpair_pw_reactome == "0",
+                                                                                  "IntDBs",
+                                                                                  "Reactome")))])
 
-table(pubpair_pair_acc_pw_eval$pair_check,useNA = "ifany")
+table(pubpair_pair_acc_reac_eval$pair_check,useNA = "ifany")
 ```
 
 ```
 ## 
-##      full agreement   IntDBs + OmniPath   IntDBs + Reactome Reactome + OmniPath 
-##                   5                   8                  18                  73
+## agreement    IntDBs  Reactome 
+##       307       972      1626
 ```
 
-###### Plot: Pair-id concordance estimations between interaction data and pathway resources
-![](dsp_comparison_final_files/figure-html/pubpair_acc_pw_plot-1.png)<!-- -->
+###### Plot: Pair-id concordance estimations between interaction data and Reactome
+![](dsp_comparison_final_files/figure-html/pubpair_acc_reac_plot-1.png)<!-- -->
+![](dsp_comparison_final_files/figure-html/pubpair_acc_reac_plot_v2-1.png)<!-- -->
 
 ********************************************************************************************

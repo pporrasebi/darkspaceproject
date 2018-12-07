@@ -46,7 +46,7 @@ This the file format structure, as described by SK:
 I upload only the fields I need, so the file size does not get out of hand. 
 
 ```{r tm_upload, message=F, warning=F, cache=TRUE}
-require(data.table)
+library(data.table)
 
 setwd("./source_files/")
 system("gunzip ./OA.PPI.June17.txt.gz")
@@ -134,4 +134,26 @@ pnais_count[order(-N)]
 ```
 Number of publications potentially containing PNAIs: `r nrow(unique(potential_pnais[,.(pmid)]))`.  
 Number of potential unique PNAIs pairs: `r nrow(unique(potential_pnais[,.(pair_id)]))`.   
+
+##### Generating some stats for methods potentially detecting RNA interactions
+```{r}
+potential_rnais <- tm_lite_met[grepl("clash|clip|clip-seq|RNA immunoprecipitation|chemical rna modification plus base pairing prediction|miRNA interference luciferase assay|chemical rna modification plus base pairing prediction|cross-linking, ligation, and sequencing of hybrids|CLASH|cross linking immunoprecipitation|UV cross-linking immunoprecipitation combined with high-throughput sequencing|HITS-CLIP|CLIP-Seq",
+                                     method_term_simple)]
+rnais_count <- data.table(table(potential_rnais$method_term_simple,
+                        useNA = "ifany"))
+
+rnais_count[order(-N)]
+```
+Number of publications potentially containing RNAIs: `r nrow(unique(potential_rnais[,.(pmid)]))`.  
+Number of potential unique RNAIs pairs: `r nrow(unique(potential_rnais[,.(pair_id)]))`.
+
+```{r echo=FALSE}
+rnaips_pmids <- unique(potential_rnais[,.(pmid,method_term_simple)])
+fwrite(rnaips_pmids,
+       "./results/rnaips_pmids.txt",
+       col.names = T,
+       row.names = F,
+       quote = F,
+       sep = "\t")
+```
 ************************************************************
