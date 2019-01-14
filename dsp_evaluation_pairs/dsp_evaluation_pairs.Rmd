@@ -1,0 +1,373 @@
+---
+title: "DSP evaluation for protein pair accuracy identification"
+author: "Pablo Porras"
+date: "07/06/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Evaluation of checked and curated publications of the DSP
+
+I manually download all DSP evaluated PMIDs and also those already curated and avaliable on the IntAct website. 
+
+##### Libraries
+```{r libraries, message=FALSE,warning=FALSE}
+library(data.table)
+library(splitstackshape)
+library(stringr)
+library(ggplot2)
+library(scales)
+```
+
+#### Data upload
+```{r upload}
+# These come from the Google spreadsheet. 
+eval_dsp <- fread("./source_data/20190114_evaluated_dsp.txt",
+                  header = T,
+                  colClasses = "character",
+                  stringsAsFactors = F,
+                  check.names = T,
+                  sep = "\t")
+
+eval_dsp_pmids <- unique(eval_dsp[grepl("yes|Yes",curatable),.(pmid)])
+
+fwrite(
+  eval_dsp_pmids,
+  "./source_data/pmids.txt",
+  col.names = F,
+  row.names = F,
+  sep = "\t",
+  quote = F
+)
+
+curated_dsp <- fread("./source_data/20190114_curated_dsp.txt",
+                  header = T,
+                  colClasses = "character",
+                  stringsAsFactors = F,
+                  check.names = T,
+                  sep = "\t")
+
+iid_preds <- fread("../iid_predictions/results/pairs_iid_pred.txt",
+                   header = T,
+                   colClasses = "character",
+                   stringsAsFactors = F,
+                   check.names = T,
+                   sep = "\t")
+
+string_preds <- fread("../STRING/results/pairs_STRING_phylo_predictions.txt",
+                      header = T,
+                      colClasses = "character",
+                      stringsAsFactors = F,
+                      check.names = T,
+                      sep = "\t")
+
+```
+
+### Checks
+#### Preformatting the curated data
+```{r preformat_1}
+curated_publs <- unique(curated_dsp[grepl("uniprot",X.ID.s..interactor.A) &
+                                      grepl("uniprot",ID.s..interactor.B),.(
+  pmid = gsub("\\|.*","",gsub(".*pubmed:","",Publication.Identifier.s.)),
+  count_curated_pairs = .N
+),
+by="Publication.Identifier.s."])
+
+curated_publs <- unique(curated_publs[,.(
+  pmid,
+  count_curated_pairs
+)])
+
+curated_pairs <- unique(curated_dsp[grepl("uniprot",X.ID.s..interactor.A) &
+                                      grepl("uniprot",ID.s..interactor.B),.(
+  pmid = gsub("\\|.*","",gsub(".*pubmed:","",Publication.Identifier.s.)),
+  id_A = gsub("-.*|_.*","",gsub(".*uniprotkb:","",X.ID.s..interactor.A)),
+  id_B = gsub("-.*|_.*","",gsub(".*uniprotkb:","",ID.s..interactor.B))
+)])
+
+curated_pairs$pair_id <- apply(data.table(curated_pairs$id_A,curated_pairs$id_B,stringsAsFactors = F), 1,
+                                               function(a) { z = sort(a)
+                                               paste0(z[1],"_",z[2]) })
+```
+
+#### Preformatting the evaluated table
+```{r preformat_2}
+eval_dsp_sel <- unique(eval_dsp[,.(
+  pmid,
+  curatable,
+  prot_pairs,
+  count_pairs = str_count(prot_pairs,"\\|") + 1,
+  DS.score.pred,
+  DS.interest,
+  DS.interest.up,
+  up_ccline = ifelse(
+    grepl("no",ccline_uniprot),
+    "no",
+    "yes"
+  )
+)])
+
+eval_dsp_sel_long <- cSplit(
+  eval_dsp_sel,
+  splitCols = "prot_pairs",
+  sep = "|",
+  direction = "long",
+  drop = F
+)
+
+eval_dsp_check <- unique(eval_dsp_sel_long[pmid %in% unique(curated_publs$pmid)])
+```
+
+##### Adding predictions to evaluated data
+```{r predictions}
+eval_dsp_check_pred_pt1 <- unique(merge(
+  eval_dsp_check,
+  iid_preds,
+  by.x = "prot_pairs",
+  by.y = "pair_id",
+  all.x = T,
+  all.y = F
+))
+
+eval_dsp_check_pred_pt2 <- unique(merge(
+  eval_dsp_check_pred_pt1,
+  string_preds[,.(pair_id_clean,string_pred=STRING_phylo_predictions)],
+  by.x = "prot_pairs",
+  by.y = "pair_id_clean",
+  all.x = T,
+  all.y = F
+))
+
+eval_dsp_check <- unique(eval_dsp_check_pred_pt2[,.(
+  pmid,
+  prot_pairs,
+  curatable,
+  count_pairs,
+  DS.score.pred,
+  DS.interest,
+  DS.interest.up,
+  up_ccline,
+  pred = ifelse(
+    !is.na(iid_pred) | !is.na(string_pred),
+    "yes",
+    "no"
+  )
+)]
+)
+```
+
+#### Checking concordance between the records
+##### By publications with concordant pairs
+```{r concordance}
+check_conc <- unique(merge(
+  curated_pairs,
+  eval_dsp_check,
+  by = "pmid",
+  all = T,
+  allow.cartesian = T
+))
+
+check_conc_eval <- unique(check_conc[,.(
+  pmid,
+  id_A,
+  id_B,
+  prot_pairs,
+  match = ifelse(
+    pair_id == prot_pairs | 
+      (grepl(id_A,prot_pairs) & grepl(id_B,prot_pairs)),
+    "full",
+    ifelse(
+      (grepl(id_A,prot_pairs) | grepl(id_B,prot_pairs)),
+      "partial",
+      "no"
+      )
+  ),
+  count_pairs,
+  pred
+)])
+
+check_conc_eval_short <- unique(check_conc_eval[,.(
+  match = paste(unique(match),collapse = ";"),
+  count_pairs,
+  pred = paste(unique(pred),collapse = ";")
+),
+by="pmid"])
+
+check_conc_eval_clean <- unique(check_conc_eval_short[,.(
+  pmid,
+  prot_id_match = gsub("no;|;no","",match),
+  count_pairs,
+  pred = ifelse(
+    grepl("yes",pred),
+    "yes",
+    "no"
+  )
+)])
+
+check_conc_eval_final <- unique(merge(
+  check_conc_eval_clean,
+  curated_publs,
+  by="pmid",
+  all=T
+))
+
+table(check_conc_eval_final$prot_id_match, check_conc_eval_final$pred,useNA = "ifany")
+```
+
+##### By pairs
+```{r concordance_2}
+eval_dsp_check_pairs <- unique(eval_dsp_check[,.(
+  pmid,
+  pair_id = prot_pairs,
+  dsp_eval = "yes",
+  DS.score.pred,
+  up_ccline,
+  pred,
+  id_A = gsub("_.*","",prot_pairs),
+  id_B = gsub(".*_","",prot_pairs)
+)])
+
+curated_pairs_v2 <- unique(curated_pairs[,.(
+  pmid,
+  pair_id,
+  curated = "yes"
+)])
+
+pairs_comp_pt1 <- unique(merge(
+  eval_dsp_check_pairs,
+  curated_pairs_v2,
+  by = c("pmid","pair_id"),
+  all = T
+))
+
+pairs_comp <- unique(pairs_comp_pt1[,.(
+  pmid,
+  pair_id,
+  set = ifelse(
+    is.na(curated),
+    "DSP mined",
+    ifelse(
+      is.na(dsp_eval),
+      "IMEx curated",
+      "mined & curated"
+    )
+  ),
+  DS.score.pred = as.numeric(gsub(",",".",DS.score.pred)),
+  up_ccline,
+  pred
+)])
+
+fwrite(pairs_comp,
+       "./pairs_comp_pred.txt",
+       col.names = T,
+       row.names = F,
+       sep="\t",
+       quote=F)
+
+table(pairs_comp$set,
+      pairs_comp$pred,
+      useNA = "ifany")
+```
+```{r fisher.pred.pairs}
+pred_matrix <- as.matrix(table(pairs_comp[set!="IMEx curated"]$set,pairs_comp[set!="IMEx curated"]$pred))
+pred_matrix
+fisher.test(pred_matrix)
+```
+Predicted pairs are significantly enriched in those pairs that were also curated: `r round(pred_matrix[2,2]*100/(pred_matrix[2,2]+pred_matrix[2,1]))`% of curated pairs were predicted, while only  `r round(pred_matrix[1,2]*100/(pred_matrix[1,2]+pred_matrix[1,1]))`% of just mined (not curated) pairs were predicted. This proportion difference is highly significant using a Fisher exact test. 
+
+##### Check if DS.interest correlates with curated data
+```{r DS.interest_check}
+check_dsp_interest <- pairs_comp[!is.na(DS.score.pred),.(
+  dsi_mean = mean(as.numeric(DS.score.pred)),
+  dsi_median = median(as.numeric(DS.score.pred)),
+  dsi_stdv = sd(as.numeric(DS.score.pred))
+),
+by="set"]
+check_dsp_interest
+```
+
+```{r plotDS.interest.check}
+g <- ggplot(pairs_comp[!is.na(DS.score.pred)], aes(x=set,y=DS.score.pred)) +
+  geom_violin() +
+  geom_jitter(alpha=0.1) 
+  # scale_y_continuous(trans=log10_trans())
+g
+```
+
+Distribution of the interest score does not seem very different from mined pairs to those that ended up being curated as correct. Perhaps density is marginally increased in high value zones for the curated data, but the effect is very small. 
+
+##### Comparison by proteins
+
+```{r comp_prots}
+dsp_eval_prots <- unique(rbind(
+  eval_dsp_check_pairs[,.(
+    pmid,
+    id = id_A,
+    dsp_eval,
+    pred
+  )],
+  eval_dsp_check_pairs[,.(
+    pmid,
+    id = id_B,
+    dsp_eval,
+    pred
+  )]
+))
+
+curated_prots <- unique(rbind(
+  curated_pairs[,.(
+    pmid,
+    id = id_A,
+    curated = "yes"
+  )],
+  curated_pairs[,.(
+    pmid,
+    id = id_B,
+    curated = "yes"
+  )]
+))
+
+check_prots_pt1 <- unique(merge(
+  dsp_eval_prots,
+  curated_prots,
+  by = c("pmid","id"),
+  all=T
+))
+
+check_prots <- unique(check_prots_pt1[,.(
+  pmid,
+  id,
+  set = ifelse(
+    is.na(curated),
+    "DSP mined",
+    ifelse(
+      is.na(dsp_eval),
+      "IMEx curated",
+      "mined & curated"
+    )
+  ),
+  pred
+)])
+
+fwrite(check_prots,
+       "./check_prots.txt",
+       col.names = T,
+       row.names = F,
+       sep="\t",
+       quote=F)
+
+table(check_prots$set,
+      check_prots$pred,
+      useNA = "ifany")
+```
+```{r fisher.pred.prots}
+pred_matrix_prots <- as.matrix(table(check_prots[set!="IMEx curated"]$set,check_prots[set!="IMEx curated"]$pred))
+pred_matrix_prots
+fisher.test(pred_matrix_prots)
+```
+
+
+Clearly many of the finally curated proteins were not properly identified in the text-mining pipeline. however, it seems predicted pairs are enriched in the fraction that is correct. 

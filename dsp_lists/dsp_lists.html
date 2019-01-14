@@ -11,7 +11,7 @@
 
 <meta name="author" content="Pablo Porras" />
 
-<meta name="date" content="2018-08-03" />
+<meta name="date" content="2018-05-12" />
 
 <title>DSP lists to coordinate curation</title>
 
@@ -92,6 +92,9 @@ img {
 .tabbed-pane {
   padding-top: 12px;
 }
+.html-widget {
+  margin-bottom: 20px;
+}
 button.code-folding-btn:focus {
   outline: none;
 }
@@ -121,335 +124,214 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">DSP lists to coordinate curation</h1>
 <h4 class="author"><em>Pablo Porras</em></h4>
-<h4 class="date"><em>08/03/2018</em></h4>
+<h4 class="date"><em>05/12/2018</em></h4>
 
 </div>
 
 
 <div id="summary" class="section level2">
 <h2>Summary</h2>
-<p>This is a set of scripts to generate a final curation list that can be used by IMEx curators in order to prioritize paper selection.</p>
+<p>This is an update for the set of scripts to generate a final curation list that can be used by IMEx curators in order to prioritize paper selection.</p>
 <div id="libraries" class="section level4">
 <h4>Libraries</h4>
 <pre class="r"><code>library(data.table)
 library(googlesheets)
-library(splitstackshape)</code></pre>
+library(splitstackshape)
+library(RCurl)
+library(jsonlite)</code></pre>
 </div>
 <div id="upload-lists" class="section level3">
 <h3>Upload lists</h3>
 <div id="tested-publications-known-to-contain-interaction-data" class="section level4">
 <h4>Tested publications known to contain interaction data</h4>
-<pre class="r"><code>dsp_manual &lt;- gs_title(&quot;Evaluating DSP&quot;)
-pmids_checked &lt;- data.table(gs_read(ss=dsp_manual, ws = &quot;All_PMIDs_checked&quot;,header=T))
-pmids_checked$pmid &lt;- as.character(pmids_checked$pmid)</code></pre>
-</div>
-<div id="comparison-lists" class="section level4">
-<h4>Comparison lists</h4>
-<pre class="r"><code>dsp_comp_pubpair &lt;- fread(&quot;../dsp_comparison/results/pubpaircomp_table_final.txt&quot;,header=T,sep=&quot;\t&quot;)</code></pre>
-<pre><code>## 
-Read 58.8% of 2093151 rows
-Read 82.7% of 2093151 rows
-Read 2093151 rows and 19 (of 19) columns from 0.112 GB file in 00:00:04</code></pre>
-<pre class="r"><code>dsp_comp_publ &lt;- fread(input = &quot;zcat &lt; ../dsp_comparison/results/pubcomp_table_final.txt.gz&quot;,header=T,sep=&quot;\t&quot;)
-dsp_comp_publ &lt;- dsp_comp_publ[pmid!=&quot;0&quot; &amp; pmid!=&quot;-&quot; &amp; pmid!=&quot;&quot;]</code></pre>
-</div>
-<div id="proteins-with-no-cc-lines-in-uniprot" class="section level4">
-<h4>Proteins with no cc lines in UniProt</h4>
-<p>Human SwissProt entries with no IntAct cclines were obtained from the UniProt webiste on Dec 19, 2017 using this query: <code>NOT interactor:* AND reviewed:yes AND organism:&quot;Homo sapiens (Human) [9606]&quot;</code>.</p>
-<pre class="r"><code>up_nocc &lt;- fread(&quot;./source_data/20171219_uniprot-nocclines.txt&quot;,header=F,sep=&quot;\t&quot;)
-colnames(up_nocc) &lt;- &quot;upac&quot;
-
-up_nocc &lt;- up_nocc[,up_nocc:=&quot;1&quot;]</code></pre>
+<p>As downloaded on Tue Jan 8 09:24:46 2019.</p>
+<pre class="r"><code># gs_auth()
+key &lt;- extract_key_from_url(&quot;https://docs.google.com/spreadsheets/d/1tL1HtVD3-BxHxKuXbIYhcFjmCptGVEOD5aFJCZw6CZk/edit#gid=826915149&quot;)
+dsp_manual &lt;- gs_key(key)
+pmids_checked &lt;- data.table(gs_read(ss=dsp_manual, ws = &quot;dsp_priority&quot;,header=T))
+pmids_checked$pmid &lt;- as.character(pmids_checked$pmid)
+pmids_checked &lt;- pmids_checked[,sort:=.I]</code></pre>
 </div>
 <div id="ranked-list-of-dsp-publications" class="section level4">
 <h4>Ranked list of DSP publications</h4>
-<p>As provided by Miguel Vázquez.</p>
-<pre class="r"><code>dsp_rank &lt;- fread(&quot;../../DarkSpace/manual_evaluation/round4/pmid_ranks.txt&quot;,
+<p>As provided by Miguel Vázquez on 16/10/2018.</p>
+<pre class="r"><code>dsp_rank &lt;- fread(input = &quot;zcat &lt; ../../DarkSpace/manual_evaluation/round5/pmid_ranks.gz&quot;,
                   header=T,
                   sep=&quot;\t&quot;,
                   check.names = T,
                   stringsAsFactors = F)
+
 dsp_rank_sel &lt;- unique(dsp_rank[,.(pmid = as.character(X.PMID),
-                                   relevance = Relevance,
-                                   DS.interest = Dark.Space.interest,
-                                   DS.part_interest = Dark.Space..partial..interest)])</code></pre>
+                                   relevance.up = round(Relevance,2),
+                                   DS.interest.up = Dark.Space.interest,
+                                   DS.part_interest.up = Dark.Space..partial..interest)])</code></pre>
+</div>
+<div id="extracting-information-from-the-epmc-api-to-annotate-publications" class="section level4">
+<h4>Extracting information from the EPMC API to annotate publications</h4>
+<p>Steps:</p>
+<ul>
+<li>Map PMIDs to PMC ids</li>
+<li>Obtain MESH terms annotations from EPMC API. - Can be extracted using this example: <code>https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=ext_id:18074021%20AND%20%28PUB_TYPE:Research-article%20NOT%20PUB_TYPE:Review%20NOT%20PUB_TYPE:review-article%29&amp;resultType=core&amp;format=json</code> - Fields to extract: meshHeading.</li>
+<li>Obtain mutation information from PubTator - Up to 8 ids per request - Request example: <code>https://www.ebi.ac.uk/europepmc/annotations_api/annotationsByArticleIds?articleIds=MED%3A30497962%2CMED%3A24194929&amp;type=Gene%20Mutations&amp;provider=PubTator_NCBI&amp;format=JSON</code>.</li>
+</ul>
+<div id="mesh-terms" class="section level5">
+<h5>MESH terms</h5>
+<pre class="r"><code># set.seed(88)
+# pmid_query &lt;- pmids_checked[sample.int(nrow(pmids_checked),100)]$pmid
+
+pmid_query &lt;- pmids_checked$pmid
+
+pmid_mesh_kw &lt;- data.frame(
+        pmid = character(),
+        mesh = character(),
+        reqanswer = character(),
+        review = character(),
+        stringsAsFactors = F)
+
+for (i in 1:length(pmid_query)){
+
+        pmid_mesh_kw[i,]$pmid = pmid_query[i]
+        
+        url = paste(&quot;https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=ext_id:&quot;,pmid_query[i],&quot;%20AND%20%28PUB_TYPE:Research-article%20NOT%20PUB_TYPE:Review%20NOT%20PUB_TYPE:review-article%29&amp;resultType=core&amp;format=json&quot;,sep=&quot;&quot;)
+        urldetails &lt;- getURL(url,header=T)
+        header &lt;- gsub(&quot;\r\nServer:.*&quot;,&quot;&quot;,urldetails)
+        
+        pmid_mesh_kw[i,]$reqanswer = header
+        
+        if(grepl(&quot;200&quot;,header)){
+                jsonraw &lt;- gsub(&quot;.*\\{\&quot;version\&quot;&quot;,&quot;\\{\&quot;version\&quot;&quot;,urldetails)
+                json &lt;- fromJSON(jsonraw)
+                
+                temp_mesh &lt;- data.table((json$resultList$result$meshHeadingList$meshHeading[[1]]))
+                
+                pmid_mesh_kw[i,]$mesh &lt;- paste(unique(temp_mesh$descriptorName),collapse=&quot;|&quot;)
+                pmid_mesh_kw[i,]$review &lt;- ifelse(
+                        !is.null(json$resultList$result$id),
+                        &quot;no&quot;,
+                        &quot;yes&quot;
+                )
+                
+        }
+        
+        else{
+                pmid_mesh_kw[i,]$mesh &lt;- &quot;&quot;
+        }
+}</code></pre>
+</div>
+<div id="pubtator" class="section level5">
+<h5>PubTator</h5>
+<pre class="r"><code>pmid_pubtator_mut &lt;- data.frame(
+        pmid = character(),
+        mutannot = character(),
+        reqanswer = character(),
+        stringsAsFactors = F)
+
+for (i in 1:length(pmid_query)){
+        
+        pmid_pubtator_mut[i,]$pmid = pmid_query[i]
+        
+        url = paste(&quot;https://www.ebi.ac.uk/europepmc/annotations_api/annotationsByArticleIds?articleIds=MED%3A&quot;,pmid_query[i],&quot;&amp;type=Gene%20Mutations&amp;provider=PubTator_NCBI&amp;format=JSON&quot;,sep=&quot;&quot;)
+        urldetails &lt;- getURL(url,header=T)
+        header &lt;- gsub(&quot;\r\nServer:.*&quot;,&quot;&quot;,urldetails)
+        
+        pmid_pubtator_mut[i,]$reqanswer = header
+        
+        if(grepl(&quot;200&quot;,header)){
+                jsonraw &lt;- gsub(&quot;]$&quot;,&quot;&quot;,gsub(&quot;.*\\{\&quot;source\&quot;&quot;,&quot;\\{\&quot;source\&quot;&quot;,urldetails))
+                json &lt;- fromJSON(jsonraw)
+                
+                pmid_pubtator_mut[i,]$mutannot &lt;- ifelse(
+                        is.null(json$annotations[1][[1]]),
+                        &quot;no&quot;,
+                        &quot;yes&quot;
+                )
+        }
+        
+        else{
+                pmid_pubtator_mut[i,]$mutannot &lt;- &quot;&quot;
+        }
+}</code></pre>
+</div>
 </div>
 </div>
 <div id="putting-all-lists-together" class="section level3">
 <h3>Putting all lists together</h3>
-<div id="dsp-derived-publications-publication-assigned-pairs" class="section level4">
-<h4>DSP-derived publications + publication-assigned pairs</h4>
-<pre class="r"><code>dsp_comp_pubpair_collapsed &lt;- dsp_comp_pubpair[pmid!=&quot;0&quot; &amp; pmid!=&quot;-&quot; &amp; pmid!=&quot;&quot;,
-                                        .(prot_pairs=paste(unique(pair_id),collapse = &quot;|&quot;),
-                                          imex_pair = paste(unique(imex),collapse=&quot;|&quot;),
-                                          GO_IPI_pair = paste(unique(GO_IPI),collapse=&quot;|&quot;),
-                                          BioGRID_pair = paste(unique(BioGRID),collapse=&quot;|&quot;),
-                                          tm_epmc_pair = paste(unique(tm_epmc),collapse=&quot;|&quot;),
-                                          EVEX_pair = paste(unique(EVEX),collapse=&quot;|&quot;),
-                                          STRING_textmining_pair = paste(unique(STRING_textmining),collapse=&quot;|&quot;),
-                                          reactome_pair = paste(unique(reactome),collapse=&quot;|&quot;),
-                                          OmniPath_interactions_pair = paste(unique(OmniPath_interactions),collapse=&quot;|&quot;),
-                                          OmniPath_ptm_pair = paste(unique(OmniPath_ptm),collapse=&quot;|&quot;),
-                                          STRING_pi_pair = paste(unique(STRING_pi),collapse=&quot;|&quot;),
-                                          iid_pred = paste(unique(iid_pred),collapse=&quot;|&quot;),
-                                          noncur_prot = paste(unique(noncur_prot),collapse=&quot;|&quot;)
-                                          ),
-                                        by=pmid]
+<pre class="r"><code>pre_dsp_rev &lt;- unique(merge(
+        pmids_checked,
+        pmid_mesh_kw,
+        by = &quot;pmid&quot;,
+        all.x = T,
+        all.y = T
+))
 
-dsp_comp_pt1 &lt;- merge(dsp_comp_publ,
-                        dsp_comp_pubpair_collapsed,
-                        by=&quot;pmid&quot;,
-                        all.x = T,
-                        all.y = T)
+pre_dsp_rev2 &lt;- unique(merge(
+        pre_dsp_rev,
+        pmid_pubtator_mut,
+        by = &quot;pmid&quot;,
+        all = T
+))
 
-dsp_comp_pt2 &lt;- dsp_comp_pt1[,.(pmid,
-                                prot_pairs,
-                                imex_publ = imex,
-                                imex_pair,
-                                GO_IPI_publ = GO_IPI,
-                                GO_IPI_pair,
-                                BioGRID_publ = BioGRID,
-                                BioGRID_pair,
-                                tm_epmc_publ = tm_epmc,
-                                tm_epmc_pair,
-                                EVEX_publ = EVEX,
-                                EVEX_pair,
-                                STRING_textmining_pair,
-                                reactome_publ = reactome,
-                                reactome_pair,
-                                OmniPath_interactions_publ = OmniPath_interactions,
-                                OmniPath_interactions_pair,
-                                OmniPath_ptm_publ = OmniPath_ptm,
-                                OmniPath_ptm_pair,
-                                STRING_pi_pair,
-                                iid_pred,
-                                noncur_prot)]</code></pre>
-</div>
-<div id="integrating-list-of-prots-without-cc-lines" class="section level4">
-<h4>Integrating list of prots without cc lines</h4>
-<pre class="r"><code>dsp_comp_prots &lt;- unique(dsp_comp_pt2[,.(pmid,prot_pairs)])
-dsp_comp_prots_prelong &lt;- cSplit(dsp_comp_prots,splitCols = &quot;prot_pairs&quot;,sep=&quot;|&quot;,direction=&quot;long&quot;)
-dsp_comp_prots_long &lt;- cSplit(dsp_comp_prots_prelong,splitCols = &quot;prot_pairs&quot;,sep=&quot;_&quot;,direction=&quot;long&quot;)
-colnames(dsp_comp_prots_long) &lt;- c(&quot;pmid&quot;,&quot;upac&quot;)
+pre_dsp_rev3 &lt;- unique(merge(
+        pre_dsp_rev2,
+        dsp_rank_sel,
+        by = &quot;pmid&quot;,
+        all.x = T,
+        all.y = F
+))
 
-dsp_plus_up_nocc &lt;- merge(dsp_comp_prots_long,
-                          up_nocc,
-                          by=&quot;upac&quot;,
-                          all.x = T,
-                          all.y = F)
+dsp_rev &lt;- pre_dsp_rev3[order(sort),.(
+        pmid,
+        curator,
+        curatable,
+        curator_comment,
+        prot_pairs,
+        mesh,
+        alzheimer = ifelse(                             ### This was added to identify Alzheimer's 
+                grepl(&quot;Alzheimer|alzheimer&quot;,mesh),      ### disease-related publications for a  
+                &quot;yes&quot;,                                  ### project in UniProt. 
+                &quot;no&quot;
+        ),
+        review,
+        mutannot,
+        relevance.up,
+        DS.interest.up,
+        DS.part_interest.up,
+        relevance,
+        DS.interest,
+        DS.part_interest,
+        ccline_uniprot,
+        noncur_prot,
+        contains_ints_man_check,
+        contains_ints_man_check_comment,
+        imex_publ,
+        imex_pair,
+        GO_IPI_publ,
+        GO_IPI_pair,
+        BioGRID_publ,
+        BioGRID_pair,
+        tm_epmc_publ,
+        tm_epmc_pair,
+        EVEX_publ,
+        EVEX_pair,
+        STRING_textmining_pair,
+        reactome_publ,
+        reactome_pair,
+        OmniPath_interactions_publ,
+        OmniPath_interactions_pair,
+        OmniPath_ptm_publ,
+        OmniPath_ptm_pair,
+        STRING_pi_pair,
+        iid_pred
+)]
 
-dsp_up_nocc &lt;- unique(dsp_plus_up_nocc[up_nocc==&quot;1&quot;,
-                                .(ccline_uniprot = paste(&quot;no (&quot;,
-                                                         paste(unique(upac),collapse = &quot;,&quot;)
-                                                         ,&quot;)&quot;,
-                                                         sep = &quot;&quot;)),
-                                by = pmid])</code></pre>
-</div>
-<div id="final-integration" class="section level4">
-<h4>Final integration</h4>
-<pre class="r"><code>dsp_comp_pt3 &lt;- merge(dsp_comp_pt2,
-                      dsp_up_nocc,
-                      by=&quot;pmid&quot;,
-                      all.x = T,
-                      all.y = T)
-
-dsp_comp_pt4 &lt;- merge(dsp_comp_pt3,
-                        pmids_checked,
-                        by = &quot;pmid&quot;,
-                        all.x = T,
-                        all.y = F)
-
-dsp_comp_final &lt;- merge(dsp_comp_pt4,
-                        dsp_rank_sel,
-                        by = &quot;pmid&quot;,
-                        all.x = T,
-                        all.y = F)</code></pre>
-</div>
-<div id="final-re-formatting" class="section level4">
-<h4>Final re-formatting</h4>
-<pre class="r"><code>dsp_comp_export &lt;- dsp_comp_final[!grepl(&quot;no&quot;,`contains interactions?`),
-                                  .(pmid,
-                                    curator = &quot;&quot;,
-                                    curatable = &quot;&quot;,
-                                    curator_comment = &quot;&quot;,
-                                    prot_pairs,
-                                    relevance,
-                                    DS.interest,
-                                    DS.part_interest,
-                                    ccline_uniprot,
-                                    noncur_prot = ifelse(grepl(&quot;\\|&quot;,noncur_prot),
-                                                       &quot;part&quot;,
-                                                       ifelse(noncur_prot==&quot;0&quot;,
-                                                              &quot;no&quot;,
-                                                              &quot;yes&quot;)),
-                                    contains_ints_man_check = `contains interactions?`,
-                                    contains_ints_man_check_comment = comment,
-                                    imex_publ = ifelse(imex_publ==&quot;0&quot;,
-                                                       &quot;no&quot;,
-                                                       &quot;yes&quot;),
-                                    imex_pair = ifelse(grepl(&quot;\\|&quot;,imex_pair),
-                                                       &quot;part&quot;,
-                                                       ifelse(imex_pair==&quot;0&quot;,
-                                                              &quot;no&quot;,
-                                                              &quot;yes&quot;)),
-                                    GO_IPI_publ = ifelse(GO_IPI_publ==&quot;0&quot;,
-                                                       &quot;no&quot;,
-                                                       &quot;yes&quot;),
-                                    GO_IPI_pair = ifelse(grepl(&quot;\\|&quot;,GO_IPI_pair),
-                                                       &quot;part&quot;,
-                                                       ifelse(GO_IPI_pair==&quot;0&quot;,
-                                                              &quot;no&quot;,
-                                                              &quot;yes&quot;)),
-                                    BioGRID_publ = ifelse(BioGRID_publ==&quot;0&quot;,
-                                                       &quot;no&quot;,
-                                                       &quot;yes&quot;),
-                                    BioGRID_pair = ifelse(grepl(&quot;\\|&quot;,BioGRID_pair),
-                                                       &quot;part&quot;,
-                                                       ifelse(BioGRID_pair==&quot;0&quot;,
-                                                              &quot;no&quot;,
-                                                              &quot;yes&quot;)),
-                                    tm_epmc_publ = ifelse(tm_epmc_publ==&quot;0&quot;,
-                                                       &quot;no&quot;,
-                                                       &quot;yes&quot;),
-                                    tm_epmc_pair = ifelse(grepl(&quot;\\|&quot;,tm_epmc_pair),
-                                                       &quot;part&quot;,
-                                                       ifelse(tm_epmc_pair==&quot;0&quot;,
-                                                              &quot;no&quot;,
-                                                              &quot;yes&quot;)),
-                                    EVEX_publ = ifelse(EVEX_publ==&quot;0&quot;,
-                                                       &quot;no&quot;,
-                                                       &quot;yes&quot;),
-                                    EVEX_pair = ifelse(grepl(&quot;\\|&quot;,EVEX_pair),
-                                                       &quot;part&quot;,
-                                                       ifelse(EVEX_pair==&quot;0&quot;,
-                                                              &quot;no&quot;,
-                                                              &quot;yes&quot;)),
-                                    STRING_textmining_pair = ifelse(grepl(&quot;\\|&quot;,STRING_textmining_pair),
-                                                       &quot;part&quot;,
-                                                       ifelse(STRING_textmining_pair==&quot;0&quot;,
-                                                              &quot;no&quot;,
-                                                              &quot;yes&quot;)),
-                                    reactome_publ = ifelse(reactome_publ==&quot;0&quot;,
-                                                       &quot;no&quot;,
-                                                       &quot;yes&quot;),
-                                    reactome_pair = ifelse(grepl(&quot;\\|&quot;,reactome_pair),
-                                                       &quot;part&quot;,
-                                                       ifelse(reactome_pair==&quot;0&quot;,
-                                                              &quot;no&quot;,
-                                                              &quot;yes&quot;)),
-                                    OmniPath_interactions_publ = ifelse(OmniPath_interactions_publ==&quot;0&quot;,
-                                                       &quot;no&quot;,
-                                                       &quot;yes&quot;),
-                                    OmniPath_interactions_pair = ifelse(grepl(&quot;\\|&quot;,OmniPath_interactions_pair),
-                                                       &quot;part&quot;,
-                                                       ifelse(OmniPath_interactions_pair==&quot;0&quot;,
-                                                              &quot;no&quot;,
-                                                              &quot;yes&quot;)),
-                                    OmniPath_ptm_publ = ifelse(OmniPath_ptm_publ==&quot;0&quot;,
-                                                       &quot;no&quot;,
-                                                       &quot;yes&quot;),
-                                    OmniPath_ptm_pair = ifelse(grepl(&quot;\\|&quot;,OmniPath_ptm_pair),
-                                                       &quot;part&quot;,
-                                                       ifelse(OmniPath_ptm_pair==&quot;0&quot;,
-                                                              &quot;no&quot;,
-                                                              &quot;yes&quot;)),
-                                    STRING_pi_pair = ifelse(grepl(&quot;\\|&quot;,STRING_pi_pair),
-                                                       &quot;part&quot;,
-                                                       ifelse(STRING_pi_pair==&quot;0&quot;,
-                                                              &quot;no&quot;,
-                                                              &quot;yes&quot;)),
-                                    iid_pred = ifelse(grepl(&quot;\\|&quot;,iid_pred),
-                                                       &quot;part&quot;,
-                                                       ifelse(iid_pred==&quot;0&quot;,
-                                                              &quot;no&quot;,
-                                                              &quot;yes&quot;))
-                                    )]
-
-dsp_comp_export &lt;- dsp_comp_export[order(-contains_ints_man_check,
-                                         -ccline_uniprot,
-                                         -reactome_pair,
-                                         -reactome_publ,
-                                         -OmniPath_ptm_pair,
-                                         -OmniPath_interactions_publ,
-                                         -STRING_pi_pair,
-                                         -noncur_prot,
-                                         -tm_epmc_publ,
-                                         -EVEX_publ,
-                                         -iid_pred,
-                                         -GO_IPI_pair,
-                                         -GO_IPI_publ,
-                                         -BioGRID_pair,
-                                         -BioGRID_publ
-                                         )]</code></pre>
-</div>
-<div id="export-different-curation-tables-to-google-docs" class="section level4">
-<h4>Export different curation tables to google docs</h4>
-<p>Lists get divided into different priority tables and fed to GoogleDocs.</p>
-<pre class="r"><code>dsp_priority_head_180308 &lt;- fread(&quot;./results/dsp_eval_180308.txt&quot;,
-                                  header = T,
-                                  stringsAsFactors = F,
-                                  sep = &quot;\t&quot;)
-dsp_priority_180308_sel &lt;- unique(dsp_priority_head_180308[,.(pmid=as.character(PMID),
-                                                              curator,
-                                                              curatable,
-                                                              curator_comment)])
-
-dsp_priority &lt;- dsp_comp_export[BioGRID_publ==&quot;no&quot; &amp; GO_IPI_publ==&quot;no&quot; &amp; imex_publ==&quot;no&quot;]
-dsp_priority &lt;- unique(merge(dsp_priority,
-                             dsp_priority_180308_sel,
-                             by = &quot;pmid&quot;,
-                             all.x = T,
-                             all.y = F))
-dsp_priority &lt;- dsp_priority[,.(pmid,
-                                curator = ifelse(is.na(curator.y),
-                                                 curator.x,
-                                                 curator.y),
-                                curatable = ifelse(is.na(curatable.y),
-                                                 curatable.x,
-                                                 curatable.y),
-                                curator_comment = ifelse(is.na(curator_comment.y),
-                                                 curator_comment.x,
-                                                 curator_comment.y),
-                                prot_pairs,
-                                relevance,
-                                DS.interest,
-                                DS.part_interest,
-                                ccline_uniprot,
-                                noncur_prot,
-                                contains_ints_man_check,
-                                contains_ints_man_check_comment,
-                                imex_publ,
-                                imex_pair,
-                                GO_IPI_publ,
-                                GO_IPI_pair,
-                                BioGRID_publ,
-                                BioGRID_pair,
-                                tm_epmc_publ,
-                                tm_epmc_pair,
-                                EVEX_publ,
-                                EVEX_pair,
-                                STRING_textmining_pair,
-                                reactome_publ,
-                                reactome_pair,
-                                OmniPath_interactions_publ,
-                                OmniPath_interactions_pair,
-                                OmniPath_ptm_publ,
-                                OmniPath_ptm_pair,
-                                STRING_pi_pair,
-                                iid_pred)]
-
-dsp_priority &lt;- dsp_priority[order(-curator,
-                                   -relevance)]
-
-fwrite(head(dsp_priority,10000),&quot;./results/dsp_priority.txt&quot;,col.names = T,row.names = F,sep=&quot;\t&quot;,quote=F)
-
-
-fwrite(dsp_priority,&quot;./results/dsp_priority_full.txt&quot;,col.names = T,row.names = F,sep=&quot;\t&quot;,quote=F)
-
-dsp_biogrid_go = dsp_comp_export[BioGRID_publ==&quot;yes&quot; &amp; GO_IPI_publ==&quot;yes&quot;]
-fwrite(dsp_biogrid_go,&quot;./results/dsp_biogrid_go.txt&quot;,col.names = T,row.names = F,sep=&quot;\t&quot;,quote=F)</code></pre>
-<p>These tables are uploaded into our DSP google spreadsheet at <a href="https://docs.google.com/spreadsheets/d/1tL1HtVD3-BxHxKuXbIYhcFjmCptGVEOD5aFJCZw6CZk/edit#gid=826915149" class="uri">https://docs.google.com/spreadsheets/d/1tL1HtVD3-BxHxKuXbIYhcFjmCptGVEOD5aFJCZw6CZk/edit#gid=826915149</a>. We only upload the first 10,000 rows from the priority table, to avoid size limitation issues in google docs.</p>
-</div>
+fwrite(
+        dsp_rev,
+        &quot;./results/dsp_priority_rev.txt&quot;,
+        col.names = T,
+        row.names = F,
+        sep=&quot;\t&quot;,
+        quote=F)</code></pre>
+<p>This table is uploaded into our DSP google spreadsheet at <a href="https://docs.google.com/spreadsheets/d/1tL1HtVD3-BxHxKuXbIYhcFjmCptGVEOD5aFJCZw6CZk/edit#gid=826915149" class="uri">https://docs.google.com/spreadsheets/d/1tL1HtVD3-BxHxKuXbIYhcFjmCptGVEOD5aFJCZw6CZk/edit#gid=826915149</a>. We only upload the first 10,000 rows from the priority table, to avoid size limitation issues in google docs.</p>
 </div>
 </div>
 

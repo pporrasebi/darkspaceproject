@@ -1,338 +1,236 @@
 ---
 title: "DSP lists to coordinate curation"
 author: "Pablo Porras"
-date: "08/03/2018"
+date: "05/12/2018"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE,eval=FALSE)
 ```
 
 ## Summary
 
-This is a set of scripts to generate a final curation list that can be used by IMEx curators in order to prioritize paper selection. 
+This is an update for the set of scripts to generate a final curation list that can be used by IMEx curators in order to prioritize paper selection. 
 
 #### Libraries
 ```{r libraries,message=FALSE,warning=FALSE}
 library(data.table)
 library(googlesheets)
 library(splitstackshape)
+library(RCurl)
+library(jsonlite)
 ```
 
 ### Upload lists
 #### Tested publications known to contain interaction data
-```{r tested,message=FALSE,warning=FALSE}
-dsp_manual <- gs_title("Evaluating DSP")
-pmids_checked <- data.table(gs_read(ss=dsp_manual, ws = "All_PMIDs_checked",header=T))
-pmids_checked$pmid <- as.character(pmids_checked$pmid)
-```
-#### Comparison lists
-```{r comparison,message=FALSE,warning=FALSE}
-dsp_comp_pubpair <- fread("../dsp_comparison/results/pubpaircomp_table_final.txt",header=T,sep="\t")
-dsp_comp_publ <- fread(input = "zcat < ../dsp_comparison/results/pubcomp_table_final.txt.gz",header=T,sep="\t")
-dsp_comp_publ <- dsp_comp_publ[pmid!="0" & pmid!="-" & pmid!=""]
-```
-#### Proteins with no cc lines in UniProt
-Human SwissProt entries with no IntAct cclines were obtained from the UniProt webiste on Dec 19, 2017 using this query: `NOT interactor:* AND reviewed:yes AND organism:"Homo sapiens (Human) [9606]"`. 
-```{r nocclines,message=FALSE,warning=FALSE}
-up_nocc <- fread("./source_data/20171219_uniprot-nocclines.txt",header=F,sep="\t")
-colnames(up_nocc) <- "upac"
 
-up_nocc <- up_nocc[,up_nocc:="1"]
+As downloaded on `r date()`.
+```{r tested,message=FALSE,warning=FALSE}
+# gs_auth()
+# key <- extract_key_from_url("https://docs.google.com/spreadsheets/d/1tL1HtVD3-BxHxKuXbIYhcFjmCptGVEOD5aFJCZw6CZk/edit#gid=989290982")
+# dsp_manual <- gs_key(key)
+# pmids_checked <- data.table(gs_read(ss=dsp_manual, ws = "dsp_priority",header=T))
+pmids_checked <- fread(
+        "./source_data/Evaluating DSP - dsp_priority_rev.tsv",
+        check.names = T,
+        sep = "\t",
+        colClasses = "character",
+        stringsAsFactors = F
+)
+
+pmids_checked$pmid <- as.character(pmids_checked$pmid)
+pmids_checked <- pmids_checked[,sort:=.I]
 ```
 
 #### Ranked list of DSP publications
-As provided by Miguel Vázquez. 
+As provided by Miguel Vázquez on 16/10/2018. 
 ```{r rank,message=F,warning=F}
-dsp_rank <- fread("../../DarkSpace/manual_evaluation/round4/pmid_ranks.txt",
+dsp_rank <- fread(input = "zcat < ../../DarkSpace/manual_evaluation/round5/pmid_ranks.gz",
                   header=T,
                   sep="\t",
                   check.names = T,
                   stringsAsFactors = F)
+
 dsp_rank_sel <- unique(dsp_rank[,.(pmid = as.character(X.PMID),
-                                   relevance = Relevance,
-                                   DS.interest = Dark.Space.interest,
-                                   DS.part_interest = Dark.Space..partial..interest)])
+                                   relevance.up = round(Relevance,2),
+                                   DS.interest.up = Dark.Space.interest,
+                                   DS.part_interest.up = Dark.Space..partial..interest)])
 ```
+
+
+#### Extracting information from the EPMC API to annotate publications
+
+Steps: 
+
+ - Map PMIDs to PMC ids
+ - Obtain MESH terms annotations from EPMC API.
+        - Can be extracted using this example: `https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=ext_id:18074021%20AND%20%28PUB_TYPE:Research-article%20NOT%20PUB_TYPE:Review%20NOT%20PUB_TYPE:review-article%29&resultType=core&format=json`
+        - Fields to extract: meshHeading. 
+ - Obtain mutation information from PubTator
+        - Up to 8 ids per request
+        - Request example: `https://www.ebi.ac.uk/europepmc/annotations_api/annotationsByArticleIds?articleIds=MED%3A30497962%2CMED%3A24194929&type=Gene%20Mutations&provider=PubTator_NCBI&format=JSON`.  
+
+
+##### MESH terms        
+```{r api_query_kw_mesh}
+# set.seed(88)
+# pmid_query <- pmids_checked[sample.int(nrow(pmids_checked),100)]$pmid
+
+pmid_query <- pmids_checked$pmid
+
+pmid_mesh_kw <- data.frame(
+        pmid = character(),
+        mesh = character(),
+        reqanswer = character(),
+        review = character(),
+        stringsAsFactors = F)
+
+for (i in 1:length(pmid_query)){
+
+        pmid_mesh_kw[i,]$pmid = pmid_query[i]
+        
+        url = paste("https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=ext_id:",pmid_query[i],"%20AND%20%28PUB_TYPE:Research-article%20NOT%20PUB_TYPE:Review%20NOT%20PUB_TYPE:review-article%29&resultType=core&format=json",sep="")
+        urldetails <- getURL(url,header=T)
+        header <- gsub("\r\nServer:.*","",urldetails)
+        
+        pmid_mesh_kw[i,]$reqanswer = header
+        
+        if(grepl("200",header)){
+                jsonraw <- gsub(".*\\{\"version\"","\\{\"version\"",urldetails)
+                json <- fromJSON(jsonraw)
+                
+                temp_mesh <- data.table((json$resultList$result$meshHeadingList$meshHeading[[1]]))
+                
+                pmid_mesh_kw[i,]$mesh <- paste(unique(temp_mesh$descriptorName),collapse="|")
+                pmid_mesh_kw[i,]$review <- ifelse(
+                        !is.null(json$resultList$result$id),
+                        "no",
+                        "yes"
+                )
+                
+        }
+        
+        else{
+                pmid_mesh_kw[i,]$mesh <- ""
+        }
+}
+```
+
+##### PubTator
+```{r api_mut}
+pmid_pubtator_mut <- data.frame(
+        pmid = character(),
+        mutannot = character(),
+        reqanswer = character(),
+        stringsAsFactors = F)
+
+for (i in 1:length(pmid_query)){
+        
+        pmid_pubtator_mut[i,]$pmid = pmid_query[i]
+        
+        url = paste("https://www.ebi.ac.uk/europepmc/annotations_api/annotationsByArticleIds?articleIds=MED%3A",pmid_query[i],"&type=Gene%20Mutations&provider=PubTator_NCBI&format=JSON",sep="")
+        urldetails <- getURL(url,header=T)
+        header <- gsub("\r\nServer:.*","",urldetails)
+        
+        pmid_pubtator_mut[i,]$reqanswer = header
+        
+        if(grepl("200",header)){
+                jsonraw <- gsub("]$","",gsub(".*\\{\"source\"","\\{\"source\"",urldetails))
+                json <- fromJSON(jsonraw)
+                
+                pmid_pubtator_mut[i,]$mutannot <- ifelse(
+                        is.null(json$annotations[1][[1]]),
+                        "no",
+                        "yes"
+                )
+        }
+        
+        else{
+                pmid_pubtator_mut[i,]$mutannot <- ""
+        }
+}
+
+```
+ 
 
 ### Putting all lists together
-#### DSP-derived publications + publication-assigned pairs
-```{r dsp_pub+pubpair}
-dsp_comp_pubpair_collapsed <- dsp_comp_pubpair[pmid!="0" & pmid!="-" & pmid!="",
-                                        .(prot_pairs=paste(unique(pair_id),collapse = "|"),
-                                          imex_pair = paste(unique(imex),collapse="|"),
-                                          GO_IPI_pair = paste(unique(GO_IPI),collapse="|"),
-                                          BioGRID_pair = paste(unique(BioGRID),collapse="|"),
-                                          tm_epmc_pair = paste(unique(tm_epmc),collapse="|"),
-                                          EVEX_pair = paste(unique(EVEX),collapse="|"),
-                                          STRING_textmining_pair = paste(unique(STRING_textmining),collapse="|"),
-                                          reactome_pair = paste(unique(reactome),collapse="|"),
-                                          OmniPath_interactions_pair = paste(unique(OmniPath_interactions),collapse="|"),
-                                          OmniPath_ptm_pair = paste(unique(OmniPath_ptm),collapse="|"),
-                                          STRING_pi_pair = paste(unique(STRING_pi),collapse="|"),
-                                          iid_pred = paste(unique(iid_pred),collapse="|"),
-                                          noncur_prot = paste(unique(noncur_prot),collapse="|")
-                                          ),
-                                        by=pmid]
+```{r merge}
+pre_dsp_rev <- unique(merge(
+        pmids_checked,
+        pmid_mesh_kw,
+        by = "pmid",
+        all.x = T,
+        all.y = T
+))
 
-dsp_comp_pt1 <- merge(dsp_comp_publ,
-                        dsp_comp_pubpair_collapsed,
-                        by="pmid",
-                        all.x = T,
-                        all.y = T)
+pre_dsp_rev2 <- unique(merge(
+        pre_dsp_rev,
+        pmid_pubtator_mut,
+        by = "pmid",
+        all = T
+))
 
-dsp_comp_pt2 <- dsp_comp_pt1[,.(pmid,
-                                prot_pairs,
-                                imex_publ = imex,
-                                imex_pair,
-                                GO_IPI_publ = GO_IPI,
-                                GO_IPI_pair,
-                                BioGRID_publ = BioGRID,
-                                BioGRID_pair,
-                                tm_epmc_publ = tm_epmc,
-                                tm_epmc_pair,
-                                EVEX_publ = EVEX,
-                                EVEX_pair,
-                                STRING_textmining_pair,
-                                reactome_publ = reactome,
-                                reactome_pair,
-                                OmniPath_interactions_publ = OmniPath_interactions,
-                                OmniPath_interactions_pair,
-                                OmniPath_ptm_publ = OmniPath_ptm,
-                                OmniPath_ptm_pair,
-                                STRING_pi_pair,
-                                iid_pred,
-                                noncur_prot)]
+pre_dsp_rev3 <- unique(merge(
+        pre_dsp_rev2,
+        dsp_rank_sel,
+        by = "pmid",
+        all.x = T,
+        all.y = F
+))
+
+dsp_rev <- pre_dsp_rev3[order(sort),.(
+        pmid,
+        curator,
+        curatable,
+        curator_comment,
+        prot_pairs,
+        mesh,
+        alzheimer = ifelse(                             ### This was added to identify Alzheimer's 
+                grepl("Alzheimer|alzheimer",mesh),      ### disease-related publications for a  
+                "yes",                                  ### project in UniProt. 
+                "no"
+        ),
+        review,
+        mutannot,
+        relevance.up,
+        DS.interest.up,
+        DS.part_interest.up,
+        relevance,
+        DS.interest,
+        DS.part_interest,
+        ccline_uniprot,
+        noncur_prot,
+        contains_ints_man_check,
+        contains_ints_man_check_comment,
+        imex_publ,
+        imex_pair,
+        GO_IPI_publ,
+        GO_IPI_pair,
+        BioGRID_publ,
+        BioGRID_pair,
+        tm_epmc_publ,
+        tm_epmc_pair,
+        EVEX_publ,
+        EVEX_pair,
+        STRING_textmining_pair,
+        reactome_publ,
+        reactome_pair,
+        OmniPath_interactions_publ,
+        OmniPath_interactions_pair,
+        OmniPath_ptm_publ,
+        OmniPath_ptm_pair,
+        STRING_pi_pair,
+        iid_pred
+)]
+
+fwrite(
+        dsp_rev,
+        "./results/dsp_priority_rev.txt",
+        col.names = T,
+        row.names = F,
+        sep="\t",
+        quote=F)
 ```
 
-#### Integrating list of prots without cc lines
-```{r int_unip_nocc}
-dsp_comp_prots <- unique(dsp_comp_pt2[,.(pmid,prot_pairs)])
-dsp_comp_prots_prelong <- cSplit(dsp_comp_prots,splitCols = "prot_pairs",sep="|",direction="long")
-dsp_comp_prots_long <- cSplit(dsp_comp_prots_prelong,splitCols = "prot_pairs",sep="_",direction="long")
-colnames(dsp_comp_prots_long) <- c("pmid","upac")
-
-dsp_plus_up_nocc <- merge(dsp_comp_prots_long,
-                          up_nocc,
-                          by="upac",
-                          all.x = T,
-                          all.y = F)
-
-dsp_up_nocc <- unique(dsp_plus_up_nocc[up_nocc=="1",
-                                .(ccline_uniprot = paste("no (",
-                                                         paste(unique(upac),collapse = ",")
-                                                         ,")",
-                                                         sep = "")),
-                                by = pmid])
-
-```
-
-#### Final integration
-```{r final_int}
-dsp_comp_pt3 <- merge(dsp_comp_pt2,
-                      dsp_up_nocc,
-                      by="pmid",
-                      all.x = T,
-                      all.y = T)
-
-dsp_comp_pt4 <- merge(dsp_comp_pt3,
-                        pmids_checked,
-                        by = "pmid",
-                        all.x = T,
-                        all.y = F)
-
-dsp_comp_final <- merge(dsp_comp_pt4,
-                        dsp_rank_sel,
-                        by = "pmid",
-                        all.x = T,
-                        all.y = F)
-```
-
-#### Final re-formatting
-```{r reformatting}
-dsp_comp_export <- dsp_comp_final[!grepl("no",`contains interactions?`),
-                                  .(pmid,
-                                    curator = "",
-                                    curatable = "",
-                                    curator_comment = "",
-                                    prot_pairs,
-                                    relevance,
-                                    DS.interest,
-                                    DS.part_interest,
-                                    ccline_uniprot,
-                                    noncur_prot = ifelse(grepl("\\|",noncur_prot),
-                                                       "part",
-                                                       ifelse(noncur_prot=="0",
-                                                              "no",
-                                                              "yes")),
-                                    contains_ints_man_check = `contains interactions?`,
-                                    contains_ints_man_check_comment = comment,
-                                    imex_publ = ifelse(imex_publ=="0",
-                                                       "no",
-                                                       "yes"),
-                                    imex_pair = ifelse(grepl("\\|",imex_pair),
-                                                       "part",
-                                                       ifelse(imex_pair=="0",
-                                                              "no",
-                                                              "yes")),
-                                    GO_IPI_publ = ifelse(GO_IPI_publ=="0",
-                                                       "no",
-                                                       "yes"),
-                                    GO_IPI_pair = ifelse(grepl("\\|",GO_IPI_pair),
-                                                       "part",
-                                                       ifelse(GO_IPI_pair=="0",
-                                                              "no",
-                                                              "yes")),
-                                    BioGRID_publ = ifelse(BioGRID_publ=="0",
-                                                       "no",
-                                                       "yes"),
-                                    BioGRID_pair = ifelse(grepl("\\|",BioGRID_pair),
-                                                       "part",
-                                                       ifelse(BioGRID_pair=="0",
-                                                              "no",
-                                                              "yes")),
-                                    tm_epmc_publ = ifelse(tm_epmc_publ=="0",
-                                                       "no",
-                                                       "yes"),
-                                    tm_epmc_pair = ifelse(grepl("\\|",tm_epmc_pair),
-                                                       "part",
-                                                       ifelse(tm_epmc_pair=="0",
-                                                              "no",
-                                                              "yes")),
-                                    EVEX_publ = ifelse(EVEX_publ=="0",
-                                                       "no",
-                                                       "yes"),
-                                    EVEX_pair = ifelse(grepl("\\|",EVEX_pair),
-                                                       "part",
-                                                       ifelse(EVEX_pair=="0",
-                                                              "no",
-                                                              "yes")),
-                                    STRING_textmining_pair = ifelse(grepl("\\|",STRING_textmining_pair),
-                                                       "part",
-                                                       ifelse(STRING_textmining_pair=="0",
-                                                              "no",
-                                                              "yes")),
-                                    reactome_publ = ifelse(reactome_publ=="0",
-                                                       "no",
-                                                       "yes"),
-                                    reactome_pair = ifelse(grepl("\\|",reactome_pair),
-                                                       "part",
-                                                       ifelse(reactome_pair=="0",
-                                                              "no",
-                                                              "yes")),
-                                    OmniPath_interactions_publ = ifelse(OmniPath_interactions_publ=="0",
-                                                       "no",
-                                                       "yes"),
-                                    OmniPath_interactions_pair = ifelse(grepl("\\|",OmniPath_interactions_pair),
-                                                       "part",
-                                                       ifelse(OmniPath_interactions_pair=="0",
-                                                              "no",
-                                                              "yes")),
-                                    OmniPath_ptm_publ = ifelse(OmniPath_ptm_publ=="0",
-                                                       "no",
-                                                       "yes"),
-                                    OmniPath_ptm_pair = ifelse(grepl("\\|",OmniPath_ptm_pair),
-                                                       "part",
-                                                       ifelse(OmniPath_ptm_pair=="0",
-                                                              "no",
-                                                              "yes")),
-                                    STRING_pi_pair = ifelse(grepl("\\|",STRING_pi_pair),
-                                                       "part",
-                                                       ifelse(STRING_pi_pair=="0",
-                                                              "no",
-                                                              "yes")),
-                                    iid_pred = ifelse(grepl("\\|",iid_pred),
-                                                       "part",
-                                                       ifelse(iid_pred=="0",
-                                                              "no",
-                                                              "yes"))
-                                    )]
-
-dsp_comp_export <- dsp_comp_export[order(-contains_ints_man_check,
-                                         -ccline_uniprot,
-                                         -reactome_pair,
-                                         -reactome_publ,
-                                         -OmniPath_ptm_pair,
-                                         -OmniPath_interactions_publ,
-                                         -STRING_pi_pair,
-                                         -noncur_prot,
-                                         -tm_epmc_publ,
-                                         -EVEX_publ,
-                                         -iid_pred,
-                                         -GO_IPI_pair,
-                                         -GO_IPI_publ,
-                                         -BioGRID_pair,
-                                         -BioGRID_publ
-                                         )]
-```
-
-#### Export different curation tables to google docs
-Lists get divided into different priority tables and fed to GoogleDocs. 
-```{r export}
-dsp_priority_head_180308 <- fread("./results/dsp_eval_180308.txt",
-                                  header = T,
-                                  stringsAsFactors = F,
-                                  sep = "\t")
-dsp_priority_180308_sel <- unique(dsp_priority_head_180308[,.(pmid=as.character(PMID),
-                                                              curator,
-                                                              curatable,
-                                                              curator_comment)])
-
-dsp_priority <- dsp_comp_export[BioGRID_publ=="no" & GO_IPI_publ=="no" & imex_publ=="no"]
-dsp_priority <- unique(merge(dsp_priority,
-                             dsp_priority_180308_sel,
-                             by = "pmid",
-                             all.x = T,
-                             all.y = F))
-dsp_priority <- dsp_priority[,.(pmid,
-                                curator = ifelse(is.na(curator.y),
-                                                 curator.x,
-                                                 curator.y),
-                                curatable = ifelse(is.na(curatable.y),
-                                                 curatable.x,
-                                                 curatable.y),
-                                curator_comment = ifelse(is.na(curator_comment.y),
-                                                 curator_comment.x,
-                                                 curator_comment.y),
-                                prot_pairs,
-                                relevance,
-                                DS.interest,
-                                DS.part_interest,
-                                ccline_uniprot,
-                                noncur_prot,
-                                contains_ints_man_check,
-                                contains_ints_man_check_comment,
-                                imex_publ,
-                                imex_pair,
-                                GO_IPI_publ,
-                                GO_IPI_pair,
-                                BioGRID_publ,
-                                BioGRID_pair,
-                                tm_epmc_publ,
-                                tm_epmc_pair,
-                                EVEX_publ,
-                                EVEX_pair,
-                                STRING_textmining_pair,
-                                reactome_publ,
-                                reactome_pair,
-                                OmniPath_interactions_publ,
-                                OmniPath_interactions_pair,
-                                OmniPath_ptm_publ,
-                                OmniPath_ptm_pair,
-                                STRING_pi_pair,
-                                iid_pred)]
-
-dsp_priority <- dsp_priority[order(-curator,
-                                   -relevance)]
-
-fwrite(head(dsp_priority,10000),"./results/dsp_priority.txt",col.names = T,row.names = F,sep="\t",quote=F)
-
-
-fwrite(dsp_priority,"./results/dsp_priority_full.txt",col.names = T,row.names = F,sep="\t",quote=F)
-
-dsp_biogrid_go = dsp_comp_export[BioGRID_publ=="yes" & GO_IPI_publ=="yes"]
-fwrite(dsp_biogrid_go,"./results/dsp_biogrid_go.txt",col.names = T,row.names = F,sep="\t",quote=F)
-```
-
-These tables are uploaded into our DSP google spreadsheet at https://docs.google.com/spreadsheets/d/1tL1HtVD3-BxHxKuXbIYhcFjmCptGVEOD5aFJCZw6CZk/edit#gid=826915149. We only upload the first 10,000 rows from the priority table, to avoid size limitation issues in google docs. 
+This table is uploaded into our DSP google spreadsheet at https://docs.google.com/spreadsheets/d/1tL1HtVD3-BxHxKuXbIYhcFjmCptGVEOD5aFJCZw6CZk/edit#gid=826915149. We only upload the first 10,000 rows from the priority table, to avoid size limitation issues in google docs. 
