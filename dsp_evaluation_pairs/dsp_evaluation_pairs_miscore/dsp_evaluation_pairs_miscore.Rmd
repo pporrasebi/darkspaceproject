@@ -1,0 +1,666 @@
+---
+title: "DSP evaluation pairs MIscore"
+author: "Pablo Porras"
+date: "14/02/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Evaluation of checked and curated publications of the DSP
+
+I manually download all DSP evaluated PMIDs and also those already curated and avaliable on the IntAct website. 
+
+##### Libraries
+```{r libraries, message=FALSE,warning=FALSE}
+library(data.table)
+library(splitstackshape)
+library(stringr)
+library(ggplot2)
+library(scales)
+library(dplyr)
+library(ggsignif)
+```
+
+#### Data upload
+```{r upload}
+# These come from the Google spreadsheet, manually downloaded. 
+eval_dsp <- fread("./source_data/20190214_dsp_priority_rev_pred.tsv",
+                  header = T,
+                  colClasses = "character",
+                  stringsAsFactors = F,
+                  check.names = T,
+                  sep = "\t")
+
+if (!file.exists("./source_data/intact.zip")){
+        download.file(url="ftp://ftp.ebi.ac.uk/pub/databases/intact/current/psimitab/intact.zip",destfile = "./source_data/intact.zip",method = "curl")
+}
+
+if (!file.exists("./source_data/intact-micluster.zip")){
+        download.file(url="ftp://ftp.ebi.ac.uk/pub/databases/intact/current/psimitab/intact-micluster.zip",destfile = "./source_data/intact-micluster.zip",method = "curl")
+}
+
+
+setwd("./source_data")
+system("unzip -j intact.zip")
+intact <- unique(fread(
+  "intact.txt",
+  header=T,
+  sep="\t",
+  colClasses="character",
+  check.names = T,
+  stringsAsFactors = F))
+system("rm intact.txt")
+system("rm intact_negative.txt")
+
+system("unzip -j intact-micluster.zip")
+intact_micluster <- unique(fread(
+  "intact-micluster.txt",
+  header=T,
+  sep="\t",
+  colClasses="character",
+  check.names = T,
+  stringsAsFactors = F))
+system("rm intact-micluster.txt")
+system("rm intact-micluster_negative.txt")
+setwd("../")
+```
+
+### Extract comparison sets
+```{r comp_sets}
+eval_dsp_pmids <- unique(eval_dsp[grepl("yes|Yes",curatable),.(pmid)])
+
+# fwrite(
+#   eval_dsp_pmids,
+#   "./source_data/pmids.txt",
+#   col.names = F,
+#   row.names = F,
+#   sep = "\t",
+#   quote = F
+# )
+
+eval_dsp_pairs <- unique(eval_dsp[grepl("yes|Yes",curatable),.(
+  prot_pairs,
+  DS.interest.up,
+  DS.part_interest.up,
+  DS.score.pred)])
+
+eval_dsp_pairs_long <- unique(cSplit(
+  eval_dsp_pairs,
+  splitCols = "prot_pairs",
+  sep = "|",
+  direction = "long",
+  drop = F
+))
+
+eval_dsp_pairs_formatted <- eval_dsp_pairs_long[,.(
+  prot_pairs,
+  p1 = gsub("_.*", "",prot_pairs),
+  p2 = gsub(".*_", "",prot_pairs),
+  DS.interest.up,
+  DS.part_interest.up,
+  DS.score.pred
+)]
+
+intact_human <- intact[grepl('taxid:9606',Taxid.interactor.A) &
+                         grepl('taxid:9606',Taxid.interactor.B) &
+                         grepl('uniprotkb:',X.ID.s..interactor.A) &
+                         grepl('uniprotkb:',ID.s..interactor.B),]
+intact_human <- intact_human[,pmid:=gsub("\\|.*","",gsub(".*pubmed:","",Publication.Identifier.s.))]
+intact_human <- intact_human[,p1:=gsub("-.*","",gsub("uniprotkb:","",X.ID.s..interactor.A))]
+intact_human <- intact_human[,p2:=gsub("-.*","",gsub("uniprotkb:","",ID.s..interactor.B))]
+intact_human <- intact_human[,pair_id := apply(data.table(p1,p2,stringsAsFactors = F),
+                  1,
+                  function(a) { z = sort(a)
+                  paste0(z[1],"_",z[2]) })]
+
+intact_human <- data.table(mutate(intact_human,
+                                  X.ID.s..interactor.A = paste("uniprotkb:",p1,sep=""),
+                                  ID.s..interactor.B = paste("uniprotkb:",p2,sep="")))
+
+publs_curated_dsp <- intact_human[pmid %in% eval_dsp_pmids$pmid]
+
+intact_dsp <- intact_human[(pmid %in% eval_dsp_pmids$pmid)]
+dsp_pairs_in_intact <- unique(intact_dsp[,.(
+  p1,
+  p2,
+  pair_id = apply(data.table(p1,p2,stringsAsFactors = F),
+                  1,
+                  function(a) { z = sort(a)
+                  paste0(z[1],"_",z[2]) })
+)])
+
+intact_pairs_dsp <- intact_human[(p1 %in% dsp_pairs_in_intact$p1 & p2 %in% dsp_pairs_in_intact$p2) | (p1 %in% dsp_pairs_in_intact$p2 & p2 %in% dsp_pairs_in_intact$p1)]
+
+intact_pairs_dsp_no_dsppmids <- intact_pairs_dsp[!(pmid %in% eval_dsp_pmids$pmid)]
+
+intact_pairs_dsp_mitab <- intact_pairs_dsp[ ,`:=`(pmid = NULL, p1 = NULL, p2 = NULL, pair_id = NULL)]
+fwrite(
+  intact_pairs_dsp_mitab,
+  "./processed_data/intact_pairs_dsp_mitab.txt",
+  col.names = T,
+  row.names = F,
+  quote = F,
+  sep = "\t"
+)
+
+intact_pairs_dsp_no_dsppmids_mitab <- intact_pairs_dsp_no_dsppmids[ ,`:=`(pmid = NULL, p1 = NULL, p2 = NULL, pair_id = NULL)]
+fwrite(
+  intact_pairs_dsp_no_dsppmids_mitab,
+  "./processed_data/intact_pairs_dsp_no_dsppmids_mitab.txt",
+  col.names = T,
+  row.names = F,
+  quote = F,
+  sep = "\t"
+)
+```
+
+#### Obtain non-DSP publication set for comparison
+I need to have a set publications unrelated with the DSP, for which I run the same comparison as I do for the DSP publications. I select these among low-through put publications, checking what is the maximum amount of expanded interactions that DSP publications have. 
+```{r random}
+# Count expanded interactions
+publ_count_exp_int <- unique(intact_human[,.(
+  nr_exp_ints = .N,
+  Creation.date = as.Date(Creation.date, "%Y/%m/%d"),
+  Source.database.s.
+),
+by = "pmid"])
+
+# Map to DSP publications
+eval_dsp_pmids_count <- unique(merge(
+  eval_dsp_pmids,
+  publ_count_exp_int,
+  by = "pmid",
+  all.x = T,
+  all.y = F
+))
+
+# Max number of expanded binaries per DSP publication
+max(eval_dsp_pmids_count[!is.na(nr_exp_ints)]$nr_exp_ints)
+
+
+# Select low-throughput publications only from intact_human
+lt_publs <- publ_count_exp_int[nr_exp_ints < 100]
+
+# Select the subset of publications, roughly within the same period as DSP, which do not include DSP pairs and excluding DIP records, since they come from mass import and the creation date is not indicative of when they were curated. 
+lt_publs_no_dsp_year <- lt_publs[Creation.date >= min(eval_dsp_pmids_count[!is.na(nr_exp_ints)]$Creation.date) &
+                                   Creation.date <= max(eval_dsp_pmids_count[!is.na(nr_exp_ints)]$Creation.date) &
+                                   !(pmid %in% eval_dsp_pmids$pmid) &
+                                   Source.database.s. != 'psi-mi:"MI:0465"(DIP)']
+
+# Select protein pairs from these publications
+no_dsp_pairs <- unique(intact_human[pmid %in% lt_publs_no_dsp_year$pmid &
+                                      !is.na(p1) &
+                                      !is.na(p2),.(
+  p1,
+  p2,
+  pair_id = apply(data.table(p1,p2,stringsAsFactors = F),
+                  1,
+                  function(a) { z = sort(a)
+                  paste0(z[1],"_",z[2]) })
+)])
+
+# Produce adequate MITAB files for non DSP publications selected. REMEMBER TO PUT A HASH ON THE COLUMN TITLES!!!
+intact_pairs_nodsp <- intact_human[(p1 %in% no_dsp_pairs$p1 & p2 %in% no_dsp_pairs$p2) | (p1 %in% no_dsp_pairs$p2 & p2 %in% no_dsp_pairs$p1)]
+intact_pairs_nodsp_no_dsppmids <- intact_pairs_nodsp[!(pmid %in% lt_publs_no_dsp_year$pmid)]
+
+intact_pairs_nodsp_mitab <- intact_pairs_nodsp[ ,`:=`(pmid = NULL, p1 = NULL, p2 = NULL, pair_id = NULL)]
+fwrite(
+  intact_pairs_nodsp_mitab,
+  "./processed_data/intact_pairs_nodsp_mitab.txt",
+  col.names = T,
+  row.names = F,
+  quote = F,
+  sep = "\t"
+)
+
+intact_pairs_nodsp_no_dsppmids_mitab <- intact_pairs_nodsp_no_dsppmids[ ,`:=`(pmid = NULL, p1 = NULL, p2 = NULL, pair_id = NULL)]
+fwrite(
+  intact_pairs_nodsp_no_dsppmids_mitab,
+  "./processed_data/intact_pairs_nodsp_no_dsppmids_mitab.txt",
+  col.names = T,
+  row.names = F,
+  quote = F,
+  sep = "\t"
+)
+```
+
+
+### Uploading MIscore before/after
+I get the MIscore values applying the algorithm on the local files produced in the previous step. REMEMBER TO PUT A HASH ON THE COLUMN TITLES!!!
+```{r miscore_upload}
+intact_pairs_dsp_mitab_miscore <- fread(
+  "./processed_data/intact_pairs_dsp_clustered.txt",
+  header = F,
+  check.names = T,
+  stringsAsFactors = F,
+  colClasses = "character"
+)
+colnames(intact_pairs_dsp_mitab_miscore) <- colnames(intact_pairs_dsp_no_dsppmids_mitab)[1:15]
+
+intact_pairs_dsp_no_dsppmids_mitab_miscore <- fread(
+  "./processed_data/intact_pairs_dsp_no_dsppmids_clustered.txt",
+  header = F,
+  check.names = T,
+  stringsAsFactors = F,
+  colClasses = "character"
+)
+colnames(intact_pairs_dsp_no_dsppmids_mitab_miscore) <- colnames(intact_pairs_dsp_no_dsppmids_mitab)[1:15]
+
+intact_pairs_nodsp_mitab_miscore <- fread(
+  "./processed_data/intact_pairs_nodsp_clustered.txt",
+  header = F,
+  check.names = T,
+  stringsAsFactors = F,
+  colClasses = "character"
+)
+colnames(intact_pairs_nodsp_mitab_miscore) <- colnames(intact_pairs_dsp_no_dsppmids_mitab)[1:15]
+
+intact_pairs_nodsp_no_dsppmids_mitab_miscore <- fread(
+  "./processed_data/intact_pairs_nodsp_no_dsppmids_clustered.txt",
+  header = F,
+  check.names = T,
+  stringsAsFactors = F,
+  colClasses = "character"
+)
+colnames(intact_pairs_nodsp_no_dsppmids_mitab_miscore) <- colnames(intact_pairs_dsp_no_dsppmids_mitab)[1:15]
+```
+
+
+### Comparison before/after dsp
+##### Preformat the data: DSP
+```{r miscore_bef_after_dsp}
+intact_pairs_dsp_after <- unique(intact_pairs_dsp_mitab_miscore[,.(
+  pair_id = apply(data.table(gsub("uniprotkb:","",X.ID.s..interactor.A),
+                             gsub("uniprotkb:","",ID.s..interactor.B),
+                             stringsAsFactors = F),
+                  1,
+                  function(a) { z = sort(a)
+                  paste0(z[1],"_",z[2]) }),
+  miscore_after = as.numeric(gsub(".*miscore:","",Confidence.value.s.)))])
+
+intact_pairs_dsp_before <- unique(intact_pairs_dsp_no_dsppmids_mitab_miscore[,.(
+  # p1 = gsub("-.*","",gsub("uniprotkb:","",X.ID.s..interactor.A)),
+  # p2 = gsub("-.*","",gsub("uniprotkb:","",ID.s..interactor.B)),
+  pair_id = apply(data.table(gsub("uniprotkb:","",X.ID.s..interactor.A),
+                             gsub("uniprotkb:","",ID.s..interactor.B),
+                             stringsAsFactors = F),
+                  1,
+                  function(a) { z = sort(a)
+                  paste0(z[1],"_",z[2]) }),
+  miscore_before = as.numeric(gsub(".*miscore:","",Confidence.value.s.)))])
+
+comp_pairs_dsp_miscore <- unique(merge(
+  intact_pairs_dsp_before,
+  intact_pairs_dsp_after,
+  by = "pair_id",
+  all = T
+  ))
+
+comp_pairs_dsp_miscore[is.na(miscore_before)]$miscore_before <- 0
+comp_pairs_dsp_miscore[,diff:=(miscore_after-miscore_before)]
+comp_pairs_dsp_miscore[,set:="dsp"]
+```
+
+##### Preformat the data: non-DSP
+```{r miscore_bef_after_nodsp}
+intact_pairs_nodsp_after <- unique(intact_pairs_nodsp_mitab_miscore[,.(
+  # p1 = gsub("-.*","",gsub("uniprotkb:","",X.ID.s..interactor.A)),
+  # p2 = gsub("-.*","",gsub("uniprotkb:","",ID.s..interactor.B)),
+  pair_id = apply(data.table(gsub("uniprotkb:","",X.ID.s..interactor.A),
+                             gsub("uniprotkb:","",ID.s..interactor.B),
+                             stringsAsFactors = F),
+                  1,
+                  function(a) { z = sort(a)
+                  paste0(z[1],"_",z[2]) }),
+  miscore_after = as.numeric(gsub(".*miscore:","",Confidence.value.s.)))])
+
+intact_pairs_nodsp_before <- unique(intact_pairs_nodsp_no_dsppmids_mitab_miscore[,.(
+  # p1 = gsub("-.*","",gsub("uniprotkb:","",X.ID.s..interactor.A)),
+  # p2 = gsub("-.*","",gsub("uniprotkb:","",ID.s..interactor.B)),
+  pair_id = apply(data.table(gsub("uniprotkb:","",X.ID.s..interactor.A),
+                             gsub("uniprotkb:","",ID.s..interactor.B),
+                             stringsAsFactors = F),
+                  1,
+                  function(a) { z = sort(a)
+                  paste0(z[1],"_",z[2]) }),
+  miscore_before = as.numeric(gsub(".*miscore:","",Confidence.value.s.)))])
+
+comp_pairs_nodsp_miscore <- unique(merge(
+  intact_pairs_nodsp_before,
+  intact_pairs_nodsp_after,
+  by = "pair_id",
+  all = T
+  ))
+
+comp_pairs_nodsp_miscore[is.na(miscore_before)]$miscore_before <- 0
+comp_pairs_nodsp_miscore[,diff:=(miscore_after-miscore_before)]
+comp_pairs_nodsp_miscore[,set:="control"]
+```
+
+#### Explore differences statistics
+```{r diff_stats}
+comp_pairs_miscore <- unique(rbind(
+  comp_pairs_dsp_miscore,
+  comp_pairs_nodsp_miscore
+))
+
+# Wilcoxon test to check if MIscore gain is greater in DSP rather than control or viceversa 
+wilcox.test.altg = function(x, y) wilcox.test(x, y, alternative = 'g')
+wilcox.test.altl = function(x, y) wilcox.test(x, y, alternative = 'l')
+wilcox.test.altg(comp_pairs_miscore[diff!=0 & set == "dsp"]$diff,comp_pairs_miscore[diff!=0 & set == "control"]$diff)
+wilcox.test.altl(comp_pairs_miscore[diff!=0 & set == "dsp"]$diff,comp_pairs_miscore[diff!=0 & set == "control"]$diff)
+
+# Summary statistics
+
+new_pairs <- data.table(
+  dsp = c(nrow(comp_pairs_miscore[set=="dsp" & miscore_before==0]),nrow(comp_pairs_miscore[set=="dsp" & miscore_before!=0])),
+  control = c(nrow(comp_pairs_miscore[set=="control" & miscore_before==0]),nrow(comp_pairs_miscore[set=="control" & miscore_before!=0]))
+)
+new_pairs_matrix <- as.matrix(new_pairs)
+fisher.test(new_pairs_matrix,
+            alternative="two.sided")
+
+unaff_pairs <- data.table(
+  dsp = c(nrow(comp_pairs_miscore[set=="dsp" & diff==0]),nrow(comp_pairs_miscore[set=="dsp" & diff!=0])),
+  control = c(nrow(comp_pairs_miscore[set=="control" & diff==0]),nrow(comp_pairs_miscore[set=="control" & diff!=0]))
+)
+
+unaff_pairs_matrix <- as.matrix(new_pairs)
+fisher.test(unaff_pairs_matrix,
+            alternative="two.sided")
+
+
+```
+I find no significant change in the amount of new pairs discovered through DSP in comparison with the control. DSP also seems not to have an effect in increased MIscore for thepairs represented there, and the change in MIscore is actually significantly lower than in the control set. There could be some effect of an overabundance of well-known pairs represented in DSP due to theuse of pathway databases as an input. 
+
+#### Plot differences
+```{r diff_plot}
+g <- ggplot(comp_pairs_miscore[diff!=0], aes(x=set,y=diff)) +
+  geom_violin() +
+  geom_jitter(alpha=0.2) +
+  ylab('MIscore net gain') + 
+  xlab('') +
+  geom_signif(comparisons = list(c("dsp","control")),
+  # geom_signif(comparisons = c("dsp","control"),
+              step_increase=0.07,
+              test = wilcox.test.altl,
+              tip_length = 0.015,
+              textsize = 5) +
+  theme(plot.title = element_text(),
+        legend.position = "none",
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(),
+        axis.text.x = element_text(size=16),
+        axis.text.y = element_text(size=16),
+        axis.title = element_text(size=18))
+g
+```
+
+
+
+## Correlate interest scores with MIscore progression
+If interest score really helps targeting lowly annotated pairs, it should correlate with bigger differences in MIscore progression. This comparison is only possible for DSP-curated papers, of course.  
+```{r interest_miscore}
+pairs_int_comp <- unique(merge(
+  eval_dsp_pairs_formatted,
+  comp_pairs_dsp_miscore,
+  by.x = "prot_pairs",
+  by.y = "pair_id",
+  all = F
+))
+```
+
+### Plots interest scores vs MIscore
+```{r plot_intvsmiscore_1}
+g1 <- ggplot(pairs_int_comp,aes(x=as.numeric(DS.interest.up),y=diff)) +
+  geom_point(alpha = 0.2) + 
+  geom_smooth(method='lm') +
+  ylab('MIscore net gain') + 
+  xlab('DSP interest score') +
+  theme(plot.title = element_text(),
+        legend.position = "none",
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(),
+        axis.text.x = element_text(size=16),
+        axis.text.y = element_text(size=16),
+        axis.title = element_text(size=18))
+g1
+```
+
+```{r plot_intvsmiscore_2}
+g2 <- ggplot(pairs_int_comp,aes(x=as.numeric(DS.part_interest.up),y=diff)) +
+  geom_point(alpha = 0.2) + 
+  geom_smooth(method='lm') +
+  ylab('MIscore net gain') + 
+  xlab('DSP interest score, partial') +
+  theme(plot.title = element_text(),
+        legend.position = "none",
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(),
+        axis.text.x = element_text(size=16),
+        axis.text.y = element_text(size=16),
+        axis.title = element_text(size=18))
+g2
+```
+
+```{r plot_intvsmiscore_3}
+g3 <- ggplot(pairs_int_comp,aes(x=as.numeric(DS.score.pred),y=diff)) +
+  geom_point(alpha = 0.2) + 
+  geom_smooth(method='lm') +
+  ylab('MIscore net gain') + 
+  xlab('DSP interest score, with predictions') +
+  theme(plot.title = element_text(),
+        legend.position = "none",
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(),
+        axis.text.x = element_text(size=16),
+        axis.text.y = element_text(size=16),
+        axis.title = element_text(size=18))
+g3
+```
+
+Any version of the interest score is all over the place, with poor correlation with MIscore gains. The correlation seems to be actually negative, if anything. 
+
+## Normalization problem evaluation
+Let's check how much of a problem we have with identification of interacting pairs in text mining and predicted datasets. 
+```{r normeval}
+curated_dsp_sel <-unique(eval_dsp[grepl("yes|Yes",curatable) & pmid %in% publs_curated_dsp$pmid,.(
+  pair_id= prot_pairs,
+  pmid,
+  text_mined = ifelse(
+    tm_epmc_pair == "yes" | EVEX_pair == "yes" | STRING_textmining_pair == "yes",
+    "yes",
+    ifelse(
+      tm_epmc_pair == "part" | EVEX_pair == "part" | STRING_textmining_pair == "part",
+      "part",
+      "no"
+    )
+  ),
+  pw_curated = ifelse(
+    reactome_pair == "yes" | OmniPath_interactions_pair == "yes" | OmniPath_ptm_pair == "yes" | STRING_pi_pair == "yes",
+    "yes",
+    ifelse(
+      reactome_pair == "part" | OmniPath_interactions_pair == "part" | OmniPath_ptm_pair == "part" | STRING_pi_pair == "part",
+      "part",
+      "no"
+    )
+  ),
+  predicted = ifelse(
+    iid_pred == "yes",
+    "yes",
+    ifelse(
+       iid_pred == "part",
+      "part",
+      "no"
+    )
+  )
+  )])
+
+curated_dsp_long <- cSplit(
+  curated_dsp_sel,
+  splitCols = "pair_id",
+  sep = "|",
+  direction = "long",
+  drop = F
+)
+
+intact_pairs_dsp_sel <- intact_human[pmid %in% publs_curated_dsp$pmid,.(
+  pmid,
+  pair_id,
+  imex_curated = "yes"
+)]
+
+predicted_vs_curated_dsp_pairs <- unique(merge(
+  curated_dsp_long,
+  intact_pairs_dsp_sel,
+  by = c("pair_id","pmid"),
+  all = T
+))
+
+predicted_vs_curated_dsp_pairs_annot <- predicted_vs_curated_dsp_pairs[,.(
+  pair_id,
+  pmid,
+  match = ifelse(
+    imex_curated == "yes" & is.na(text_mined),
+    "not DSP predicted",
+    ifelse(
+      imex_curated == "yes" & (text_mined == "yes" | pw_curated == "yes" | predicted == "yes"),
+      "full match",
+      ifelse(
+        imex_curated == "yes" & (text_mined == "part" | pw_curated == "part" | predicted == "part"),
+        "partial match",
+        "false identification"
+      )
+    )
+  ),
+  imex_curated,
+  text_mined,
+  pw_curated,
+  predicted
+)]
+
+table(predicted_vs_curated_dsp_pairs_annot$match,useNA="ifany")
+
+true_positives_overview <- melt(
+  predicted_vs_curated_dsp_pairs_annot[match=="full match"],
+  id.vars = c("pmid","pair_id"),
+  measure.vars = c("text_mined","pw_curated","predicted"))
+
+table(true_positives_overview$variable,
+      true_positives_overview$value,
+      useNA = "ifany")
+
+part_positives_overview <- melt(
+  predicted_vs_curated_dsp_pairs_annot[match=="partial match"],
+  id.vars = c("pmid","pair_id"),
+  measure.vars = c("text_mined","pw_curated","predicted"))
+
+table(part_positives_overview$variable,
+      part_positives_overview$value,
+      useNA = "ifany")
+
+false_positives_overview <- melt(
+  predicted_vs_curated_dsp_pairs_annot[is.na(match)],
+  id.vars = c("pmid","pair_id"),
+  measure.vars = c("text_mined","pw_curated","predicted"))
+
+table(false_positives_overview$variable,
+      false_positives_overview$value,
+      useNA = "ifany")
+
+table(predicted_vs_curated_dsp_pairs_annot$text_mined,useNA = "ifany")
+table(predicted_vs_curated_dsp_pairs_annot$pw_curated,useNA = "ifany")
+table(predicted_vs_curated_dsp_pairs_annot$predicted,useNA = "ifany")
+```
+
+**********
+<!-- ### Debugging: Negative MIscore progression -->
+<!-- Why do I have values with negative MIscore progression? It does not make any sense. I isolate those and run a test.  -->
+<!-- ```{r debugmiscore} -->
+<!-- test_after <- intact_human[pair_id %in% comp_pairs_dsp_miscore[diff < 0]$pair_id] -->
+<!-- test_before <- intact_human[pair_id %in% comp_pairs_dsp_miscore[diff < 0]$pair_id & !(pmid %in% eval_dsp_pmids$pmid)] -->
+
+<!-- test_after_mitab <- test_after[,`:=`(pmid = NULL, p1 = NULL, p2 = NULL, pair_id = NULL)] -->
+<!-- fwrite( -->
+<!--   test_after_mitab, -->
+<!--   "./processed_data/test_after_mitab.txt", -->
+<!--   col.names = T, -->
+<!--   row.names = F, -->
+<!--   quote = F, -->
+<!--   sep = "\t" -->
+<!-- ) -->
+
+<!-- test_before_mitab <- test_before[,`:=`(pmid = NULL, p1 = NULL, p2 = NULL, pair_id = NULL)] -->
+<!-- fwrite( -->
+<!--   test_before_mitab, -->
+<!--   "./processed_data/test_before_mitab.txt", -->
+<!--   col.names = T, -->
+<!--   row.names = F, -->
+<!--   quote = F, -->
+<!--   sep = "\t" -->
+<!-- ) -->
+
+<!-- test_before_mitab_miscore <- fread( -->
+<!--   "./processed_data/test_before_clustered.txt", -->
+<!--   header = F, -->
+<!--   check.names = T, -->
+<!--   stringsAsFactors = F, -->
+<!--   colClasses = "character" -->
+<!-- ) -->
+<!-- colnames(test_before_mitab_miscore) <- colnames(intact_pairs_dsp_no_dsppmids_mitab)[1:15] -->
+
+<!-- test_after_mitab_miscore <- fread( -->
+<!--   "./processed_data/test_after_clustered.txt", -->
+<!--   header = F, -->
+<!--   check.names = T, -->
+<!--   stringsAsFactors = F, -->
+<!--   colClasses = "character" -->
+<!-- ) -->
+<!-- colnames(test_after_mitab_miscore) <- colnames(intact_pairs_dsp_no_dsppmids_mitab)[1:15] -->
+
+<!-- test_pairs_before <- unique(test_before_mitab_miscore[,.( -->
+<!--   # p1 = gsub("-.*","",gsub("uniprotkb:","",X.ID.s..interactor.A)), -->
+<!--   # p2 = gsub("-.*","",gsub("uniprotkb:","",ID.s..interactor.B)), -->
+<!--   pair_id = apply(data.table(gsub("uniprotkb:","",X.ID.s..interactor.A), -->
+<!--                              gsub("uniprotkb:","",ID.s..interactor.B), -->
+<!--                              stringsAsFactors = F), -->
+<!--                   1, -->
+<!--                   function(a) { z = sort(a) -->
+<!--                   paste0(z[1],"_",z[2]) }), -->
+<!--   miscore_before = as.numeric(gsub(".*miscore:","",Confidence.value.s.)))]) -->
+
+<!-- test_pairs_after <- unique(test_after_mitab_miscore[,.( -->
+<!--   # p1 = gsub("-.*","",gsub("uniprotkb:","",X.ID.s..interactor.A)), -->
+<!--   # p2 = gsub("-.*","",gsub("uniprotkb:","",ID.s..interactor.B)), -->
+<!--   pair_id = apply(data.table(gsub("uniprotkb:","",X.ID.s..interactor.A), -->
+<!--                              gsub("uniprotkb:","",ID.s..interactor.B), -->
+<!--                              stringsAsFactors = F), -->
+<!--                   1, -->
+<!--                   function(a) { z = sort(a) -->
+<!--                   paste0(z[1],"_",z[2]) }), -->
+<!--   miscore_after = as.numeric(gsub(".*miscore:","",Confidence.value.s.)))]) -->
+
+<!-- comp_pairs_test_miscore <- unique(merge( -->
+<!--   test_pairs_before, -->
+<!--   test_pairs_after, -->
+<!--   by = "pair_id", -->
+<!--   all = T -->
+<!--   )) -->
+
+<!-- comp_pairs_test_miscore[is.na(miscore_before)]$miscore_before <- 0 -->
+<!-- comp_pairs_test_miscore[,diff:=(miscore_after-miscore_before)] -->
+<!-- ``` -->
+
+<!-- Problem is that I need to clean up isoforms! -->
+

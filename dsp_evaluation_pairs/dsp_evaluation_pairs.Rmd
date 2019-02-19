@@ -24,7 +24,7 @@ library(scales)
 
 #### Data upload
 ```{r upload}
-# These come from the Google spreadsheet. 
+# These come from the Google spreadsheet, manually downloaded. 
 eval_dsp <- fread("./source_data/20190114_evaluated_dsp.txt",
                   header = T,
                   colClasses = "character",
