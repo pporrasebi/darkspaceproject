@@ -724,6 +724,13 @@ table(predicted_vs_curated_dsp_pairs_annot$pw_curated,useNA = "ifany")
 table(predicted_vs_curated_dsp_pairs_annot$predicted,useNA = "ifany")
 ```
 
+### Evaluation of mutation data
+This is for an unrelated issue: how many curated DSP publications ended up containing mutation data?
+```{r muts}
+dsp_muts_ints <- intact_dsp[grepl("mutation",Feature.s..interactor.A) | grepl("mutation",Feature.s..interactor.B)]
+dsp_muts_publs <- unique(dsp_muts_ints[,.(Publication.Identifier.s.)])
+```
+There are `r nrow(dsp_muts_ints)` binaries with reported mutations curated, in `r nrow(dsp_muts_publs)` publications. 
 **********
 <!-- ### Debugging: Negative MIscore progression -->
 <!-- Why do I have values with negative MIscore progression? It does not make any sense. I isolate those and run a test.  -->
