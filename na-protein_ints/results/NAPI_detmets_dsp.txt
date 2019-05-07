@@ -1,0 +1,324 @@
+NA.specific	tm_method_term_clean
+y	1 hybrid
+y	1 hybrids
+y	1-hybrid
+n	2 hybrid
+n	2-hybrid
+n	2-hybrids
+n	3 hybrid
+n	3-hybrid
+n	acetylation
+n	acetylations
+n	adenylate cyclase
+n	adenylate cyclases
+n	adenylate-cyclase
+n	adenylatecyclase
+n	adp-ribosylation
+n	affinity blotting
+n	affinity capture
+n	affinity captures
+n	affinity purification
+n	affinity purifications
+n	affinity techniques
+n	affinity-blotting
+n	affinity-capture
+n	affinity-purification
+n	affinity-purifications
+n	aggregation assay
+n	alphascreen
+n	amidation
+n	aminoacylation
+n	aminoacylation assay
+n	aminoacylations
+n	amplified luminescent proximity homogeneous assay
+n	anti bait coimmunoprecipitation
+n	anti bait coip
+n	anti tag coimmunoprecipitation
+n	anti tag coip
+n	anti-bait coip
+n	antibody array
+n	antibody-array
+n	antibodyarray
+n	bacterial display
+n	bacterial two hybrid
+n	bacterial two-hybrid
+n	bacterial-display
+n	bimolecular fluorescence complementation
+n	bimolecular-fluorescence-complementation
+n	bio layer interferometry
+n	bio-layer interferometry
+n	bioid
+n	biolayer interferometry
+n	biolayer-interferometry
+n	bioluminescence complementation
+n	bioluminescence resonance energy transfer
+n	bret
+n	carboxylation assay
+y	chromatin immunoprecipitation array
+y	chromatin immunoprecipitation assay
+y	chromatin immunoprecipitationassay
+y	chromatin-immunoprecipitation assay
+y	clash
+n	cleavage assay
+n	cleavage-assay
+y	clip
+y	clip seq
+y	clip-seq
+y	clips
+y	clipseq
+n	co immunoprecipitation
+n	co immunoprecipitations
+n	co ip
+n	co- immunoprecipitation
+n	co- immunoprecipitations
+n	co- ip
+n	co-crystallization
+n	co-crystallizations
+n	co-crystallography
+n	co-immunoprecipitation
+n	co-immunoprecipitations
+n	co-ip
+n	co-ips
+n	cocrystallization
+n	cocrystallizations
+n	coimmunoprecipitation
+n	coimmunoprecipitations
+n	coip
+n	coips
+n	competition binding
+n	competition bindings
+n	competition-binding
+n	complementation
+n	complementations
+n	confocal microscopies
+n	confocal microscopy
+n	confocal-microscopy
+n	confocalmicroscopy
+n	cosedimentation
+n	cosedimentations
+y	crac
+n	cross linking immunoprecipitation
+n	cross-linking immunoprecipitation
+n	cross-linking immunoprecipitations
+n	cross-linking studies
+n	cross-linking study
+n	crosslink
+n	crosslinking immunoprecipitation
+n	crosslinking studies
+n	crosslinking study
+n	crosslinking-immunoprecipitation
+n	crosslinks
+y	damid
+n	de-adp-ribosylation assay
+n	deacetylase assay
+n	deaminase assay
+n	deamination
+n	deaminations
+n	deneddylation
+n	depalmitoylation assay
+n	deubiquitinase assay
+n	deubiquitination
+n	differential scanning calorimetry
+n	display technologies
+n	display technology
+y	electrophoretic mobility shift assay
+y	electrophoretic mobility-shift assay
+y	electrophoretic-mobility shift assay
+y	electrophoreticmobility shift assay
+y	emsa
+n	enzymatic footprinting
+n	enzymatic footprintings
+n	enzymatic studies
+n	enzymatic study
+n	excimer fluorescence
+n	experimental interaction detection
+n	far western blotting
+n	far-western blotting
+n	filter binding
+n	filter- binding
+n	filter-binding
+n	fluorescence anisotropies
+n	fluorescence anisotropy
+n	fluorescence correlation spectroscopy
+n	fluorescence-anisotropy
+n	fluorescent resonance energy transfer
+n	fret
+n	fret analysis
+n	fret-analysis
+n	frets
+n	gel retardation assay
+n	gel-retardation assay
+n	geranylgeranylation
+n	glycosylase assay
+n	glycosylation
+n	glycosylations
+n	guanine nucleotide exchange assay
+n	histone acetylation
+n	histone acetylations
+n	histone-acetylation
+n	histones acetylation
+y	hits clip
+y	hits-clip
+y	iclip
+y	iclips
+n	immunoprecipitation
+n	immunoprecipitations
+n	in gel kinase assay
+n	in gel phosphatase assay
+n	in situ proximity ligation assay
+n	in situ proximity-ligation assay
+n	in situ-proximity ligation assay
+n	in-gel kinase assay
+n	in-gel phosphatase assay
+n	in-situ proximity ligation assay
+n	in-situ proximity-ligation assay
+y	individual nucleotide resolution crosslinking and immunoprecipitation
+y	individual-nucleotide resolution crosslinking and immunoprecipitation
+n	intermolecular force
+n	intermolecular forces
+n	isothermal titration calorimetry
+n	isothermal-titration calorimetry
+n	kiss
+n	lipase assay
+n	lipidation
+n	liposome binding assay
+n	liposome-binding assay
+n	lret
+n	lumier
+n	mammalian protein-protein interaction trap
+n	mammalian two hybrid
+n	mammalian two- hybrid
+n	mammalian two-hybrid
+n	mammalian-two-hybrid
+n	membrane yeast two hybrid
+n	membrane yeast two-hybrid
+n	methyltransferase as
+n	methyltransferase assay
+n	methyltransferases as
+n	microscale thermophoresis
+n	microscale-thermophoresis
+y	modified chromatin immunoprecipitation
+n	mono-adp-ribosylhydrolase
+n	myristoylation
+n	myth
+n	neddylation
+n	nuclease assay
+y	one hybrid
+y	one-hybrid
+n	optical tweezer
+n	optical tweezers
+y	par-clip
+y	par-clips
+y	parclip
+n	peptide array
+n	peptide-array
+n	peptidearray
+n	peptides array
+n	phage display
+n	phage-display
+n	phosphatase assay
+n	phosphatase-assay
+n	phosphatases assay
+n	phosphopantetheinylation
+n	phosphotransferase assay
+n	photoactivatable-ribonucleoside-enhanced crosslinking and immunoprecipitation
+n	photoactivatable-ribonucleoside-enhanced-crosslinking and immunoprecipitation
+n	ping
+n	pings
+n	pisa
+n	plisa
+y	polymerase assay
+n	protease assay
+n	protease-assay
+n	proteases assay
+n	protein array
+n	protein complementation assay
+n	protein kinase assay
+n	protein kinases assay
+n	protein phosphatase assay
+n	protein-array
+n	proteins array
+n	proximity ligation
+n	proximity ligation assay
+n	proximity ligations
+n	proximity ligations assay
+n	proximity-dependent biotin identification
+n	proximity-ligation
+n	proximity-ligation assay
+n	proximity-ligation-assay
+n	pull down
+n	pull downs
+n	pull- down
+n	pull-down
+n	pull-downs
+n	pulldown
+n	pulldowns
+n	pulls down
+n	pulls-down
+n	pulls-downs
+n	qcm-d
+n	qcmd
+n	quartz crystal microbalance
+n	quartz crystal microbalance with dissipation monitoring
+n	quartz-crystal microbalance with dissipation monitoring
+n	reverse two-hybrid
+y	ribonuclease assay
+n	ribosome display
+n	ribosome-display
+n	ribosomes display
+n	saturation binding
+n	saturation-binding
+n	split firefly luciferase complementation
+n	split luciferase complementation
+n	split luciferase complementation assay
+n	split ubiquitin
+n	split-luciferase complementation
+n	split-luciferase complementation assay
+n	split-ubiquitin
+n	static light scattering
+n	static light-scattering
+n	sumoylation
+n	surface plasmon resonance
+n	surface plasmon resonances
+n	surface-plasmon resonance
+n	surface-plasmon-resonance
+n	systematic evolution of ligands by exponential enrichment
+n	tandem affinity purification
+n	tandem affinity purifications
+n	tandem affinity-purification
+n	tandem-affinity purification
+n	tandem-affinity purifications
+n	tandem-affinity-purification
+n	thermshift binding assay
+n	three hybrid
+n	three hybrid system
+n	three hybrid systems
+n	three hybrids
+n	three-hybrid
+n	three-hybrid system
+n	three-hybrid systems
+n	tri-hybrid assay
+n	two hybrid
+n	two- hybrid
+n	two-hybrid
+n	two-hybrids
+n	twohybrid
+n	y-2h
+n	y2h
+n	yeast
+n	yeast display
+y	yeast one hybrid
+y	yeast one-hybrid
+n	yeast two hybrid
+n	yeast two hybrids
+n	yeast two- hybrid
+n	yeast two-hybrid
+n	yeast two-hybrids
+n	yeast twohybrid
+n	yeast-display
+y	yeast-one hybrid
+y	yeast-one-hybrid
+n	yeast-two hybrid
+n	yeast-two-hybrid
+n	zymographies
+n	zymography

@@ -21,7 +21,7 @@ After producing tidy datasets comparing different resources to IMEx data, we put
 
 IMPORTANT: This set of scripts assume the different referenced datasets have been freshly updated. If you need to update results of this set, please re-run the corresponding source as well. 
 
-#### Required libraries
+#### Required libraries & functions
 ```{r libraries,message=FALSE,warning=FALSE}
 # install packages if some are not already installed
 packages = c("plyr","dplyr","data.table","UpSetR", "splitstackshape", "ggplot2", "shiny", "htmlwidgets")
@@ -38,6 +38,12 @@ library(ggplot2)
 library(htmlwidgets)
 library(VennDiagram)
 })
+
+# As taken from https://stackoverflow.com/questions/7235657/fastest-way-to-replace-nas-in-a-large-data-table
+f_narepl = function(DT) {
+  for (i in names(DT))
+    DT[is.na(get(i)), (i):=0]
+}
 ```
 ### Part 1: Load datasets
 
@@ -150,7 +156,7 @@ tm_pairs_pmids <- fread("pairs_pmids_tm.txt",header=T,sep="\t",colClasses=c("cha
 system("rm pairs_pmids_tm.txt")
 setwd("../../dsp_comparison/")
 
-tm_pairs_pmids_sel <- unique(tm_pairs_pmids[,.(pair_id,pmid,tm_epmc=tm,tm_pr_times_found,tm_dm_times_found)])
+tm_pairs_pmids_sel <- unique(tm_pairs_pmids[,.(pair_id,pmid,tm_epmc=tm,tm_pr_times_found,tm_dm_times_found,method_term)])
 tm_pairs <- unique(tm_pairs_pmids[,.(tm_epmc=tm,tm_pr_total_times_found=sum(tm_pr_times_found)),by=pair_id])
 tm_pmids <- unique(tm_pairs_pmids[,.(pmid,tm_epmc=tm,tm_dm_times_found)])
 ```
@@ -259,7 +265,7 @@ allpubpair_df <- list(imex_human_sel,reactome_pairs_pmids,tm_pairs_pmids_sel, EV
 
 prepubpaircomp_table_1 <- Reduce(function(...) merge(..., by=c("pair_id","pmid"), all=TRUE), allpubpair_df)
 
-paironly_df <- list(iid_pred_pairs,string_pi_pairs,string_tm_pairs)
+paironly_df <- list(iid_pred_pairs,string_pi_pairs,string_phylo_pairs)
 
 prepubpaircomp_table_2 <- Reduce(function(...) merge(..., by=c("pair_id"), all=TRUE), paironly_df)
 
@@ -277,17 +283,20 @@ pubpaircomp_table_form <- pubpaircomp_table_form[,.(
   tm_epmc,
   tm_pr_times_found,
   tm_dm_times_found,
+  tm_method_term = method_term,
   EVEX,
   evex_score,
-  STRING_tm_score_ave = STRING_tm_score_ave.y,
-  STRING_textmining = STRING_textmining.y,
+  STRING_tm_score_ave,
+  STRING_textmining,
   BioGRID,
   GO_IPI,
   OmniPath_interactions,
   OmniPath_ptm,
   iid_pred,
   STRING_pi_score_ave,
-  STRING_pi
+  STRING_pi,
+  STRING_phylo_score_ave,
+  STRING_phylo
 )]
 
 pubpaircomp_table_eval <- pubpaircomp_table_form[,eval:=paste(
@@ -301,13 +310,14 @@ pubpaircomp_table_eval <- pubpaircomp_table_form[,eval:=paste(
   OmniPath_interactions,
   OmniPath_ptm,
   iid_pred,
-  STRING_pi
+  STRING_pi,
+  STRING_phylo
 )]
 
 check <- data.table(table(pubpaircomp_table_eval$eval,useNA = "ifany"))
 
-# This check found that most records are caused by pair-publication combinations only found in STRING. We decide to discard those, since they are just cooccurrences in publication abstracts. 
-pubpaircomp_table_form <- pubpaircomp_table_eval[eval != "0 0 0 0 1 0 0 0 0 0 0"]
+# This check found that most records are caused by pair-publication combinations only found in STRING. We decide to discard those, since they are just co-occurrences in publication abstracts. 
+pubpaircomp_table_form <- pubpaircomp_table_eval[eval != "0 0 0 0 1 0 0 0 0 0 0 0"]
 ```
 
 The comparison set gives a total number of `r nrow(pubpaircomp_table_form)` protein association pairs, of which `r nrow(pubpaircomp_table_form[pubpaircomp_table_form$imex==0,])` (`r round(nrow(pubpaircomp_table_form[pubpaircomp_table_form$imex==0,])*100/nrow(pubpaircomp_table_form),2)`%) are not curated in IMEx. In all these pairs the publication from which they were derived was also matched, so the overlaps and numbers differ from my previous comparisons. 
@@ -323,53 +333,44 @@ I need to preformat the 'pubpaircomp_table_final' data frame to compare it with 
 ```{r pp_combo_preformat, eval=T}
 pubpaircomp_table_check_pt1 <- pubpaircomp_table_form
 pubpaircomp_table_check_pt1.1 <- pubpaircomp_table_check_pt1[, c("prot1", "prot2") := tstrsplit(pair_id, "_", fixed=TRUE)]
+pubpaircomp_table_check_pt1.1.1 <- pubpaircomp_table_check_pt1.1[,prot2:=NULL]
+colnames(pubpaircomp_table_check_pt1.1.1) <- c("pair_id","pmid","imex","reactome","tm_epmc","tm_pr_times_found","tm_dm_times_found","tm_method_term","EVEX","evex_score","BioGRID","GO_IPI","OmniPath_interactions","OmniPath_ptm","iid_pred","STRING_pi_score_ave","STRING_pi","STRING_tm_score_ave","STRING_textmining","STRING_phylo_score_ave","STRING_phylo","eval","prots")
 
-pubpaircomp_table_check_pt2 <- unique(rbind(
-        pubpaircomp_table_check_pt1.1[,.(
-                pair_id,
-                prots = prot1,
-                pmid,
-                imex,
-                reactome,
-                tm_epmc,
-                tm_pr_times_found,
-                tm_dm_times_found,
-                EVEX,
-                evex_score,
-                STRING_tm_score_ave,
-                STRING_textmining,
-                BioGRID,
-                GO_IPI,
-                OmniPath_interactions,
-                OmniPath_ptm,
-                iid_pred,
-                STRING_pi_score_ave,
-                STRING_pi
-        )],
-        pubpaircomp_table_check_pt1.1[,.(
-                pair_id,
-                prots = prot2,
-                pmid,
-                imex,
-                reactome,
-                tm_epmc,
-                tm_pr_times_found,
-                tm_dm_times_found,
-                EVEX,
-                evex_score,
-                STRING_tm_score_ave,
-                STRING_textmining,
-                BioGRID,
-                GO_IPI,
-                OmniPath_interactions,
-                OmniPath_ptm,
-                iid_pred,
-                STRING_pi_score_ave,
-                STRING_pi
-        )]
-))
-# This does not work because I exceed momery limits. Will revisit if considered worth it. 
-# pubpaircomp_table_check_pt2 <- cSplit(pubpaircomp_table_check_pt1, "prots", sep = "_", direction = "long")
+pubpaircomp_table_check_pt1.1 <- pubpaircomp_table_check_pt1[, c("prot1", "prot2") := tstrsplit(pair_id, "_", fixed=TRUE)]
+pubpaircomp_table_check_pt1.1.2 <- pubpaircomp_table_check_pt1.1[,prot1:=NULL]
+colnames(pubpaircomp_table_check_pt1.1.2) <- c("pair_id","pmid","imex","reactome","tm_epmc","tm_pr_times_found","tm_dm_times_found","tm_method_term","EVEX","evex_score","BioGRID","GO_IPI","OmniPath_interactions","OmniPath_ptm","iid_pred","STRING_pi_score_ave","STRING_pi","STRING_tm_score_ave","STRING_textmining","STRING_phylo_score_ave","STRING_phylo","eval","prots")
+
+fwrite(
+       pubpaircomp_table_check_pt1.1.1,
+       "./results/pubpaircomp_table_check_pt1_1_1.txt",
+       col.names = T,
+       row.names = F,
+       quote = F,
+       sep = "\t"
+)
+
+fwrite(
+       pubpaircomp_table_check_pt1.1.2,
+       "./results/pubpaircomp_table_check_pt1_1_2.txt",
+       col.names = F,
+       row.names = F,
+       quote = F,
+       sep = "\t"
+)
+
+system("cat ./results/pubpaircomp_table_check_pt1_1_1.txt ./results/pubpaircomp_table_check_pt1_1_2.txt > ./results/pubpaircomp_table_check_pt2.txt")
+system("rm ./results/pubpaircomp_table_check_pt1_1_1.txt")
+system("rm ./results/pubpaircomp_table_check_pt1_1_2.txt")
+
+
+pubpaircomp_table_check_pt2 <- fread(
+        "./results/pubpaircomp_table_check_pt2.txt",
+        header = T,
+        colClasses = "character",
+        stringsAsFactors = F,
+        sep = "\t"
+)
+system("rm ./results/pubpaircomp_table_check_pt2.txt")
 ```
 
 ##### Upload IMEx non-curated protein lists
@@ -395,8 +396,14 @@ pubpaircomp_table_check_pt3 <- mutate(pubpaircomp_table_check_pt2,
 pubpaircomp_noncur_pairs <- unique(subset(pubpaircomp_table_check_pt3,noncur_prot==1,select= c("pair_id","noncur_prot")))
 
 pubpaircomp_table_check_pt4 <- unique(merge(pubpaircomp_table_form,pubpaircomp_noncur_pairs,by="pair_id",all.x = T,all.y = F))
-pubpaircomp_table_final <- pubpaircomp_table_check_pt4
-pubpaircomp_table_final[is.na(pubpaircomp_table_final <- pubpaircomp_table_check_pt4)] <- 0
+
+# This does not work due to memory limits. 
+# pubpaircomp_table_check_pt4 <- pubpaircomp_table_form[pair_id %in% pubpaircomp_noncur_pairs$pair_id]$noncur_prot <- "1" 
+# 
+# pubpaircomp_table_final <- pubpaircomp_table_check_pt4
+
+pubpaircomp_table_final <- pubpaircomp_table_form
+f_narepl(pubpaircomp_table_final)
         
 write.table(pubpaircomp_table_final,"./results/pubpaircomp_table_final.txt",col.names=T,row.names=F,sep="\t",quote=F)
 
@@ -410,7 +417,7 @@ setwd("../")
 I generate a couple of random samples from the subset of the text-mined and Reactome datasets that is not represented in IMEx. These samples are to be checked by curators to estimate what is the percentage of true/false positives in these datasets. I decide to just provide the PMIDs and request curators to check if the PMID contains interactors and identify the proteins if that's so. 
 
 ```{r random_samples, eval=T}
-pubpairs_not_imex <- pubpaircomp_table_final[pubpaircomp_table_final$imex==0 & pubpaircomp_table_final$pair_id != "",]
+pubpairs_not_imex <- pubpaircomp_table_final[imex==0 & pair_id != "",]
 pubpairs_not_imex_sel <- unique(select(pubpairs_not_imex,pmid,pair_id))
 
 publs_not_imex <- unique(select(pubpairs_not_imex,pmid,imex,reactome,tm_epmc,iid_pred,noncur_prot))

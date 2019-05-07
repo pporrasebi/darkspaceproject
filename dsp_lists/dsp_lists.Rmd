@@ -32,7 +32,7 @@ As downloaded on `r date()`.
 # dsp_manual <- gs_key(key)
 # pmids_checked <- data.table(gs_read(ss=dsp_manual, ws = "dsp_priority",header=T))
 pmids_checked <- fread(
-        "./source_data/Evaluating DSP - dsp_priority_rev.tsv",
+        "./source_data/Evaluating DSP - dsp_priority_rev_pred.tsv",
         check.names = T,
         sep = "\t",
         colClasses = "character",

@@ -83,6 +83,7 @@ eval_dsp_pmids <- unique(eval_dsp[grepl("yes|Yes",curatable),.(pmid)])
 
 eval_dsp_pairs <- unique(eval_dsp[grepl("yes|Yes",curatable),.(
   prot_pairs,
+  pmid,
   DS.interest.up,
   DS.part_interest.up,
   DS.score.pred)])
@@ -96,13 +97,13 @@ eval_dsp_pairs_long <- unique(cSplit(
 ))
 
 eval_dsp_pairs_formatted <- eval_dsp_pairs_long[,.(
-  prot_pairs,
+  pmids = paste(unique(pmid),collapse = "|"),
   p1 = gsub("_.*", "",prot_pairs),
   p2 = gsub(".*_", "",prot_pairs),
   DS.interest.up,
   DS.part_interest.up,
   DS.score.pred
-)]
+), by = "prot_pairs"]
 
 intact_human <- intact[grepl('taxid:9606',Taxid.interactor.A) &
                          grepl('taxid:9606',Taxid.interactor.B) &
@@ -553,6 +554,15 @@ pairs_int_comp <- unique(merge(
   by.y = "pair_id",
   all = F
 ))
+
+fwrite(
+  pairs_int_comp,
+  "./processed_data/pairs_int_comp.txt",
+  col.names = T,
+  row.names = F,
+  quote = F,
+  sep = "\t"
+)
 ```
 
 ### Plots interest scores vs MIscore

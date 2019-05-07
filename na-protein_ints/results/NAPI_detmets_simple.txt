@@ -1,0 +1,39 @@
+tm_method_term_clean	term_simple
+1 hybrid	one hybrid
+1 hybrids	one hybrid
+1-hybrid	one hybrid
+chromatin immunoprecipitation array	chip
+chromatin immunoprecipitation assay	chip
+chromatin immunoprecipitationassay	chip
+chromatin-immunoprecipitation assay	chip
+clash	other
+clip	other
+clip seq	other
+clip-seq	other
+clips	other
+clipseq	other
+crac	other
+damid	other
+electrophoretic mobility shift assay	emsa
+electrophoretic mobility-shift assay	emsa
+electrophoretic-mobility shift assay	emsa
+electrophoreticmobility shift assay	emsa
+emsa	emsa
+hits clip	other
+hits-clip	other
+iclip	other
+iclips	other
+individual nucleotide resolution crosslinking and immunoprecipitation	other
+individual-nucleotide resolution crosslinking and immunoprecipitation	other
+modified chromatin immunoprecipitation	chip
+one hybrid	one hybrid
+one-hybrid	one hybrid
+par-clip	other
+par-clips	other
+parclip	other
+polymerase assay	other
+ribonuclease assay	other
+yeast one hybrid	one hybrid
+yeast one-hybrid	one hybrid
+yeast-one hybrid	one hybrid
+yeast-one-hybrid	one hybrid

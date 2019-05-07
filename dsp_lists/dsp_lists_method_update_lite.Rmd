@@ -1,0 +1,97 @@
+---
+title: "DSP lists to coordinate curation: update adding TM method and STRING predictions"
+author: "Pablo Porras"
+date: "03/04/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,eval=FALSE)
+```
+
+## Summary
+
+This is an update for the set of scripts to generate a final curation list that can be used by IMEx curators in order to prioritize paper selection. This update just adds two columns bearing the text-mined experimental methods as extracted by EMPC pipeline and a column stating if the pair has been predicted by STRING using phylogeny. 
+
+#### Libraries
+```{r libraries,message=FALSE,warning=FALSE}
+library(data.table)
+library(googlesheets)
+```
+
+### Upload lists
+#### DSP subset actively curated in Google docs
+As downloaded on `r date()`.
+```{r tested,message=FALSE,warning=FALSE}
+# gs_auth()
+# key <- extract_key_from_url("https://docs.google.com/spreadsheets/d/1tL1HtVD3-BxHxKuXbIYhcFjmCptGVEOD5aFJCZw6CZk/edit#gid=989290982")
+# dsp_manual <- gs_key(key)
+# dsp_curation <- data.table(gs_read(ss=dsp_manual, ws = "dsp_priority",header=T))
+dsp_curation <- fread(
+        "./source_data/Evaluating DSP - dsp_priority_rev_pred.tsv",
+        check.names = T,
+        sep = "\t",
+        colClasses = "character",
+        stringsAsFactors = F
+)
+
+dsp_curation$pmid <- as.character(dsp_curation$pmid)
+```
+
+#### Full DSP pair-publication list
+```{r dsp_comp}
+setwd("../dsp_comparison/results/")
+system("tar -zxvf pubpaircomp_table_final.txt.tar.gz")
+tm_pairs_pmids <- fread(
+        "pubpaircomp_table_final.txt",
+        header=T,
+        sep="\t",
+        colClasses="character",
+        check.names = T,
+        stringsAsFactors = F)
+system("rm pubpaircomp_table_final.txt")
+setwd("../../dsp_lists/")
+```
+
+#### Select only relevant fields of DSP pair-publication list
+```{r dsp_wrangling}
+tm_pmids_method_pred <- unique(tm_pairs_pmids[,.(
+        tm_method_term = paste(unique(tm_method_term),collapse = "|"),
+        STRING_phylo = paste(unique(STRING_phylo),collapse = "|")
+), by = "pmid"])
+
+tm_pmids_method_pred <- tm_pmids_method_pred[,.(
+        pmid,
+        tm_method_term = gsub("0\\||\\|0","",tm_method_term),
+        STRING_phylo = ifelse(
+                grepl("1",STRING_phylo),
+                "yes",
+                "no"
+        )
+)]
+```
+
+#### Update DSP curated list
+```{r dsp_curapted_update}
+dsp_curation_updated <- unique(merge(
+        dsp_curation,
+        tm_pmids_method_pred,
+        all.x = T,
+        all.y = F
+))
+
+dsp_curation_updated <- dsp_curation_updated[,.(
+        pmid,curator,curatable,curator_comment,contains_ints_man_check,contains_ints_man_check_comment,prot_pairs,mesh,alzheimer,review,mutannot,relevance.up,DS.score.pred,DS.interest.up,DS.part_interest.up,relevance,DS.interest,DS.part_interest,ccline_uniprot,noncur_prot,imex_publ,imex_pair,GO_IPI_publ,GO_IPI_pair,BioGRID_publ,BioGRID_pair,tm_epmc_publ,tm_epmc_pair,tm_method_term,EVEX_publ,EVEX_pair,STRING_textmining_pair,reactome_publ,reactome_pair,OmniPath_interactions_publ,OmniPath_interactions_pair,OmniPath_ptm_publ,OmniPath_ptm_pair,STRING_pi_pair,iid_pred,STRING_phylo,sort
+)]
+
+fwrite(
+        dsp_curation_updated,
+        "./results/dsp_curation_updated.txt",
+        col.names = T,
+        row.names = F,
+        quote = F,
+        sep = "\t"
+)
+```
+
+This table is uploaded into our DSP google spreadsheet at https://docs.google.com/spreadsheets/d/1tL1HtVD3-BxHxKuXbIYhcFjmCptGVEOD5aFJCZw6CZk/edit#gid=826915149. We only upload the first 10,000 rows from the priority table, to avoid size limitation issues in google docs. 
