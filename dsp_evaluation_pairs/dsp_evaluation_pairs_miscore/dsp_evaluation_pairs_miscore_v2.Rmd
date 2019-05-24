@@ -22,6 +22,8 @@ library(ggplot2)
 library(scales)
 library(dplyr)
 library(ggsignif)
+library(UniProt.ws)
+library(readxl)
 ```
 
 #### Data upload
@@ -734,7 +736,489 @@ table(predicted_vs_curated_dsp_pairs_annot$pw_curated,useNA = "ifany")
 table(predicted_vs_curated_dsp_pairs_annot$predicted,useNA = "ifany")
 ```
 
-### Evaluation of mutation data
+### Manual evaluation specific pairs
+```{r eval_miscore_interest_score_manual}
+pairs_int_comp_long <- cSplit(
+  pairs_int_comp,
+  "pmids",
+  sep = "|",
+  drop = F,
+  direction = "long"
+)
+
+pairs_int_comp_long <- pairs_int_comp_long[,pmid:=as.character(pmids)]
+
+pairs_int_comp_prepairs <- unique(merge(
+  pairs_int_comp_long,
+  curated_dsp_long[,.(
+    pmid,
+    pred_prot_pairs=pair_id,
+    pred_p1 = gsub("_.*","",pair_id),
+    pred_p2 = gsub(".*_","",pair_id))],
+  allow.cartesian = T,
+  by = "pmid",
+  all.x = T,
+  all.y = F
+))
+
+prots <- unique(rbind(
+  unique(pairs_int_comp_prepairs[,.(p = p1)]),
+  unique(pairs_int_comp_prepairs[,.(p = p2)]),
+  unique(pairs_int_comp_prepairs[,.(p = pred_p1)]),
+  unique(pairs_int_comp_prepairs[,.(p = pred_p2)])
+))
+
+# fwrite(
+#   prots,
+#   "./processed_data/prots.txt",
+#   col.names = F,
+#   row.names = F,
+#   sep = "\t",
+#   quote = F
+# )
+## I checked and every protein in the list is human, so I can use the UniProt.ws package to get some more info about them (gene names).
+
+prot_list <- prots$p
+up <- UniProt.ws(taxId=9606)
+
+prots_genenames <- select(
+        up,
+        keys = prot_list,
+        columns = c("GENES","ENTRY-NAME")
+)
+
+pairs_man_eval_pt1 <- unique(merge(
+  pairs_int_comp_prepairs,
+  prots_genenames,
+  by.x = "p1",
+  by.y = "UNIPROTKB",
+  all.x = T,
+  all.y = F
+))
+
+pairs_man_eval_pt2 <- unique(merge(
+  pairs_man_eval_pt1,
+  prots_genenames,
+  by.x = "p2",
+  by.y = "UNIPROTKB",
+  all.x = T,
+  all.y = F
+))
+
+pairs_man_eval_pt3 <- unique(merge(
+  pairs_man_eval_pt2,
+  prots_genenames,
+  by.x = "pred_p1",
+  by.y = "UNIPROTKB",
+  all.x = T,
+  all.y = F
+))
+
+colnames(pairs_man_eval_pt3) <- c("pred_p1","p2","p1","pmid","prot_pairs","pmids","DS.interest.up","DS.part_interest.up","DS.score.pred","miscore_before","miscore_after","diff","set","pred_prot_pairs","pred_p2","p1_genenames","p1_upid","p2_genenames","p2_upid","pred_p1_genenames","pred_p1_upid")
+
+pairs_man_eval_pt4 <- unique(merge(
+  pairs_man_eval_pt3,
+  prots_genenames,
+  by.x = "pred_p2",
+  by.y = "UNIPROTKB",
+  all.x = T,
+  all.y = F
+))
+
+pairs_man_eval <- pairs_man_eval_pt4[,.(
+  pmid,
+  DS.interest.up,
+  DS.part_interest.up,
+  DS.score.pred,
+  miscore_before,
+  miscore_after,
+  diff,
+  set,
+  prot_pairs,
+  pred_prot_pairs,
+  p1,
+  p1_genenames,
+  p1_upid,
+  pred_p1,
+  pred_p1_genenames,
+  pred_p1_upid,
+  p2,
+  p2_genenames,
+  p2_upid,
+  pred_p2,
+  pred_p2_genenames = GENES,
+  pred_p2_upid = `ENTRY-NAME`
+)]
+
+prot_preds <- unique(rbind(
+  unique(pairs_man_eval[,.(p = p1,pred_p=pred_p1,p_gs=p1_genenames,pred_p_gs=pred_p1_genenames)]),
+  unique(pairs_man_eval[,.(p = p2,pred_p=pred_p2,p_gs=p2_genenames,pred_p_gs=pred_p2_genenames)])
+))
+
+prot_preds_qual <- unique(prot_preds[,.(
+  p,
+  pred_p,
+  wrong_pred_p = ifelse(
+    is.na(pred_p),
+    "no map",
+    ifelse(
+      p != pred_p,
+      "1",
+      "0"
+    )
+  ),
+  p_gs,
+  pred_p_gs
+)])
+
+fwrite(
+  prot_preds_qual,
+  "./processed_data/prot_preds_qual.txt",
+  col.names = T,
+  row.names = F,
+  quote = F,
+  sep = "\t"
+)
+```
+
+I evaluate individually each of the text-mined id preditions, grouping the wrong predictions in two categories: those cases where I could find exact synonyms for the gene symbol for the real id and the predicted one in UniProt and those where a close synonym was found. Close synonyms are cases of gene names sharing the same root (first few letters), but different suffix (ordinarily, subunit number, in some cases there is an additional letter). I account these two categories in different columns.
+
+```{r eval_miscore_interest_score_manual_ii}
+prot_preds_qual_manual <- data.table(read_excel(
+  "./processed_data/prot_preds_qual_manual.xlsx",
+  sheet = 1,
+  col_names = T,
+  col_types = "text"
+),
+check.names = T)
+
+pairs_man_eval_diagn_pt1 <- unique(merge(
+  pairs_man_eval,
+  prot_preds_qual_manual,
+  by.x = c("p1","p1_genenames","pred_p1","pred_p1_genenames"),
+  by.y = c("p","p_gs","pred_p","pred_p_gs"),
+  all.x = T,
+  all.y = F
+))
+
+pairs_man_eval_diagn_pt2 <- unique(merge(
+  pairs_man_eval_diagn_pt1,
+  prot_preds_qual_manual,
+  by.x = c("p2","p2_genenames","pred_p2","pred_p2_genenames"),
+  by.y = c("p","p_gs","pred_p","pred_p_gs"),
+  all.x = T,
+  all.y = F
+))
+
+pairs_man_eval_diagn_pt3 <- unique(pairs_man_eval_diagn_pt2[,.(
+  pmid,
+  DS.interest.up,
+  DS.part_interest.up,
+  DS.score.pred,
+  miscore_before,
+  miscore_after,
+  diff,
+  prot_pairs,
+  pred_prot_pairs,
+  wrong_pred_p1 = ifelse(
+    is.na(wrong_pred_p.x),
+    NA,
+    as.numeric(wrong_pred_p.x)
+  ),
+  pred_syn_p1 = ifelse(
+    is.na(wrong_pred_p.x),
+    NA,
+    ifelse(
+      is.na(pred_synonym.x) | pred_synonym.x == "",
+      0,
+      as.numeric(pred_synonym.x)
+    )
+  ),
+  pred_close_syn_p1 = ifelse(
+    is.na(wrong_pred_p.x),
+    NA,
+    ifelse(
+      is.na(pred_close_syn.x) | pred_close_syn.x == "",
+      0,
+      as.numeric(pred_close_syn.x)
+    )
+  ),
+  wrong_pred_p2 = ifelse(
+    is.na(wrong_pred_p.y),
+    NA,
+    as.numeric(wrong_pred_p.y)
+  ),
+  pred_syn_p2 = ifelse(
+    is.na(wrong_pred_p.y),
+    NA,
+    ifelse(
+      is.na(pred_synonym.y) | pred_synonym.y == "",
+      0,
+      as.numeric(pred_synonym.y)
+    )
+  ),
+  pred_close_syn_p2 = ifelse(
+    is.na(wrong_pred_p.y),
+    NA,
+    ifelse(
+      is.na(pred_close_syn.y) | pred_close_syn.y == "",
+      0,
+      as.numeric(pred_close_syn.y)
+    )
+  )
+)])
+
+pairs_man_eval_diagn <- data.table(mutate(
+  pairs_man_eval_diagn_pt3[!is.na(wrong_pred_p1) & !is.na(wrong_pred_p2)],
+  wrong_score = wrong_pred_p1 + wrong_pred_p2,
+  syn_score = pred_syn_p1 + pred_syn_p2,
+  close_syn_score = pred_close_syn_p1 + pred_close_syn_p2,
+  full_syn_score = pred_syn_p1 + pred_syn_p2 + pred_close_syn_p1 + pred_close_syn_p2))
+
+table(pairs_man_eval_diagn$wrong_score,useNA="ifany")
+table(pairs_man_eval_diagn$syn_score,useNA="ifany")
+table(pairs_man_eval_diagn$close_syn_score,useNA="ifany")
+table(pairs_man_eval_diagn$full_syn_score,useNA="ifany")
+
+pair_normalization_man_eval <- unique(pairs_man_eval_diagn[,.(
+  pred_prot_pairs = paste(unique(pred_prot_pairs),collapse="|"),
+  DS.interest.up,
+  DS.part_interest.up,
+  DS.score.pred,
+  diff,
+  wrong_score_total = sum(wrong_score),
+  syn_score_total = sum(syn_score),
+  close_syn_score_total = sum(close_syn_score),
+  full_syn_score_total = sum(full_syn_score)
+), by = c("prot_pairs","pmid")])
+```
+#### Plots normalization problem evaluation
+##### Wrong ids vs interest scores
+First I check whether the different versions of the interest score correlate with a large number of misidentified pairs.
+```{r plots_interest_i,echo=FALSE}
+g8 <- ggplot(pair_normalization_man_eval,aes(x=wrong_score_total,y=as.numeric(DS.interest.up),color=diff)) +
+  geom_point(alpha = 0.3) + 
+  geom_smooth(method='lm') +
+  xlab('Cumulative wrong identifications in protein pair') + 
+  ylab('DSP interest score') +
+  scale_color_gradient(low = "darkorchid", high = "gold",name="MIscore differential") +
+  theme(plot.title = element_text(),
+        legend.position = "bottom",
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(),
+        axis.text.x = element_text(size=16),
+        axis.text.y = element_text(size=16),
+        axis.title = element_text(size=18))
+g8
+```
+
+```{r plots_interest_ii,echo=FALSE}
+g9 <- ggplot(pair_normalization_man_eval,aes(x=wrong_score_total,y=as.numeric(DS.part_interest.up),color=diff)) +
+  geom_point(alpha = 0.3) + 
+  geom_smooth(method='lm') +
+  xlab('Cumulative wrong identifications in protein pair') + 
+  ylab('DSP partial interest score') +
+  scale_color_gradient(low = "darkorchid", high = "gold",name="MIscore differential") +
+  theme(plot.title = element_text(),
+        legend.position = "bottom",
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(),
+        axis.text.x = element_text(size=16),
+        axis.text.y = element_text(size=16),
+        axis.title = element_text(size=18))
+g9
+```
+
+```{r plots_interest_iii,echo=FALSE}
+g10 <- ggplot(pair_normalization_man_eval,aes(x=close_syn_score_total,y=as.numeric(DS.score.pred),color=diff)) +
+  geom_point(alpha = 0.3) + 
+  geom_smooth(method='lm') +
+  xlab('Cumulative wrong identifications in protein pair') + 
+  ylab('DSP predicted interest score') +
+  scale_color_gradient(low = "darkorchid", high = "gold",name="MIscore differential") +
+  theme(plot.title = element_text(),
+        legend.position = "bottom",
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(),
+        axis.text.x = element_text(size=16),
+        axis.text.y = element_text(size=16),
+        axis.title = element_text(size=18))
+g10
+```
+
+It seems there is indeed a correlation, strongly alleviated by the use of predictions on the interest score calculation. 
+##### Check synonyms influence
+I divide the pairs in those strongly, mildly or not influenced by the presence of synonyms. 
+```{r syn_eval}
+pair_normalization_man_eval_syn <- data.table(mutate(
+  pair_normalization_man_eval,
+  syn_influence = ifelse(
+    full_syn_score_total == 0,
+    "no synonyms",
+    ifelse(
+      full_syn_score_total != 0 & full_syn_score_total <= 10,
+      "mild synonyms content",
+      "strong synonyms content"
+    )
+  ),
+  exact_syn_influence = ifelse(
+    syn_score_total == 0,
+    "no exact synonyms",
+    ifelse(
+      syn_score_total != 0 & syn_score_total <= 10,
+      "mild exact synonyms content",
+      "strong exact synonyms content"
+    )
+  ),
+  close_syn_influence = ifelse(
+    close_syn_score_total == 0,
+    "no close synonyms",
+    ifelse(
+      close_syn_score_total != 0 & close_syn_score_total <= 10,
+      "mild close synonyms content",
+      "strong close synonyms content"
+    )
+  )
+))
+
+pair_normalization_man_eval_syn <- data.table(mutate(
+  pair_normalization_man_eval_syn,
+  syn_influence = factor(syn_influence,levels = c("no synonyms","mild synonyms content","strong synonyms content")),
+  close_syn_influence = factor(close_syn_influence,levels = c("no close synonyms","mild close synonyms content","strong close synonyms content")),
+  exact_syn_influence = factor(exact_syn_influence,levels = c("no exact synonyms","mild exact synonyms content","strong exact synonyms content"))
+))
+```
+```{r plot_syns_i,echo=FALSE}
+g11 <- ggplot(pair_normalization_man_eval_syn,aes(x=wrong_score_total,y=as.numeric(DS.interest.up),color=diff)) +
+  geom_point(alpha = 0.3) + 
+  geom_smooth(method='lm') +
+  facet_grid(.~syn_influence,scales = "free_x") +
+  xlab('Cumulative wrong identifications in protein pair') + 
+  ylab('DSP interest score') +
+  scale_color_gradient(low = "darkorchid", high = "gold",name="MIscore differential") +
+  theme(plot.title = element_text(),
+        legend.position = "bottom",
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(),
+        axis.text.x = element_text(size=16),
+        axis.text.y = element_text(size=16),
+        axis.title = element_text(size=18))
+g11
+```
+
+```{r plot_syns_ii,echo=FALSE}
+g12 <- ggplot(pair_normalization_man_eval_syn,aes(x=wrong_score_total,y=as.numeric(DS.part_interest.up),color=diff)) +
+  geom_point(alpha = 0.3) + 
+  geom_smooth(method='lm') +
+  facet_grid(.~syn_influence,scales = "free_x") +
+  xlab('Cumulative wrong identifications in protein pair') + 
+  ylab('DSP partial interest score') +
+  scale_color_gradient(low = "darkorchid", high = "gold",name="MIscore differential") +
+  theme(plot.title = element_text(),
+        legend.position = "bottom",
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(),
+        axis.text.x = element_text(size=16),
+        axis.text.y = element_text(size=16),
+        axis.title = element_text(size=18))
+g12
+```
+
+```{r plot_syns_iii,echo=FALSE}
+g13 <- ggplot(pair_normalization_man_eval_syn,aes(x=wrong_score_total,y=as.numeric(DS.score.pred),color=diff)) +
+  geom_point(alpha = 0.3) + 
+  geom_smooth(method='lm') +
+  facet_grid(.~syn_influence,scales = "free_x") +
+  xlab('Cumulative wrong identifications in protein pair') + 
+  ylab('DSP predicted interest score') +
+  scale_color_gradient(low = "darkorchid", high = "gold",name="MIscore differential") +
+  theme(plot.title = element_text(),
+        legend.position = "bottom",
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(),
+        axis.text.x = element_text(size=16),
+        axis.text.y = element_text(size=16),
+        axis.title = element_text(size=18))
+g13
+```
+
+It seems is mainly those close synonyms that are messing with the protein identifications and have a higher impact on the interest score. 
+
+##### Wrong ids vs miscore
+I plot the differential in MIscore obtained during the DSP project duration versus the wrong identification score I have calculated. Colour is now mapped to the different interest scores. 
+```{r plots_miscore_i,echo=FALSE}
+g4 <- ggplot(pair_normalization_man_eval,aes(x=wrong_score_total,y=diff,color=as.numeric(DS.interest.up))) +
+  geom_point(alpha = 0.4) + 
+  geom_smooth(method='lm') +
+  xlab('Cumulative wrong identifications in protein pair') + 
+  ylab('MIscore increase') +
+  scale_color_gradient(low = "dodgerblue3", high = "darkgoldenrod1",name="DSP interest score") + 
+  theme(plot.title = element_text(),
+        legend.position = "bottom",
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(),
+        axis.text.x = element_text(size=16),
+        axis.text.y = element_text(size=16),
+        axis.title = element_text(size=18))
+g4
+```
+
+```{r plots_miscore_ii,echo=FALSE}
+g14 <- ggplot(pair_normalization_man_eval,aes(x=wrong_score_total,y=diff,color=as.numeric(DS.part_interest.up))) +
+  geom_point(alpha = 0.4) + 
+  geom_smooth(method='lm') +
+  xlab('Cumulative wrong identifications in protein pair') + 
+  ylab('MIscore increase') +
+  scale_color_gradient(low = "dodgerblue3", high = "darkgoldenrod1",name="DSP partial interest score") + 
+  theme(plot.title = element_text(),
+        legend.position = "bottom",
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(),
+        axis.text.x = element_text(size=16),
+        axis.text.y = element_text(size=16),
+        axis.title = element_text(size=18))
+g14
+```
+
+```{r plots_miscore_iii,echo=FALSE}
+g15 <- ggplot(pair_normalization_man_eval,aes(x=wrong_score_total,y=diff,color=as.numeric(DS.score.pred))) +
+  geom_point(alpha = 0.4) + 
+  geom_smooth(method='lm') +
+  xlab('Cumulative wrong identifications in protein pair') + 
+  ylab('MIscore increase') +
+  scale_color_gradient(low = "dodgerblue3", high = "darkgoldenrod1",name="DSP predicted interest score") + 
+  theme(plot.title = element_text(),
+        legend.position = "bottom",
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(),
+        axis.text.x = element_text(size=16),
+        axis.text.y = element_text(size=16),
+        axis.title = element_text(size=18))
+g15
+```
+
+It seems low increments in MIscore roughly correlate with number of wrongly identified pairs. 
+
+
+## Evaluation of mutation data
 This is for an unrelated issue: how many curated DSP publications ended up containing mutation data?
 ```{r muts}
 dsp_muts_ints <- intact_dsp[grepl("mutation",Feature.s..interactor.A) | grepl("mutation",Feature.s..interactor.B)]
