@@ -1,12 +1,21 @@
+---
+output: 
+  html_document: 
+    keep_md: yes
+---
 GO IPI, Gene Ontology - Inferred from Physical Interaction - dataset generator
 ========================================================
 
 #### Load Gene Ontology IPI dataset - EBI_GOA_nonIntAct
 
 
+```
+## Warning: replacing previous import 'IRanges::desc' by 'plyr::desc' when loading
+## 'PSICQUIC'
+```
 
 
-I download the latest version of Gene Ontology IPI dataset - EBI_GOA_nonIntAct - using PSICQUIC service. Current file was downloaded on Mon Apr 24 10:06:58 2017. 
+I download the latest version of Gene Ontology IPI dataset - EBI_GOA_nonIntAct - using PSICQUIC service. Current file was downloaded on Fri Jan 17 11:32:04 2020. 
 
 
 
@@ -54,7 +63,7 @@ N_EBI_GOA_nonIntAct = length(EBI_GOA_nonIntAct[,unique(pair_id_clean)])
 ```
 
 
-The EBI_GOA_nonIntAct dataset contains 8321 human interacting pairs. 
+The EBI_GOA_nonIntAct dataset contains 10456 human interacting pairs. 
 
 
 Creating a list of PMIDs that have been curated into GO annotations of human proteins (EBI_GOA_nonIntAct dataset)
@@ -68,7 +77,7 @@ write.table(EBI_GOA_nonIntAct_pmids, "./results/biogrid_pmids.txt", quote=F, sep
 ```
 
 
-4648 publications (human) are curated into EBI_GOA_nonIntAct dataset 
+5827 publications (human) are curated into EBI_GOA_nonIntAct dataset 
 
 #### Compare human EBI_GOA_nonIntAct interactions and publications to IMEx 
 

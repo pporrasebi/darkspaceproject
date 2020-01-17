@@ -1,0 +1,88 @@
+Return-Path: <avenkat@ebi.ac.uk>
+Received: from imap01b.ebi.ac.uk ([unix socket])
+	 by imap01b.ebi.ac.uk (Cyrus v2.4.17-Fedora-RPM-2.4.17-15.el7) with LMTPA;
+	 Wed, 20 Nov 2019 12:43:21 +0000
+X-Sieve: CMU Sieve 2.4
+Received: from hh-smtp02.ebi.ac.uk (hh-smtp02.ebi.ac.uk [10.32.16.204])
+	by imap01b.ebi.ac.uk (Postfix) with ESMTP id 47A771122A55
+	for <pporras@imap01.ebi.ac.uk>; Wed, 20 Nov 2019 12:43:21 +0000 (GMT)
+Received: by hh-smtp02.ebi.ac.uk (Postfix)
+	id 45D03409A7E9; Wed, 20 Nov 2019 12:43:21 +0000 (GMT)
+Delivered-To: pporras@ebi.ac.uk
+Received: from hh-mx3.ebi.ac.uk (mx3.ebi.ac.uk [193.62.192.130])
+	by hh-smtp02.ebi.ac.uk (Postfix) with ESMTP id 43B9B409A7E7;
+	Wed, 20 Nov 2019 12:43:21 +0000 (GMT)
+Received: from hh-mx3.ebi.ac.uk (localhost.localdomain [127.0.0.1])
+	by localhost (Email Security Appliance) with SMTP id 3841C62A731_DD535B6B;
+	Wed, 20 Nov 2019 12:46:46 +0000 (GMT)
+Received: from [172.22.69.98] (unknown [172.22.69.98])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(Client did not present a certificate)
+	by hh-mx3.ebi.ac.uk (Sophos Email Appliance) with ESMTPSA id 031FA6284F1_DD535B6F;
+	Wed, 20 Nov 2019 12:46:46 +0000 (GMT)
+Cc: avenkat@ebi.ac.uk
+Subject: Re: DSP wrap up: update on interaction text mining pipeline
+To: Pablo Porras Millan <pporras@ebi.ac.uk>
+References: <5ac6b910-177c-54fd-0efa-7202102f2d2e@ebi.ac.uk>
+From: Aravind Venkatesan <avenkat@ebi.ac.uk>
+Message-ID: <cc5cded3-9dfd-4dc9-2066-047d208b35ba@ebi.ac.uk>
+Date: Wed, 20 Nov 2019 12:43:19 +0000
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.2
+MIME-Version: 1.0
+In-Reply-To: <5ac6b910-177c-54fd-0efa-7202102f2d2e@ebi.ac.uk>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
+X-SASI-RCODE: 200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ebi.ac.uk; h=cc:subject:to:references:from:message-id:date:mime-version:in-reply-to:content-type:content-transfer-encoding; s=ebi.ac.uk; bh=tngPX9Bg+ka+WmX0wwDE3/00R28QjmEQ0L/au4BdpwA=; b=PzuVisSVOUaDIC2rt4uo41S/Q5s4Pmaj09DWQdb0uf8ElK67vNSqbwdyezR3dzqYuC7JooYOjNCOd1lgf/cu4Dl+BFpqMSsmpz/9uca4TyieAq9wjzzXUuXvxju/7MO9BQhK3WCwhBEfY9d0VY8Cgv7ccmc6/Sp5PVlO/1aRnr2WeAu3uzFsjWPFIlEqCL8g6G3omV+MbhIugTnxVmHjOAjHf25V8hTg0AyrLhgScigeBBiznjhzlZkVRi9qFtEMVSGqVV0s1dB825D/z21b6PEkX7b6ORFSwt+VqaT+vC//5QtR8OPEU154r8eZUTDzZOkz1fU3obrFIgPOtBhBMQ==
+
+Hi Pablo,
+
+I am currently at a hackathon. I will run the pipeline once I am back 
+next week. I will try my best to give you the results before the xmas 
+break which for me starts by 18th. If not surely by the 3rd week of 
+Jan.  I should be able to give the details you have listed below, fyi 
+the pipeline runs on the Open Access subset of full text article. I will 
+have to check if it runs on abstract as well (but I highly doubt it).
+
+Regards,
+
+Aravind
+
+On 20/11/2019 11:54, Pablo Porras Millan wrote:
+> Hi aravind,
+>
+> I hope this finds you well. I write because I would like to start 
+> writing the Dark Space Project paper, but I need an updated version of 
+> the text-mining pipeline out put first. Do you think you would be able 
+> to run the pipeline before the holidays? If that is not possible, 
+> could you give me a tentative date, so I can plan accordingly, please?
+>
+> In addition to the usual results table, it would be very useful for us 
+> to know the following details:
+>
+>     - Whether the pipeline was run against the full PubMed or only the 
+> fraction of papers that are fully accessible.
+>     - If both papers with full text available and abstract-only papers 
+> were included, please gives us a way to identify each type of paper 
+> from the results.
+>     - The total number of papers used in the search and the date the 
+> pipeline was run.
+>     - Which strategy was used to identify gene names and map them to 
+> UniProt accessions.
+>
+> I think that's it for now, it would be great to get this moving so we 
+> can aim to have a paper submitted by springtime next year or so.
+>
+> Cheers,
+>
+> Pablo.
+>
+-- 
+Aravind Venkatesan
+Senior Data Scientist,
+Literature Services Group,
+EMBL-EBI,
+Hinxton, UK
+

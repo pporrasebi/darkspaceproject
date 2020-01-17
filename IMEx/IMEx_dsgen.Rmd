@@ -1,6 +1,11 @@
 IMEx dataset generator
 ========================================================
 
+#### Libraries
+```{r libraries,message=FALSE,warning=FALSE}
+library(data.table)
+```
+
 #### Load IntAct data
 
 ```{r echo=FALSE, cache=TRUE}
@@ -9,7 +14,7 @@ intact_date <- date()
 
 I download the latest version of the IntAct data. The file was downloaded on `r intact_date`. 
 
-```{r eval=FALSE}
+```{r}
 if(!file.exists("./source_files/intact_mitab27.txt")){
   download.file("ftp://ftp.ebi.ac.uk/pub/databases/intact/current/psimitab/intact.txt", destfile = "./source_files/intact_mitab27.txt")
 }
@@ -17,27 +22,27 @@ if(!file.exists("./source_files/intact_mitab27.txt")){
 
 I need to clean up the intact file.
 
-```{r eval=FALSE,message=FALSE, warning=FALSE}
+```{r eval=TRUE,message=FALSE, warning=FALSE}
 system("perl ./scripts/MITAB27extractor_v13.pl ./source_files/intact_mitab27.txt ./processed_files/intact_pairs.txt")
 ```
 ```{r}
-intact_full <- read.delim("./processed_files/intact_pairs.txt", header = T, sep = "\t", colClasses = "character")
+intact_full <- fread("./processed_files/intact_pairs.txt", header = T, sep = "\t", colClasses = "character")
 ```
 
-#### Load data from DIP
+#### Load data from legacy DIP
 
-```{r eval=TRUE,echo=FALSE, cache=TRUE}
+```{r eval=FALSE,echo=FALSE, cache=FALSE}
 dip_date <- date()
 ```
-I incorporate the data from DIP as well, taking the latest available release there is. Data was downloaded on `r dip_date` and needed to be downloaded manually, since the DIP download options only appear for logged-in users.  
+I incorporate the data from legacy DIP as well, taking the latest available release there is. Data was downloaded on Mon Apr 11 16:52:07 2016 and needed to be downloaded manually, since the DIP download options only appear for logged-in users.  
 
 Then I clean up the data as I did with the IntAct dataset. 
 
-```{r eval=FALSE,message=FALSE, warning=FALSE}
+```{r eval=TRUE,message=FALSE, warning=FALSE}
 system("perl ./scripts/MITAB25extractor_v12.pl ./source_files/dip20160731.txt ./processed_files/dip20160731_pairs.txt")
 ```
 ```{r}
-dip_full <- read.delim("./processed_files/dip20160731_pairs.txt", header = T, sep = "\t", colClasses = "character")
+dip_full <- fread("./processed_files/dip20160731_pairs.txt", header = T, sep = "\t", colClasses = "character")
 ```
 
 #### Merge IntAct and DIP data to create an IMEx dataset
@@ -56,12 +61,15 @@ imex_full <- unique(rbind(intact_sel,dip_full))
 write.table(imex_full, "./results/imex_full.txt", quote=F, sep ="\t", row.names = F, col.names = T)
 ```
 
-The full dataset contains `r nrow(imex_full)` interacting pairs. I create a list of PMIDs that have been curated by IMEx-complying databases (IMPORTANT: not all these publications are curated to IMEx standards). 
+The full dataset contains `r length(unique(imex_full$pair_id_clean))` interacting pairs (discarding isoforms and post-processed chains). Of these, `r length(unique(imex_full[taxid_a=="9606" & taxid_b=="9606"]$pair_id_clean))` are human pairs
+
+
+I create a list of PMIDs that have been curated by IMEx-complying databases (IMPORTANT: not all these publications are curated to IMEx standards). 
 
 ```{r}
-imex_pmids <- data.frame(unique(imex_full$pubid))
+imex_pmids <- unique(imex_full[,.(pubid)])
 
 write.table(imex_pmids, "./results/imex_pmids.txt", quote=F, sep ="\t", row.names = F, col.names = T)
 ```
 
-There are `r nrow(imex_pmids)` publications in the full dataset of publications curated in IMEx-complying databases. 
+There are `r nrow(imex_pmids)` publications in the full dataset of publications curated in IMEx-complying databases. Of these, `r nrow(unique(imex_full[taxid_a=="9606" & taxid_b=="9606",.(pubid)]))` are of human data only. 

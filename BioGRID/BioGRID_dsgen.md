@@ -1,3 +1,8 @@
+---
+output: 
+  html_document: 
+    keep_md: yes
+---
 BioGRID dataset generator
 ========================================================
 
@@ -5,59 +10,42 @@ BioGRID dataset generator
 
 
 
-I download the latest version of the BioGRID data from mentha website. I have tried using PSICQUIC, however, downloading whole mentha using PSICQUIC takes too much time. Now, however, the link should be updated manually to get the latest mentha release. Current file was downloaded on Mon Apr 24 09:54:53 2017. 
+I download the latest version of the BioGRID data from mentha website. I have tried using PSICQUIC, however, downloading whole mentha using PSICQUIC takes too much time. Now, however, the link should be updated manually to get the latest mentha release. Current file was downloaded on Fri Jan 17 11:19:28 2020. 
 
 
 ```r
-if(!file.exists("./source_files/2017-02-27_MITAB-2.5.zip")){
-        mentha_url = "http://mentha.uniroma2.it/dumps/2017-02-27_MITAB-2.5.zip"
+if(!file.exists("./source_files/2020-01-14_MITAB-2.5.zip")){
+        mentha_url = "http://mentha.uniroma2.it/dumps/2020-01-14_MITAB-2.5.zip"
         # httr::GET(http://mentha.uniroma2.it/doDownload.php?file=2017-02-27_MITAB-2.5.zip) - this is how I got the direct link
-        download(mentha_url, destfile = "./source_files/2017-02-27_MITAB-2.5.zip")
+        download(mentha_url, destfile = "./source_files/2020-01-14_MITAB-2.5.zip")
 }
-unzip("./source_files/2017-02-27_MITAB-2.5.zip", exdir = "./source_files/")
-# databases <- c("mentha")
-## Query PSICQUIC for interactions, get MI-TAB-2.5, save
-# source("./scripts/query_PSICQUIC_for_interactions.R")
-# query_PSICQUIC_for_interactions(SPECIES_ID = "all", SPECIES_NAME = "all", databases= "mentha", date = BioGRID_mentha_date,
-#                                          database.name = "./source_files/mentha_mitab25.txt", return_data = F, show_summary = F, MITAB = "tab25")
+unzip("./source_files/2020-01-14_MITAB-2.5.zip", exdir = "./source_files/")
 ```
 
 Filtering BioGRID only interactions and cleaning up the BioGRID file.
 
 
 ```r
-mentha = fread("./source_files/2017-02-27_MITAB-2.5", header = F, sep = "\t", colClasses = "character")
-```
-
-```
-## 
-Read 30.8% of 1105301 rows
-Read 58.8% of 1105301 rows
-Read 84.1% of 1105301 rows
-Read 1105301 rows and 15 (of 15) columns from 0.325 GB file in 00:00:06
-```
-
-```r
+mentha = fread("./source_files/2020-01-14_MITAB-2.5", 
+               header = F, 
+               sep = "\t",
+               colClasses = "character")
 biogrid_from_mentha = mentha[V13 == "psi-mi:\"MI:0463\"(biogrid)",]
 biogrid_from_mentha[,table(V12)]
 ```
 
 ```
 ## V12
-##       psi-mi:"MI:0403"(colocalization) 
-##                                  31835 
-##   psi-mi:"MI:0407"(direct interaction) 
-##                                 156854 
-##          psi-mi:"MI:0914"(association) 
-##                                   8331 
-## psi-mi:"MI:0915"(physical association) 
-##                                 267494
+##       psi-mi:"MI:0403"(colocalization)   psi-mi:"MI:0407"(direct interaction) 
+##                                  32713                                 167508 
+##          psi-mi:"MI:0914"(association) psi-mi:"MI:0915"(physical association) 
+##                                   9412                                 349991
 ```
 
 ```r
 fwrite(x = biogrid_from_mentha, file = "./processed_files/biogrid_mitab25.txt",sep = "\t")
 system("perl ./scripts/MITAB25extractor_v12.pl ./processed_files/biogrid_mitab25.txt ./processed_files/biogrid_pairs.txt")
-unlink(c("./source_files/2017-02-27_MITAB-2.5","./processed_files/biogrid_mitab25.txt"))
+unlink(c("./source_files/2020-01-14_MITAB-2.5","./processed_files/biogrid_mitab25.txt"))
 ```
 
 Saving a table of interacting pairs, publication IDs and BioGRID tag. Selecting human protein-human protein only interactions.
@@ -71,7 +59,7 @@ fwrite(x = unique(biogrid_from_mentha_human[, .(pair_id_clean, pubid, biogrid = 
 N_biogrid = length(biogrid_from_mentha_human[,unique(pair_id_clean)])
 ```
 
-The BioGRID dataset contains 199566 human interacting pairs. 
+The BioGRID dataset contains 247094 human interacting pairs. 
 
 Files in the /processed_files/ contain interactions for all species.
 Files in the /results/ contain interactions for human only.
@@ -85,7 +73,7 @@ biogrid_pmids <- data.frame(unique(biogrid_from_mentha_human$pubid))
 write.table(biogrid_pmids, "./results/biogrid_pmids.txt", quote=F, sep ="\t", row.names = F, col.names = T)
 ```
 
-24241 publications (human) are curated into BioGRID database. 
+25213 publications (human) are curated into BioGRID database. 
 
 #### Compare human BioGRID interactions and publications to IMEx 
 

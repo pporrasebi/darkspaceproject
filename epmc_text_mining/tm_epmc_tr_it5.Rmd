@@ -1,0 +1,177 @@
+---
+title: 'Extracting text mining predictions EPMC: Iteration 5'
+author: "Pablo Porras"
+date: "17/01/2019"
+output: html_document
+---
+
+---
+```{r set-options, echo=FALSE}
+options(width = 80,cache=FALSE)
+```
+Text mining prediction EPMC: Technical report
+========================================================
+
+### Synopsis
+
+We collaborated the EPMC team at EBI to use text-mining techniques that use a set of keywords (see Appendix) that describe potential interaction relationships to identify sentences that may depict interacting proteins. The sentences are extracted from the abstract or full text (when available, due to copyright restrictions) or publications listed in PubMed. The text-mining exercise was performed by Senay Kafkas (SK) and Aravidn Venkatesan (AV). Email exchange about this subject can be found in the folder ./source_files/emails. 
+
+This version of the report refers to a fourth iteration of the text-mining process where PSI-MI CV was used to try and select only publications where CV terms under the 'interaction detection method' branch are found. The previous three iterations have been taken out for the sake of clarity and saving space in the repository. 
+
+#### Evaluate and extract information from SK file
+
+AV sent the result file from SK's search script on 2019/01/02. Here are some details he provided:  
+
+    - The Text-mining pipeline was run on open access fulltext  subset:   Sept. 2019 .
+
+    - The Sept. 2019 subset contains ~2.5 million (2,553,046) articles. The final number of articles annotated: 52,403.  The pipeline was run from 10th - 16th Dec. 2019
+
+    - For identifying gene names. A dictionary approached was used, generated from the UniPort data file (filtered for humans genes). The dictionary accounts for gene names (incl. synonyms, Alt names, ORF names etc..) and the corresponding Uniprot Accession numbers. 
+
+Further details and source file can be found here: https://drive.google.com/drive/u/2/folders/0B92rxUEd2lCzamNmcXcxZGVpbFU
+
+This the file format structure, as described by SK:
+
+  1. PMC ID
+  2. pubmed id
+  3. publication date
+  4. interacting protein pair, separated by ||. 
+  5. All the supporting sentences for that specific pair extracted from that specific article, separated by ||||.
+  6. section information where those sentences is coming from, separated by ||||.
+  7. The interacting pairs extracted from those sentences (proteins are separated by ||), pairs are separated by ||||.
+  8. Offsets of those proteins separated by ||||.
+  9. PSI-MI CV term representing the interaction detection method, adding the section where the term was found. 
+  
+#### Libraries
+```{r libraries,message=FALSE,warning=FALSE}
+library(data.table)
+library(splitstackshape)
+library(dplyr)
+library(stringr)
+```
+
+#### Uploading the text-mined dataset
+
+I upload only the fields I need, so the file size does not get out of hand. 
+
+```{r tm_upload, message=F, warning=F, cache=TRUE}
+setwd("./source_files/")
+system("mkdir temp")
+system("tar xvzf ppi_092019_OA.txt.tar.gz -C ./temp")
+setwd("../")
+tm.files <- list.files("./source_files/temp", full.names=TRUE)
+
+tm.dts <- lapply(
+  tm.files, 
+  fread, 
+  sep = "\t",
+  header = F, 
+  drop=c(5,7,8))
+
+tm_sel <- rbindlist( tm.dts )
+
+colnames(tm_sel) <- c("pmcid","pmid","date","upacs","location","method_term")
+system("rm -rf ./source_files/temp/")
+```
+
+#### Extract protein and pair information
+
+I need to extract the upacs and deal with the redundant ones. 
+```{r format_data,message=FALSE}
+tm_sel$upac_1 <- gsub("\\|\\|.*","",tm_sel$upacs)
+tm_sel$upac_2 <- gsub(".*\\|\\|","",tm_sel$upacs)
+
+
+tm_long_pt1 <- cSplit(tm_sel, "upac_1", sep = ",", direction = "long")
+tm_long <- cSplit(tm_long_pt1, "upac_2", sep = ",", direction = "long")
+
+tm_long$upac_1 <- as.character(tm_long$upac_1)
+tm_long$upac_2 <- as.character(tm_long$upac_2)
+
+publs <- unique(tm_long$pmid)
+```
+
+The data set contains `r length(publs)` publications potentially harbouring interaction data. Now I generate the pair ids for the text-mined dataset.
+
+```{r,message=FALSE}
+
+tm_long$pair_id <- apply(select(tm_long,upac_1,upac_2), 1,function(i){
+  paste(sort(i),collapse = "_")
+})
+tm_long$tm <- 1
+pairs <- unique(tm_long$pair_id)
+```
+
+There are `r length(pairs)` unique putative protein pairs in the dataset. I also generate a count of the number of times the protein or the detection method have been found. 
+
+```{r scoring,message=FALSE}
+
+tm_long <- tm_long[,tm_pr_times_found:=(str_count(location,"\\|\\|\\|\\|")+1)][,tm_dm_times_found:=(str_count(method_term,"\\|\\|\\|\\|")+1)]    
+```
+
+#### Generating comparison file
+
+```{r}
+tm_lite <- unique(tm_long[,.(pair_id,pmid,tm,method_term,tm_pr_times_found,tm_dm_times_found)])
+write.table(tm_lite,"./results/pairs_pmids_tm.txt",col.names=T,row.names=F,quote=F,sep="\t")
+system("gzip ./results/pairs_pmids_tm.txt")
+```
+#### Generating a version of the file where methods can be searched
+
+```{r}
+tm_lite_met_long <- unique(cSplit(tm_lite,
+                           splitCols = "method_term",
+                           sep = "||||",
+                           drop = F,
+                           direction = "long"))
+
+tm_lite_uniquemet <- tm_lite[!grepl("\\|\\|\\|\\|",method_term)]
+
+tm_lite_met <- unique(rbind(tm_lite_met_long,tm_lite_uniquemet))
+
+tm_lite_met <- tm_lite_met[,.(pair_id,
+                              pmid,
+                              tm,
+                              method_term_simple = gsub("s$","",tolower(gsub("__.*","",method_term))),
+                              tm_pr_times_found,
+                              tm_dm_times_found)]
+
+met_count <- data.table(table(tm_lite_met$method_term_simple,
+                        useNA = "ifany"))
+met_count[order(-N)]
+```
+
+##### Generating some stats for methods potentially detecting protein-nucleci acid interactions (PNAIs)
+```{r}
+potential_pnais <- tm_lite_met[grepl("one hybrid|one-hybrid|electrophoretic mobility shift assay|emsa|chromatin immunoprecipitation|chip|crac|y1h|clip",
+                                     method_term_simple)]
+pnais_count <- data.table(table(potential_pnais$method_term_simple,
+                        useNA = "ifany"))
+
+pnais_count[order(-N)]
+```
+Number of publications potentially containing PNAIs: `r nrow(unique(potential_pnais[,.(pmid)]))`.  
+Number of potential unique PNAIs pairs: `r nrow(unique(potential_pnais[,.(pair_id)]))`.   
+
+##### Generating some stats for methods potentially detecting RNA interactions
+```{r}
+potential_rnais <- tm_lite_met[grepl("clash|clip|clip-seq|RNA immunoprecipitation|chemical rna modification plus base pairing prediction|miRNA interference luciferase assay|chemical rna modification plus base pairing prediction|cross-linking, ligation, and sequencing of hybrids|CLASH|cross linking immunoprecipitation|UV cross-linking immunoprecipitation combined with high-throughput sequencing|HITS-CLIP|CLIP-Seq",
+                                     method_term_simple)]
+rnais_count <- data.table(table(potential_rnais$method_term_simple,
+                        useNA = "ifany"))
+
+rnais_count[order(-N)]
+```
+Number of publications potentially containing RNAIs: `r nrow(unique(potential_rnais[,.(pmid)]))`.  
+Number of potential unique RNAIs pairs: `r nrow(unique(potential_rnais[,.(pair_id)]))`.
+
+```{r echo=FALSE}
+rnaips_pmids <- unique(potential_rnais[,.(pmid,method_term_simple)])
+fwrite(rnaips_pmids,
+       "./results/rnaips_pmids.txt",
+       col.names = T,
+       row.names = F,
+       quote = F,
+       sep = "\t")
+```
+************************************************************

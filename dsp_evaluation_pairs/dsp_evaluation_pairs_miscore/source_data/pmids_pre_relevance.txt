@@ -1,0 +1,104 @@
+PMID	curator	curatable
+25436971	mgt	yes - but mouse
+22363791	mgt	yes -but not for Q9Y6P5
+26700459	livia	yes
+28212564	livia	yes
+10811835	livia	yes
+27109047	livia	yes
+19654328	livia	yes
+20526328	livia	yes
+22792074	livia	yes
+24391497	livia	yes
+10725339	livia	yes
+25970784	mgt	yes
+26763441	livia	yes
+23717538	mgt	no-mouse
+26186728	mgt	yes - but mouse
+28338009	mgt	no
+27144523	mgt	yes-but mouse
+19451267	mgt	yes-but mouse
+22164301	Sandra	Yes
+22403301	mgt	no- mouse
+26259872	Livia	Yes
+24877091	Livia	Yes
+19917778	Livia	Yes
+26431330	Livia	Yes
+21478866	Sandra	Yes
+25659151	Sandra	Yes
+26666268	Sandra	Yes
+28457889	Sandra	No
+21680713	sandra	Yes
+26822058	Sandra	Yes
+28420882	Livia	Yes
+24498420	Sandra	Yes
+28176834	Sandra	Yes
+22069485	Sandra	?
+25713299	Sandra	Yes
+20808826	Sandra	No
+24349009	Sandra	No
+23733784	Sandra	No
+9199170	Sandra	Yes
+22118466	Sandra	Yes
+19142223	Sandra	Yes
+16254078	Sandra	No
+20631154	Sandra	Yes
+26188084	Sandra	Yes
+27542279	Nancy Campbell	No
+28128295	marta	yes
+25888394	marta	yes
+24286029	marta	yes
+27135603	mgt	yes
+16951355	Mgt	yes
+21295084	livia	no
+21896202	livia	no
+24960069	livia	no
+26678046	livia	yes
+27489114	livia	no
+21845024	livia	no
+20977782	livia	no
+12793901	livia	no
+18154660	Sandra	No
+18541028	Sandra	No
+18545641	Sandra	No
+18825269	Sandra	No
+19255644	Sandra	No
+19275766	Sandra	No
+19440051	Sandra	No
+20032497	Sandra	No
+20179161	Sandra	yes
+21062517	Sandra	No
+21189951	Sandra	No
+21595920	Sandra	No
+22069553	Sandra	No
+7538916	Sandra	No
+24359973	Sandra	No
+21957439	Sandra	Yes
+25996149	Sandra	No
+16826513	Sandra	No
+18373870	Sandra	No
+21949655	Sandra	No
+22581777	Sandra	No
+22662208	Sandra	No
+23770684	Sandra	No
+23799914	Sandra	Yes
+24587385	Sandra	No
+26388957	Sandra	No
+27626412	Sandra	Yes
+28054986	Sandra	No
+26259872	Sandra	No
+24943846	Sandra	No
+26775664	Sandra	No
+27026929	Sandra	No
+27824145	Sandra	No
+28507518	Sandra	No
+19934254	Sandra	No
+24466240	Sandra	No
+27075683	Sandra	No
+27805058	Sandra	No
+17726518	Sandra	No
+23650557	Sandra	Yes
+10682496	Nancy Campbell	No
+28056086	Nancy Campbell	No
+21624163	Nancy Campbell	No
+19224762	Nancy Campbell	No
+18354194	Nancy Campbell	No

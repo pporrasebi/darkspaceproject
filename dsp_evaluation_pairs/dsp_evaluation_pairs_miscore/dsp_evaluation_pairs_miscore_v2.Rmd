@@ -74,6 +74,7 @@ setwd("../")
 ```{r comp_sets}
 eval_dsp_pmids <- unique(eval_dsp[grepl("yes|Yes",curatable),.(pmid)])
 
+# eval_dsp_pmids_evaluated <- unique(eval_dsp[curatable!="",.(pmid,curatable)])
 # fwrite(
 #   eval_dsp_pmids,
 #   "./source_data/pmids.txt",
@@ -881,7 +882,7 @@ fwrite(
 )
 ```
 
-I evaluate individually each of the text-mined id preditions, grouping the wrong predictions in two categories: those cases where I could find exact synonyms for the gene symbol for the real id and the predicted one in UniProt and those where a close synonym was found. Close synonyms are cases of gene names sharing the same root (first few letters), but different suffix (ordinarily, subunit number, in some cases there is an additional letter). I account these two categories in different columns.
+I evaluate individually each of the text-mined id predictions, grouping the wrong predictions in two categories: those cases where I could find exact synonyms for the gene symbol for the real id and the predicted one in UniProt and those where a close synonym was found. Close synonyms are cases of gene names sharing the same root (first few letters), but different suffix (ordinarily, subunit number, in some cases there is an additional letter). I account these two categories in different columns.
 
 ```{r eval_miscore_interest_score_manual_ii}
 prot_preds_qual_manual <- data.table(read_excel(
@@ -1225,6 +1226,75 @@ dsp_muts_ints <- intact_dsp[grepl("mutation",Feature.s..interactor.A) | grepl("m
 dsp_muts_publs <- unique(dsp_muts_ints[,.(Publication.Identifier.s.)])
 ```
 There are `r nrow(dsp_muts_ints)` binaries with reported mutations curated, in `r nrow(dsp_muts_publs)` publications. 
+
+## Evaluation of relevance score historic impact
+I check the accuracy of the relevance score since it was introduced. 
+
+```{r rel_check}
+evaluated_old <- fread(
+  "./source_data/pmids_pre_relevance.txt",
+  check.names = T,
+  header = T,
+  sep = "\t",
+  colClasses = "character",
+  stringsAsFactors = F
+)
+
+evaluated_old_simple <- unique(evaluated_old[,.(
+  pmid = PMID,
+  eval_old = "yes"
+)])
+
+eval_dsp_pmids_rel <- unique(eval_dsp[curatable!="",.(
+  pmid,
+  curatable,
+  relevance.up,
+  relevance
+)])
+
+eval_dsp_rel_check <- unique(merge(
+  eval_dsp_pmids_rel,
+  evaluated_old_simple,
+  by = "pmid",
+  all = T
+))
+
+eval_dsp_rel_new <- eval_dsp_rel_check[is.na(eval_old),.(
+  pmid,
+  curatable,
+  curatable_simple = ifelse(
+    grepl("yes|Yes",curatable),
+    "yes",
+    "no"
+  ),
+  relevance = as.numeric(gsub(',','.',relevance)),
+  relevance.up = as.numeric(relevance.up)
+)]
+table(eval_dsp_rel_new$curatable_simple,useNA="ifany")
+
+g16 <- ggplot(eval_dsp_rel_new, aes(x=curatable_simple,y=relevance)) +
+  geom_boxplot() +
+  geom_jitter(alpha=0.2) +
+  ylab('Relevance score') + 
+  xlab('Curatable paper') +
+  geom_signif(comparisons = list(c("yes","no")),
+              step_increase=0.07,
+              test = wilcox.test.altg,
+              tip_length = 0.015,
+              textsize = 4) +
+  theme(plot.title = element_text(),
+        legend.position = "none",
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(),
+        axis.text.x = element_text(size=16),
+        axis.text.y = element_text(size=16),
+        axis.title = element_text(size=18))
+g16
+```
+
+
 **********
 <!-- ### Debugging: Negative MIscore progression -->
 <!-- Why do I have values with negative MIscore progression? It does not make any sense. I isolate those and run a test.  -->

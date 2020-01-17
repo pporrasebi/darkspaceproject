@@ -1,0 +1,159 @@
+Return-Path: <3xPgNXhQKB-MIWNaJ-XMFWJX-STWJUQdLTTLQJ.HTRUUTWWFXJGN.FH.ZP@doclist.bounces.google.com>
+Received: from imap01b.ebi.ac.uk ([unix socket])
+	 by imap01b.ebi.ac.uk (Cyrus v2.4.17-Fedora-RPM-2.4.17-15.el7) with LMTPA;
+	 Thu, 02 Jan 2020 14:05:58 +0000
+X-Sieve: CMU Sieve 2.4
+Received: from hh-smtp01.ebi.ac.uk (hh-smtp01.ebi.ac.uk [10.42.16.203])
+	by imap01b.ebi.ac.uk (Postfix) with ESMTP id 9E64A1122A51
+	for <pporras@imap01.ebi.ac.uk>; Thu,  2 Jan 2020 14:05:58 +0000 (GMT)
+Received: by hh-smtp01.ebi.ac.uk (Postfix)
+	id 9D2FC409A7EE; Thu,  2 Jan 2020 14:05:58 +0000 (GMT)
+Delivered-To: pporras@ebi.ac.uk
+Received: from hh-mx3.ebi.ac.uk (mx3.ebi.ac.uk [193.62.192.130])
+	by hh-smtp01.ebi.ac.uk (Postfix) with ESMTP id 99A5B409A7E8
+	for <pporras@ebi.ac.uk>; Thu,  2 Jan 2020 14:05:58 +0000 (GMT)
+Received: from hh-mx3.ebi.ac.uk (localhost.localdomain [127.0.0.1])
+	by localhost (Email Security Appliance) with SMTP id 10B6C62B058_E0DF9D2B
+	for <pporras@ebi.ac.uk>; Thu,  2 Jan 2020 14:10:26 +0000 (GMT)
+Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com [209.85.160.197])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(Client CN "smtp.gmail.com", Issuer "GTS CA 1O1" (verified OK))
+	by hh-mx3.ebi.ac.uk (Sophos Email Appliance) with ESMTPS id A1B9262B042_E0DF9D1F
+	for <pporras@ebi.ac.uk>; Thu,  2 Jan 2020 14:10:25 +0000 (GMT)
+Received: by mail-qt1-f197.google.com with SMTP id e37so27545892qtk.7
+        for <pporras@ebi.ac.uk>; Thu, 02 Jan 2020 06:05:58 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:reply-to:references:message-id:date:subject:from:to;
+        bh=1qGQYtZZ5kPx2D1JMYPPDrPKv+4gREgHtnjrFsE4C5M=;
+        b=grt1HmWYQzTABeJ8UME/8dgivdGN0F54ry6dTw7m6GTRSMuKgZBt7m2ld7Xo/LUUpy
+         JaMIooVGtDAJqJIANi6OXhSaYjeoiaI7KkVL7ac1yqiEBZnEyqd37oNkJboglYaW3O8M
+         WpTmd85FYP0jtBifawdCkRHqPP+T5QxPZDJJ95w8xZGYML4spCbGNw0EcdUxcBed6F6c
+         S6vxYYU1yfGKTK6f6bnIg2t/7qs3QHsWGk9QDZErs/n+EHgiEk3HulKHqwh8qpy/gsAb
+         ggnMwRry9x25uF2WMJHnI+m6Kki+ThZ/nvHhKm8YftPvXkT0fZWDW7hXc9h6LRN9cQmt
+         7kQA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:references:message-id:date
+         :subject:from:to;
+        bh=1qGQYtZZ5kPx2D1JMYPPDrPKv+4gREgHtnjrFsE4C5M=;
+        b=uV5HvBH7hy4oY4+5dNXf41BdP3ugNAESZ8dM16QadLPy5eshQe1XShNbm/JBEA742y
+         b1lORy6bLiig6eyag16gbN+PNH9+x8SuY/6BGExOse7JYk+2ZDpLemTK7pkRwefdqjU8
+         dbm6NLksB303P94OOZX6DKp4AQiEP+vCpT7P0T0bzpHVebhwcOa98EN8i+XRp628ceMY
+         uNrDxPuQjAtiyXlVVdDzHTEFDy4iOYu5irfr5JFDuhh9jqutIDcb4ShOJOKNnj07VGI3
+         Ht0rE89vjylDLZ++oDonKMOU6ZizVfGSyuCxdU2tnCNQkIzbCvAY/1AH4JPiPtXJ2PgX
+         ZwoQ==
+X-Gm-Message-State: APjAAAU6Rf+6PqCnMbY3wOcBmpqL/Zy/P9uZJjhMGjAFdrD2+FEc/qO3
+	BtNfypzqDbemH2+KeKZNkUr5VFCz/0Gjrw==
+X-Google-Smtp-Source: APXvYqxZchTM6Bpz55f2I47omejJSRRCnO3vDGU6OsuaVVBbr7f/yXjOAKWcHzXUWlB+1Q5xmVWA0IAB9ho=
+MIME-Version: 1.0
+X-Received: by 2002:ae9:e809:: with SMTP id a9mr65991834qkg.92.1577973956976;
+ Thu, 02 Jan 2020 06:05:56 -0800 (PST)
+Reply-To: Aravind Venkatesan <avenkat@ebi.ac.uk>
+X-No-Auto-Attachment: 1
+References: <434c0d03-3338-4960-aebb-408f6dcf8816@docs-share.google.com>
+Message-ID: <0000000000002bb60c059b28b139@google.com>
+Date: Thu, 02 Jan 2020 14:05:56 +0000
+Subject: textmining&biocuration - Invitation to collaborate
+From: "Aravind Venkatesan (via Google Drive)" <drive-shares-noreply@google.com>
+To: pporras@ebi.ac.uk
+Content-Type: multipart/alternative; boundary="0000000000002bb5f4059b28b136"
+X-Sophos-SenderHistory: ip=209.85.160.197,fs=147594167,da=147625394,mc=4270,sc=0,hc=4270,sp=0,fso=147594167,re=0,sd=0,hd=15
+X-Sophos-ESA: [hh-mx3.ebi.ac.uk] 4.5.2.2, Antispam-Engine: 2019062400.03.04.002, Antispam-Data: 2020.1.2.135417
+X-SASI-RCODE: 200
+X-SEA-Spam: Gauge=IIIIIIIII, Probability=9%, Report='
+ HTML_90_100 0.1, HTML_FONT_INVISIBLE 0.1, REPLYTO_FROM_DIFF_ADDY 0.1, BODYTEXTH_SIZE_10000_LESS 0, BODYTEXTH_SIZE_3000_MORE 0, BODYTEXTP_SIZE_3000_LESS 0, BODYTEXTP_SIZE_400_LESS 0, BODY_SIZE_6000_6999 0, BODY_SIZE_7000_LESS 0, DKIM_ALIGNS 0, DKIM_SIGNATURE 0, DQ_S_H 0, ECARD_KNOWN_DOMAINS 0, FROM_NAME_PHRASE 0, HREF_LABEL_TEXT_NO_URI 0, IMGSPAM_TABLE_1 0, KNOWN_MSGID 0, KNOWN_MTA_TFX 0, LINK_TO_IMAGE 0, REFERENCES 0, SPF_PASS 0, SXL_IP_TFX_WM 0, WEBMAIL_SOURCE 0, __ANY_URI 0, __BODY_TEXT_X4 0, __CP_URI_IN_BODY 0, __CT 0, __CTYPE_HAS_BOUNDARY 0, __CTYPE_MULTIPART 0, __CTYPE_MULTIPART_ALT 0, __DKIM_ALIGNS_1 0, __DKIM_ALIGNS_2 0, __DQ_IP_FSO_LARGE 0, __DQ_NEG_HEUR 0, __DQ_NEG_IP 0, __DQ_S_HIST_1 0, __DQ_S_IP_MC_100_P 0, __DQ_S_IP_MC_10_P 0, __DQ_S_IP_MC_1K_P 0, __DQ_S_IP_MC_5_P 0, __FUR_RDNS_GMAIL 0, __HAS_FROM 0, __HAS_HTML 0, __HAS_MSGID 0, __HAS_REFERENCES 0, __HAS_REPLYTO 0,
+ __HELO_GMAIL 0, __HEX28_LC_BOUNDARY 0, __HREF_LABEL_IMG 0, __HREF_LABEL_TEXT 0, __HTML_AHREF_TAG 0, __HTML_TAG_DIV 0, __HTML_TAG_IMG_X2 0, __HTML_TAG_TABLE 0, __HTTPS_URI 0, __HTTP_IMAGE_TAG 0, __IMGSPAM_TABLE_1 0, __IMG_THEN_TEXT 0, __MIME_HTML 0, __MIME_TEXT_H 0, __MIME_TEXT_H1 0, __MIME_TEXT_H2 0, __MIME_TEXT_P 0, __MIME_TEXT_P1 0, __MIME_TEXT_P2 0, __MIME_VERSION 0, __MULTIPLE_URI_HTML 0, __MULTIPLE_URI_TEXT 0, __RDNS_WEBMAIL 0, __REFERENCES 0, __SANE_MSGID 0, __TAG_EXISTS_HTML 0, __TO_MALFORMED_2 0, __TO_NO_NAME 0, __URI_IN_BODY 0, __URI_IN_BODY_HTTP_X10 0, __URI_MAILTO 0, __URI_NOT_IMG 0, __URI_NS , __URI_WITHOUT_PATH 0, __URI_WITH_PATH 0, __X_GOOGLE_DKIM_SIGNATURE 0, __YOUTUBE_MSGID 0, __YOUTUBE_RCVD 0'
+
+--0000000000002bb5f4059b28b136
+Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
+Content-Transfer-Encoding: base64
+
+SSd2ZSBzaGFyZWQgYW4gaXRlbSB3aXRoIHlvdToNCg0KdGV4dG1pbmluZyZiaW9jdXJhdGlvbg0K
+aHR0cHM6Ly9kcml2ZS5nb29nbGUuY29tL2RyaXZlL2ZvbGRlcnMvMEI5MnJ4VUVkMmxDemFtTm1j
+WGN4WkdWcGJGVT91c3A9c2hhcmluZyZ0cz01ZTBkZjhjNA0KDQpJdCdzIG5vdCBhbiBhdHRhY2ht
+ZW50IOKAkyBpdCdzIHN0b3JlZCBvbmxpbmUuIFRvIG9wZW4gdGhpcyBpdGVtLCBqdXN0IGNsaWNr
+ICANCnRoZSBsaW5rIGFib3ZlLg0K
+--0000000000002bb5f4059b28b136
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<html><head></head><body><script type=3D"application/json" data-scope=3D"in=
+boxmarkup" nonce=3D"alv7L4R+ozBhA2rRr1HwBg">{"publisher":{"api_key":"1e6ef4=
+c2b3e67680225868caeb59b7ad","name":"Google Drive"},"api_version":"1.0","upd=
+ates":{"snippets":[{"icon":"PERSON","message":"Aravind Venkatesan has invit=
+ed you to organise, add to and edit this folder"}],"action":{"name":"Open",=
+"url":"https://drive.google.com/drive/folders/0B92rxUEd2lCzamNmcXcxZGVpbFU?=
+usp\u003dsharing_eid\u0026ts\u003d5e0df8c4"}},"entity":{"main_image_url":"h=
+ttps://ssl.gstatic.com/bt/C3341AA7A1A076756462EE2E5CD71C11/smartmail/bt_goo=
+gle_drive_1600dp_r2.png","external_key":"0B92rxUEd2lCzamNmcXcxZGVpbFU","ava=
+tar_image_url":"https://www.gstatic.com/bt/C3341AA7A1A076756462EE2E5CD71C11=
+/smartmail/bt_google_drive_avatar_224dp_r1.png","subtitle":"shared by Aravi=
+nd Venkatesan","action":{"name":"Open","url":"https://drive.google.com/driv=
+e/folders/0B92rxUEd2lCzamNmcXcxZGVpbFU"},"title":"textmining\u0026biocurati=
+on"}}</script><div style=3D"width: 100%; padding: 24px 0 16px 0; background=
+-color: #f5f5f5; text-align: center;"><div style=3D"display: inline-block; =
+width: 90%; max-width: 680px;min-width: 280px; text-align: left; font-famil=
+y: Roboto,Arial,Helvetica,sans-serif;"><div style=3D"height: 0px;" dir=3D"l=
+tr"></div><div style=3D"display: block; padding: 0 2px;"><div style=3D"disp=
+lay: block; background: #fff; height: 2px;"></div></div><div style=3D"borde=
+r-left: 1px solid #f0f0f0; border-right: 1px solid #f0f0f0;"><div style=3D"=
+padding: 24px 32px 24px 32px; background:#fff; border-right: 1px solid #eae=
+aea; border-left: 1px solid #eaeaea;" dir=3D"ltr"><div style=3D"font-size: =
+14px; line-height: 18px; color: #444;"><a href=3D"mailto:avenkat@ebi.ac.uk"=
+ style=3D"color:inherit;text-decoration:none">avenkat@ebi.ac.uk</a> has inv=
+ited you to <b>contribute to</b> the following shared folder:</div><div sty=
+le=3D"height: 10px;"></div><div style=3D"font-size: 18px; display: table;">=
+<div style=3D"display: table-row; border-bottom: 4px solid #fff;"><span sty=
+le=3D"display: table-cell;"><div style=3D"height: 32px;"><img src=3D"https:=
+//ssl.gstatic.com/docs/documents/share/images/services/folder-3.png" aria-l=
+abel=3D"Folder" style=3D"vertical-align: middle; max-width: 24px;"/></div><=
+/span><span style=3D"display: table-cell; padding-left: 12px; word-break: b=
+reak-word;"><a href=3D"https://drive.google.com/drive/folders/0B92rxUEd2lCz=
+amNmcXcxZGVpbFU?usp=3Dsharing_eil&amp;ts=3D5e0df8c4" style=3D"color: #3367d=
+6; text-decoration: none; vertical-align: middle;">textmining&amp;biocurati=
+on</a><div itemprop=3D"action" itemscope itemtype=3D"http://schema.org/View=
+Action"><meta itemprop=3D"url" content=3D"https://drive.google.com/drive/fo=
+lders/0B92rxUEd2lCzamNmcXcxZGVpbFU?usp=3Dsharing_eil&amp;ts=3D5e0df8c4"></d=
+iv></span></div></div><div style=3D"height: 32px;"></div><div><a href=3D"ht=
+tps://drive.google.com/drive/folders/0B92rxUEd2lCzamNmcXcxZGVpbFU?usp=3Dsha=
+ring_eip&amp;ts=3D5e0df8c4" target=3D"_blank" style=3D"background-color: #4=
+d90fe; border: 1px solid #3079ed; border-radius: 2px; color: white; display=
+: inline-block; font: bold 11px Roboto,Arial,Helvetica,sans-serif; height: =
+29px; line-height: 29px; min-width: 54px; outline: 0px; padding: 0 8px; tex=
+t-align: center; text-decoration: none">Open</a></div></div></div><table st=
+yle=3D"width: 100%; border-collapse: collapse;" role=3D"presentation"><tr><=
+td style=3D"padding: 0px;"><table style=3D"border-collapse: collapse; width=
+: 3px;" role=3D"presentation"><tr height=3D"1"><td width=3D"1" bgcolor=3D"#=
+f0f0f0" style=3D"padding: 0px;"></td><td width=3D"1" bgcolor=3D"#eaeaea" st=
+yle=3D"padding: 0px;"></td><td width=3D"1" bgcolor=3D"#e5e5e5" style=3D"pad=
+ding: 0px;"></td></tr><tr height=3D"1"><td width=3D"1" bgcolor=3D"#f0f0f0" =
+style=3D"padding: 0px;"></td><td width=3D"1" bgcolor=3D"#eaeaea" style=3D"p=
+adding: 0px;"></td><td width=3D"1" bgcolor=3D"#eaeaea" style=3D"padding: 0p=
+x;"></td></tr><tr height=3D"1"><td width=3D"1" bgcolor=3D"#f5f5f5" style=3D=
+"padding: 0px;"></td><td width=3D"1" bgcolor=3D"#f0f0f0" style=3D"padding: =
+0px;"></td><td width=3D"1" bgcolor=3D"#f0f0f0" style=3D"padding: 0px;"></td=
+></tr></table></td><td style=3D"width: 100%; padding: 0px;"><div style=3D"h=
+eight: 1px; width: auto; border-top: 1px solid #ddd; background:#eaeaea; bo=
+rder-bottom: 1px solid #f0f0f0;"></div></td><td style=3D"padding: 0px;"><ta=
+ble style=3D"border-collapse: collapse; width: 3px;" role=3D"presentation">=
+<tr height=3D"1"><td width=3D"1" bgcolor=3D"#e5e5e5" style=3D"padding: 0px;=
+"></td><td width=3D"1" bgcolor=3D"#eaeaea" style=3D"padding: 0px;"></td><td=
+ width=3D"1" bgcolor=3D"#f0f0f0" style=3D"padding: 0px;"></td></tr><tr heig=
+ht=3D"1"><td width=3D"1" bgcolor=3D"#eaeaea" style=3D"padding: 0px;"></td><=
+td width=3D"1" bgcolor=3D"#eaeaea" style=3D"padding: 0px;"></td><td width=
+=3D"1" bgcolor=3D"#f0f0f0" style=3D"padding: 0px;"></td></tr><tr height=3D"=
+1"><td width=3D"1" bgcolor=3D"#f0f0f0" style=3D"padding: 0px;"></td><td wid=
+th=3D"1" bgcolor=3D"#f0f0f0" style=3D"padding: 0px;"></td><td width=3D"1" b=
+gcolor=3D"#f5f5f5" style=3D"padding: 0px;"></td></tr></table></td></tr></ta=
+ble><table style=3D"padding: 14px 10px 0 10px;" role=3D"presentation" dir=
+=3D"ltr"><tr><td style=3D"width: 100%; font:11px Roboto,Arial,Helvetica,san=
+s-serif; color:#646464; line-height: 20px; min-height: 40px; vertical-align=
+: middle;">Google Drive: Have all your files within reach from any device. =
+<br/>Google LLC, 1600 Amphitheatre Parkway, Mountain View, CA 94043, USA</t=
+d><td style=3D"padding-left: 20px; vertical-align: middle;"><a href=3D"http=
+s://drive.google.com" target=3D"_blank"><img src=3D"https://www.gstatic.com=
+/images/branding/googlelogo/1x/googlelogo_tm_black54_color_96x40dp.png" wid=
+th=3D"96" alt=3D"Logo for Google Drive" border=3D"0"></a></td></tr></table>=
+</div></div></body></html>
+--0000000000002bb5f4059b28b136--

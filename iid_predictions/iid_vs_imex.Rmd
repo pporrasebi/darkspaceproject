@@ -1,6 +1,6 @@
 ---
 title: Evaluation text mining predictions EPMC
-date: 2016-04-11
+date: 2020-01-17
 author: Pablo Porras
 ---
 ```{r set-options, echo=FALSE}
@@ -14,16 +14,30 @@ IID interaction predictions: Technical report
 
 I take the fraction of IID (http://dcv.uhnres.utoronto.ca/iid/) data that is either predicted using the FpClass algorithm (http://www.ncbi.nlm.nih.gov/pubmed/25402006) or derived from orthologous interactions as a predictor of potentially interacting pairs we have missed. 
 
+#### Libraries
+```{r libraries,message=FALSE,warning=FALSE}
+library(data.table)
+library(dplyr)
+```
+
 ### Part 1: Download and process information from IID
 
 I get the data from the IID web site.
 
 ```{r}
-if(!file.exists("./source_files/iid.human.2016-03.txt.gz")){
-        download.file("http://dcv.uhnres.utoronto.ca/downloads/iid.human.2016-03.txt.gz", destfile="./source_files/iid.human.2016-03.txt.gz", method= "curl")
+if(!file.exists("./source_files/human_annotated_PPIs.txt.gz")){
+        download.file("http://iid.ophid.utoronto.ca/static/download/human_annotated_PPIs.txt.gz", destfile="./source_files/human_annotated_PPIs.txt.gz", method= "curl")
 }
 
-iidhumanall <- read.table(gzfile("./source_files/iid.human.2016-03.txt.gz"), header = T, sep = "\t")
+setwd("./source_files")
+system("gunzip -d human_annotated_PPIs.txt.gz")
+iidhumanall <- fread(
+        "./human_annotated_PPIs.txt", 
+        header = T, 
+        sep = "\t",
+        check.names = T)
+system("rm human_annotated_PPIs.txt")
+setwd("../")
 ```
 
 I have a look at the data to check how much of it is 100% predicted. 
@@ -35,14 +49,13 @@ table(iidhumanall$evidence.type)
 I will discard all the interactions that have been only detected experimentally. 
 
 ```{r comment=NA,warning=FALSE,message=FALSE}
-iid_pred <- subset(iidhumanall, evidence.type != "exp")
+iid_pred <- iidhumanall[evidence.type!="exp"]
 table(iid_pred$evidence.type)
 ```
 
 Now I select the fields I will need for the comparison. I keep the field in which IID codes the database of origin to assess if there are mapping issues in the comparison. 
 
 ```{r message=FALSE,warning=FALSE}
-library(dplyr)
 iid_pred_sel <- unique(select(iid_pred,uniprot1,uniprot2,dbs))
 ```
 
@@ -62,6 +75,8 @@ iid_pred_pairs <- unique(select(iid_pred_sel,pair_id))
 iid_pred_pairs$iid_pred <- 1
 write.table(iid_pred_pairs,"./results//pairs_iid_pred.txt",col.names=T,row.names=F,quote=F,sep="\t")
 ```
+
+The IID predicted dataset contains `r length(unique(iid_pred_pairs$pair_id))` unique pairs. 
 
 ### Part 2: Load in the IMEx dataset
 
