@@ -17,6 +17,7 @@ suppressPackageStartupMessages({
         library(R.utils)
         library(XML)
         library(UniProt.ws)
+        library(splitstackshape)
         })
 ```
 
@@ -47,7 +48,7 @@ interactions[,table(is_directed)]
 Interaction data comes from these sources:
 
 ```{r sources}
-unique(as.character(interactions[, melt(tstrsplit(sources, ";"), na.rm = T)]$value))
+unique(as.character(interactions[, reshape2::melt(tstrsplit(sources, ";"), na.rm = T)]$value))
 ```
 
 ```{r OmniPath_interactions, results= 'hide',message=FALSE, warning=FALSE}
@@ -83,7 +84,7 @@ Post-translational modification data comes from these sources:
 
 ```{r ptm_sources}
 ptm = fread(ptm_file, colClasses = "character")
-unique(as.character(ptm[, melt(tstrsplit(sources, ";"), na.rm = T)]$value))
+unique(as.character(ptm[, reshape2::melt(tstrsplit(sources, ";"), na.rm = T)]$value))
 ```
 
 Post-translational modifications table contains the following information:
@@ -98,12 +99,20 @@ ptm[,table(modification)]
 
 ```{r OmniPath_ptm, results= 'hide',message=FALSE, warning=FALSE}
 # generating ptm pairs
-ptm[, pair_id_clean := apply(data.table(enzyme,substrate,stringsAsFactors = F), 1,
+ptm = ptm[, pair_id_clean := apply(data.table(enzyme,substrate,stringsAsFactors = F), 1,
                                                function(a) { z = sort(a)
                                                paste0(z[1],"_",z[2]) })]
 # extracting references
 ptm = unique(ptm)
-ptm = ptm[, .(pair_id_clean, enzyme, substrate, unlist(strsplit(references, ";")), sources, residue_type, residue_offset, modification, taxon = "9606", OmniPath_ptm = 1), by = paste0(enzyme, substrate, residue_offset, modification)]
+ptm = ptm[, .(pair_id_clean, enzyme, substrate, references, sources, residue_type, residue_offset, modification, taxon = "9606", OmniPath_ptm = 1), by = paste0(enzyme, substrate, residue_offset, modification)]
+ptm = cSplit(
+  ptm,
+  splitCols = "references",
+  sep = ";",
+  direction = "long",
+  drop = F
+)
+
 ptm[,paste0 := NULL]
 setnames(ptm, colnames(ptm)[4],"pubid")
 setnames(ptm, colnames(ptm)[c(2,3)],c("ida_clean","idb_clean"))

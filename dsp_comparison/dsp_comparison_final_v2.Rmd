@@ -138,7 +138,7 @@ The OmniPath-ptms dataset contains `r nrow(OmniPath_ptm_pairs)` protein associat
 
 ##### Pathway-inferred STRING data
 ```{r STRING_pi}
-string_pi <- fread("../STRING/results/pairs_STRING_pathway_inference.txt",header=T,colClasses=c("character","character","character","character","numeric","character","numeric"),data.table = T)
+string_pi <- fread("../STRING/results/pairs_STRING_pathway_inference.txt",header=T,colClasses=c("character","character","character","character","numeric","numeric"),data.table = T)
 string_pi_pairs <- unique(string_pi[,.(STRING_pi_score_ave=mean(STRING_score),STRING_pi=STRING_pathway_inference),by=pair_id_clean])
 string_pi_pairs <- string_pi_pairs[,.(pair_id=pair_id_clean,STRING_pi_score_ave,STRING_pi)]
 ```
@@ -181,8 +181,9 @@ EVEX_pmids <- EVEX_pmids[,.(pmid=pubid,EVEX,evex_score_ave)]
 The text-mining EVEX dataset contains `r nrow(EVEX_pairs)` protein associations recorded in `r nrow(EVEX_pmids)` publications.
 
 ##### Text-mining STRING data
+IMPORTANT NOTE: The STRING text mining data with PMIDs is from an older version of STRING< since it was obtained by Felix Langer, from Evangelia Petsalaki's group. This was done in Feb 2019 and the version of STRING and the interactions hosted there are VERY DIFFERENT from the ones we generated in Feb 2020. 
 ```{r STRING_TM}
-string_tm <- fread("../STRING/results/pairs_STRING_textmining.txt",header=T,colClasses=c("character","character","character","character","numeric","character","numeric"),data.table = T)
+string_tm <- fread("../STRING/results/pairs_STRING_textmining.txt",header=T,colClasses=c("character","character","character","character","numeric","numeric"),data.table = T)
 string_tm_pairs <- unique(string_tm[,.(STRING_tm_score_ave=mean(STRING_score),STRING_textmining),by=pair_id_clean])
 string_tm_pairs <- string_tm_pairs[,.(pair_id=pair_id_clean,STRING_tm_score_ave,STRING_textmining)]
 
@@ -210,7 +211,7 @@ The IID-predictions dataset contains `r nrow(iid_pred_pairs)` protein associatio
 
 ##### STRING predictions data
 ```{r STRING_pred}
-string_phylo <- fread("../STRING/results/pairs_STRING_phylo_predictions.txt",header=T,sep="\t",colClasses=c("character","character","character","character","numeric","character","numeric"),data.table = T)
+string_phylo <- fread("../STRING/results/pairs_STRING_phylo_predictions.txt",header=T,sep="\t",colClasses=c("character","character","character","character","numeric","numeric"),data.table = T)
 string_phylo_pairs <- unique(string_phylo[,.(STRING_phylo_score_ave=mean(STRING_score),STRING_phylo=STRING_phylo_predictions),by=pair_id_clean])
 string_phylo_pairs <- string_phylo_pairs[,.(pair_id=pair_id_clean,STRING_phylo_score_ave,STRING_phylo)]
 ```

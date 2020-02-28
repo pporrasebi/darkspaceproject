@@ -1,0 +1,251 @@
+---
+output: 
+  html_document: 
+    keep_md: yes
+---
+STRING dataset generator, version 3
+========================================================
+
+#### Libraries
+
+### Load STRING data
+
+I download the latest version of the STRING data for human from STRING website. Current file was downloaded on Thu Feb 27 12:21:09 2020. 
+
+
+```r
+STRING_url = "https://stringdb-static.org/download/protein.links.detailed.v11.0/9606.protein.links.detailed.v11.0.txt.gz"
+STRING_file_gz = "./source_files/9606.string.v11.txt.gz"
+STRING_file = "./source_files/9606.string.v11.txt"
+if(!file.exists(STRING_file_gz)) download(STRING_url,STRING_file_gz)
+gunzip(STRING_file_gz, remove = F, overwrite = T)
+# Reading the table, cleaning
+STRING = fread(STRING_file, colClasses = "character", header = T)
+unlink(STRING_file)
+```
+
+### STRING re-formatting
+
+#### UniProt re-mapping
+
+I need to remap the IDs provided by STRING (ENSEMBL-based) to UniProt. For that, I use the mappings that they provide on their website on https://string-db.org/mapping_files/uniprot/human.uniprot_2_string.2018.tsv.gz.
+
+##### Mappings download and formatting
+
+```r
+map.url = "https://string-db.org/mapping_files/uniprot/human.uniprot_2_string.2018.tsv.gz"
+map.file.gz = "./source_files/human.uniprot_2_string.2018.tsv.gz"
+map.file = "./source_files/human.uniprot_2_string.2018.tsv"
+
+if(!file.exists(map.file.gz)) download(map.url,map.file.gz)
+gunzip(map.file.gz, remove = F, overwrite = T)
+# Reading the table, cleaning
+map.up = fread(map.file, colClasses = "character", header = F)
+unlink(map.file)
+
+map.up.clean <- unique(map.up[,.(
+  string.id = V3,
+  upac = gsub("\\|.*","",V2)
+)])
+```
+
+##### Mapping STRING to UniProt identifiers
+
+```r
+string.map.1 <- unique(merge(
+  STRING,
+  map.up.clean,
+  by.x = "protein1",
+  by.y = "string.id",
+  all.x = T,
+  all.y = F
+))
+
+string.map.2 <- unique(merge(
+  string.map.1,
+  map.up.clean,
+  by.x = "protein2",
+  by.y = "string.id",
+  all.x = T,
+  all.y = F
+))
+
+string.map <- unique(string.map.2[!is.na(upac.x) & !is.na(upac.y),.(
+  id.a = upac.x,
+  id.b = upac.y,
+  neighborhood,
+  fusion,
+  cooccurence,
+  coexpression,
+  experimental,
+  database,
+  textmining,
+  combined_score
+)])
+
+string.map <- string.map[, pair_id := apply(data.table(id.a,id.b,stringsAsFactors = F), 1,
+                                               function(a) { z = sort(a)
+                                               paste0(z[1],"_",z[2]) })]
+```
+
+##### Score threshold selection
+First I explore a bit the number of entries I get using the two different thresholds that I am considering: 0.4 as the default they propose one their website and 0.7 as the high confidence one that is also used by Íñigo on the OTAR-044 project. 
+
+
+```r
+string.hs <- string.map[combined_score>=700]
+string.ms <- string.map[combined_score>=400]
+```
+
+##### STRING evidence source selection
+Now I need to select different flavours of STRING from each of the confidence scores I have selected. 
+
+Briefly, the seven evidence channels in STRING are 
+
+   (i) The experiments channel: Here, evidence comes from actual experiments in the lab (including biochemical, biophysical, as well as genetic experiments). This channel is populated mainly from the primary interaction databases organized in the IMEx consortium, plus BioGRID. 
+
+   (ii) The database channel: In this channel, STRING collects evidence that has been asserted by a human expert curator; this information is imported from pathway databases. 
+
+   (iii) The textmining channel: Here, STRING searches for mentions of protein names in all PubMed abstracts, in an in-house collection of more than three million fulltext articles, and in other text collections . Pairs of proteins are given an association score when they are frequently mentioned together in the same paper, abstract or even sentence (relative to how often they are mentioned separately). This score is raised further when it has been possible to parse one or more sentences through Natural Language Processing, and a concept connecting the two proteins was encountered (such as ‘binding’ or ‘phosphorylation by’). 
+
+   (iv) The coexpression channel: For this channel, gene expression data originating from a variety of expression experiments are normalized, pruned and then correlated. Pairs of proteins that are consistently similar in their expression patterns, under a variety of conditions, will receive a high association score. 
+
+   (v) The neighborhood channel: This channel, and the next two, are genome-based prediction channels, whose functionality is generally most relevant for Bacteria and Archaea. In the neighborhood channel, genes are given an association score where they are consistently observed in each other's genome neighborhood (such as in the case of conserved, co-transcribed ‘operons’). 
+
+   (vi) The fusion channel: Pairs of proteins are given an association score when there is at least one organism where their respective orthologs have fused into a single, protein-coding gene. 
+
+   (vii) The co-occurrence channel: In this channel, STRING evaluates the phylogenetic distribution of orthologs of all proteins in a given organism. If two proteins show a high similarity in this distribution, i.e. if their orthologs tend to be observed as ‘present’ or ‘absent’ in the same subsets of organisms, then an association score is assigned.
+
+I have three groups: 
+   - STRING.textmining: Taken from pathway databases. It would include those that make the threshold AND have a non-zero value in the 'textmining' column.
+   - STRING.pathway: Taken from pathway databases. It would include those that make the threshold AND have a non-zero value in the 'database' column.
+   - STRING.phylo: Interactions defiend via genome-based prediction. It would include those that make the threshold AND have a non-zero value in the columns 'fusion', 'neighborhood' or 'cooccurence'. 
+
+
+
+
+```r
+# saving STRING_textmining table with standard columns
+STRING_textmining = string.hs[textmining!=0,.(pair_id_clean=pair_id, ida_clean = id.a, idb_clean = id.b, taxon = "9606", STRING_score = combined_score, STRING_textmining = 1)]
+fwrite(x = unique(STRING_textmining), 
+       file = "./results/pairs_STRING_textmining.txt", sep = "\t")
+
+# saving STRING_pathway_inference table with standard columns
+STRING_pathway_inference = string.hs[database!=0,.(pair_id_clean=pair_id, ida_clean = id.a, idb_clean = id.b, taxon = "9606", STRING_score = combined_score, STRING_pathway_inference = 1)]
+fwrite(x = unique(STRING_pathway_inference), 
+       file = "./results/pairs_STRING_pathway_inference.txt", sep = "\t")
+
+# saving STRING_phylo_predictions table with standard columns
+STRING_phylo_predictions = string.hs[fusion!=0 | neighborhood!=0 | cooccurence!=0,.(pair_id_clean=pair_id, ida_clean = id.a, idb_clean = id.b, taxon = "9606", STRING_score = combined_score, STRING_phylo_predictions = 1)]
+fwrite(x = unique(STRING_phylo_predictions), 
+       file = "./results/pairs_STRING_phylo_predictions.txt", sep = "\t")
+```
+
+The total number of interacting pairs in the filtered by database STRING_textmining dataset: 295047
+
+The total number of interacting pairs in the filtered by database STRING_pathway_inference dataset: 323621 
+
+The total number of interacting pairs in the filtered by database STRING_phylo_predictions dataset: 19302 
+
+#### Compare STRING "textmining", "pathway inference", "phylogeny and homology-based predictions" datasets
+
+I calculate how many interactions overlap between different STRING datasets.
+
+
+```r
+area1 = STRING_textmining[STRING_textmining == 1,.N]
+area2 = STRING_pathway_inference[STRING_pathway_inference == 1,.N]
+area3 = STRING_phylo_predictions[STRING_phylo_predictions == 1,.N]
+n12 = sum(!is.na(match(STRING_textmining[,unique(pair_id_clean)], STRING_pathway_inference[,unique(pair_id_clean)])))
+n23 = sum(!is.na(match(STRING_pathway_inference[,unique(pair_id_clean)], STRING_phylo_predictions[,unique(pair_id_clean)])))
+n13 = sum(!is.na(match(STRING_textmining[,unique(pair_id_clean)], STRING_phylo_predictions[,unique(pair_id_clean)])))
+n123 = length(intersect(intersect(STRING_textmining$pair_id_clean,STRING_pathway_inference$pair_id_clean),STRING_phylo_predictions$pair_id_clean))
+
+venn_Interactions_1 = draw.triple.venn(area1 = area1, 
+                          area2 = area2, 
+                          area3 = area3, 
+                          n12 = n12, 
+                          n23 = n23,
+                          n13 = n13,
+                          n123 = n123, 
+                          category = c("STRING_textmining", 
+                                       "STRING_pathway_inference", 
+                                       "STRING_phylo_predictions"), 
+                          lty = rep("blank", 3), 
+                          fill = c("blue", "red", "green"), 
+                          alpha = rep(0.5, 3), cat.pos = c(350, 25, 160), 
+                          cat.dist = c(0.08,0.035, 0.08), 
+                          cat.cex = c(0.9,0.9, 0.9), scaled = TRUE, euler.d = TRUE,  margin = 0.05,
+                          print.mode =  'raw',
+                          cex = 0.8
+)
+```
+
+![](STRING_dsgen_v3_files/figure-html/STRING_comparison -1.png)<!-- -->
+
+
+#### Compare STRING datasets and IMEx 
+
+I calculate how many interactions in STRING datasets match to IMEx.  
+
+
+```r
+imex = fread("https://raw.githubusercontent.com/pporrasebi/darkspaceproject/master/IMEx/results/imex_full.txt", header = T, sep = "\t", colClasses = "character")
+imex_human = imex[taxid_a == "9606" | taxid_b == "9606",]
+
+area1 = STRING_textmining[STRING_textmining == 1,.N]
+area2 = STRING_pathway_inference[STRING_pathway_inference == 1,.N]
+area3 = STRING_phylo_predictions[STRING_phylo_predictions == 1,.N]
+area4 = imex_human[,length(unique(pair_id))]
+n12 = sum(!is.na(match(STRING_textmining[,unique(pair_id_clean)], STRING_pathway_inference[,unique(pair_id_clean)])))
+n13 = sum(!is.na(match(STRING_textmining[,unique(pair_id_clean)], STRING_phylo_predictions[,unique(pair_id_clean)])))
+n14 = sum(!is.na(match(STRING_textmining[,unique(pair_id_clean)], imex_human[,unique(pair_id)])))
+n23 = sum(!is.na(match(STRING_pathway_inference[,unique(pair_id_clean)], STRING_phylo_predictions[,unique(pair_id_clean)])))
+n24 = sum(!is.na(match(STRING_pathway_inference[,unique(pair_id_clean)], imex_human[,unique(pair_id)])))
+n34 = sum(!is.na(match(STRING_phylo_predictions[,unique(pair_id_clean)], imex_human[,unique(pair_id)])))
+n123 = length(intersect(intersect(unique(STRING_textmining$pair_id_clean),unique(STRING_pathway_inference$pair_id_clean)),unique(STRING_phylo_predictions$pair_id_clean)))
+n124 = length(intersect(intersect(unique(STRING_textmining$pair_id_clean),unique(STRING_pathway_inference$pair_id_clean)),unique(imex_human$pair_id)))
+n134 = length(intersect(intersect(unique(STRING_textmining$pair_id_clean),unique(STRING_phylo_predictions$pair_id_clean)),unique(imex_human$pair_id)))
+n234 = length(intersect(intersect(unique(STRING_pathway_inference$pair_id_clean),unique(STRING_phylo_predictions$pair_id_clean)),unique(imex_human$pair_id)))
+n1234 = length(intersect(intersect(intersect(unique(STRING_textmining$pair_id_clean),unique(STRING_pathway_inference$pair_id_clean)),unique(STRING_phylo_predictions$pair_id_clean)), unique(imex_human$pair_id)))
+
+
+venn_Interactions_1 = draw.quad.venn(area1, area2, area3, area4, n12, n13, n14, n23, n24,
+    n34, n123, n124, n134, n234, n1234, 
+                          category = c("STRING_textmining", 
+                                       "STRING_pathway_inference", 
+                                       "STRING_phylo_predictions",
+                                       "IMEx"), 
+                          lty = rep("blank", 4), 
+                          fill = c("blue", "red", "green", "grey"), 
+                          alpha = rep(0.5, 4), cat.pos = c(350, 25, 160,45), 
+                          cat.dist = c(0.08,0.035, -0.08, 0.08), 
+                          cat.cex = c(0.9,0.9, 0.9, 0.9), scaled = TRUE, euler.d = TRUE,  margin = 0.05,
+                          print.mode =  'raw',
+                          cex = 0.8
+)
+```
+
+![](STRING_dsgen_v3_files/figure-html/STRING_imex_comparison -1.png)<!-- -->
+
+
+*****************************************
+
+# Discarded code
+
+<!-- ### Interaction types -->
+<!-- To do this I need the interaction types as defiend by STRING, which can be downloaded at https://stringdb-static.org/download/protein.actions.v11.0/9606.protein.actions.v11.0.txt.gz.  -->
+
+<!-- ###### Download STRING interaction types -->
+<!-- ```{r type.dl} -->
+<!-- type.url = "https://stringdb-static.org/download/protein.actions.v11.0/9606.protein.actions.v11.0.txt.gz" -->
+<!-- type.file.gz = "./source_files/9606.protein.actions.v11.0.txt.gz" -->
+<!-- type.file = "./source_files/9606.protein.actions.v11.0.txt" -->
+
+<!-- if(!file.exists(type.file.gz)) download(type.url,type.file.gz) -->
+<!-- gunzip(type.file.gz, remove = F, overwrite = T) -->
+<!-- # Reading the table, cleaning -->
+<!-- type.string = fread(type.file, colClasses = "character", header = T) -->
+<!-- unlink(type.file) -->
+<!-- table(type.string$mode,useNA = "ifany") -->
+<!-- ``` -->

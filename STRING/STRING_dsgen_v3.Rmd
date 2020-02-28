@@ -11,17 +11,16 @@ STRING dataset generator, version 3
 STRING_date <- date()
 suppressPackageStartupMessages({
         library(data.table)
-        library(VennDiagram)
         library(downloader)
         library(R.utils)
-        library(XML)
-        library(UniProt.ws)
-        library(httr)
-        library(limma)
         library(splitstackshape)
+        library(ggplot2)
+        library(gridExtra)
+        library(tidyverse)
+        library(VennDiagram)
         })
 ```
-#### Load STRING data
+### Load STRING data
 
 I download the latest version of the STRING data for human from STRING website. Current file was downloaded on `r STRING_date`. 
 
@@ -36,153 +35,115 @@ STRING = fread(STRING_file, colClasses = "character", header = T)
 unlink(STRING_file)
 ```
 
-#### STRING re-formatting
+### STRING re-formatting
 
-# Cosas que hay que hacer:
+#### UniProt re-mapping
 
-    - Remapear a uniprot: Mirar en string website a ver si tienen los mapeos ellos
-    - Elegir columnas relevantes
-    - Decidir umbral para TM y predicciones: hablar con Íñigo
-    
-    
-```{r string.format}
-STRING_proc = STRING_mitab[,.(ida = V1, idb = V2, method = V7, taxida = V10, taxidb = V11, interaction_type = V12, database = V13, score = V15)]
-STRING_proc[, ida_ENSP := gsub("^string:9606\\.","", ida)]
-STRING_proc[, ida_ENSP := gsub("\\|uniprotkb:.+$","", ida_ENSP)]
-STRING_proc[, idb_ENSP := gsub("^string:9606\\.","", idb)]
-STRING_proc[, idb_ENSP := gsub("\\|uniprotkb:.+$","", idb_ENSP)]
-STRING_proc[, score := gsub("^score:","", score)]
+I need to remap the IDs provided by STRING (ENSEMBL-based) to UniProt. For that, I use the mappings that they provide on their website on https://string-db.org/mapping_files/uniprot/human.uniprot_2_string.2018.tsv.gz.
+
+##### Mappings download and formatting
+```{r map.dl}
+map.url = "https://string-db.org/mapping_files/uniprot/human.uniprot_2_string.2018.tsv.gz"
+map.file.gz = "./source_files/human.uniprot_2_string.2018.tsv.gz"
+map.file = "./source_files/human.uniprot_2_string.2018.tsv"
+
+if(!file.exists(map.file.gz)) download(map.url,map.file.gz)
+gunzip(map.file.gz, remove = F, overwrite = T)
+# Reading the table, cleaning
+map.up = fread(map.file, colClasses = "character", header = F)
+unlink(map.file)
+
+map.up.clean <- unique(map.up[,.(
+  string.id = V3,
+  upac = gsub("\\|.*","",V2)
+)])
 ```
 
-#### STRING PMID-interactions text-mined pairs
-
-I obtain the STRING text mining data from Felix Langer, who has made the full SQL installation of the STRING database to obtain the interaction-PMID links we lack. 
-
-```{r pmid-ints}
-pmid_pairs <- unique(fread(
-        "./source_files/flanger_files/interactions_with_pmids.csv",
-        sep = ",",
-        header = T,
-        colClasses = "character",
-        stringsAsFactors = F
+##### Mapping STRING to UniProt identifiers
+```{r map.string}
+string.map.1 <- unique(merge(
+  STRING,
+  map.up.clean,
+  by.x = "protein1",
+  by.y = "string.id",
+  all.x = T,
+  all.y = F
 ))
 
-# Refs come from PMID and OMIM, need to clean them up and discard OMIM.
+string.map.2 <- unique(merge(
+  string.map.1,
+  map.up.clean,
+  by.x = "protein2",
+  by.y = "string.id",
+  all.x = T,
+  all.y = F
+))
 
-pmid_pairs_clean <- unique(pmid_pairs[grepl("PMID:",pmids),.(
-        ida_ENSP = gsub(".*[.]","",protein1),
-        taxID.a = gsub("[.].*","",protein1),
-        idb_ENSP = gsub(".*[.]","",protein2),
-        taxID.b = gsub("[.].*","",protein2),
-        textmining,
-        textmining_transferred,
-        combined_score,
-        pmids = gsub(", ",",",gsub("\'","",gsub("\\]","",gsub("\\[","",gsub("OMIM:[0-9]+\', ","",pmids)))))
+string.map <- unique(string.map.2[!is.na(upac.x) & !is.na(upac.y),.(
+  id.a = upac.x,
+  id.b = upac.y,
+  neighborhood,
+  fusion,
+  cooccurence,
+  coexpression,
+  experimental,
+  database,
+  textmining,
+  combined_score
 )])
-```
 
-```{r string_id_mapping, message=F, warning=F}
-string_proteins = STRING_proc[,unique(c(ida_ENSP, idb_ENSP))]
-# map ENSEMBL_PROTEIN to UNIPROTKB
-uniprot = UniProt.ws(taxId=9606)
-# getting names of the keys and columns from Uniprot
-# keytypes(uniprot)
-# mapping IDs
-string_proteins_up = data.table()
-for(i in seq(1, length(string_proteins),500)){
-ENSP2uniprot_temp <- as.data.table(select(uniprot, 
-               keys = string_proteins[i:(i+500)], 
-               columns = c("ENSEMBL_PROTEIN", "UNIPROTKB"),
-               keytype = "ENSEMBL_PROTEIN"))
-ENSP2uniprot = copy(ENSP2uniprot_temp[complete.cases(ENSP2uniprot_temp),])
-string_proteins_up = rbind(string_proteins_up, ENSP2uniprot)
-}
-
-# Cleaning up mapping column
-
-string_proteins_up <- unique(string_proteins_up[,.(
-        ENSEMBL_PROTEIN,
-        UNIPROTKB = gsub("-[0-9]+","",gsub(".* -> ","",UNIPROTKB))
-)])
-colnames(string_proteins_up)[2] = "id_up"
-
-# Mapping STRING data obtained through their website
-STRING_proc <- STRING_proc[, `:=` (ida_up = string_proteins_up$id_up[match(ida_ENSP,string_proteins_up$ENSEMBL_PROTEIN)], idb_up = string_proteins_up$id_up[match(idb_ENSP,string_proteins_up$ENSEMBL_PROTEIN)])]
-
-STRING_proc = STRING_proc[complete.cases(STRING_proc)]
-
-# Mapping STRING data from Felix pipeline
-pmid_pairs_mapped <- pmid_pairs_clean[taxID.a=="9606" & taxID.b=="9606", `:=` (ida_up = string_proteins_up$id_up[match(ida_ENSP,string_proteins_up$ENSEMBL_PROTEIN)], idb_up = string_proteins_up$id_up[match(idb_ENSP,string_proteins_up$ENSEMBL_PROTEIN)])]
-
-pmid_pairs_mapped = pmid_pairs_mapped[complete.cases(pmid_pairs_mapped)]
-```
-
-```{r string_sorting,message=FALSE, warning=FALSE}
-STRING_proc[, sort(table(method), decreasing = T)]
-# generating interacting pairs
-STRING_proc[, pair_id_clean := apply(data.table(ida_up,idb_up,stringsAsFactors = F), 1,
+string.map <- string.map[, pair_id := apply(data.table(id.a,id.b,stringsAsFactors = F), 1,
                                                function(a) { z = sort(a)
                                                paste0(z[1],"_",z[2]) })]
-
-pmid_pairs_mapped[, pair_id_clean := apply(data.table(ida_up,idb_up,stringsAsFactors = F), 1,
-                                               function(a) { z = sort(a)
-                                               paste0(z[1],"_",z[2]) })]
-
-text_mining_pmids <- unique(pmid_pairs_mapped[,.(
-        pmids = paste(unique(pmids),collapse = ",")
-),
-by = c("pair_id_clean")])
-
-# Bring PMIDs to STRING data 
-
-STRING_proc_v2 <- STRING_proc[, `:=` (pmids = text_mining_pmids$pmids[match(pair_id_clean,text_mining_pmids$pair_id_clean)])]
-
-STRING_textmining = STRING_proc_v2[method == "psi-mi:\"MI:0087\"(predictive text mining)",]
-STRING_textmining[, sort(table(database), decreasing = T)]
-
-STRING_textmining_pmids <- STRING_textmining[!is.na(pmids)]
-STRING_textmining_pmid <- cSplit(
-        STRING_textmining_pmids,
-        splitCols = "pmids",
-        sep = ",",
-        direction = "long",
-        drop = F
-)
-
-STRING_pathway_inference = STRING_proc_v2[method %in% c("psi-mi:\"MI:0362\"(inference)"),]
-STRING_pathway_inference[, sort(table(database), decreasing = T)][1:20]
-
-STRING_phylo_predictions = STRING_proc_v2[method %in% c("psi-mi:\"MI:0064\"(interologs mapping)","psi-mi:\"MI:0085\"(phylogenetic profile)", "psi-mi:\"MI:0036\"(domain fusion)"),]
-STRING_phylo_predictions[, sort(table(database), decreasing = T)]
-
-# STRING_proc = STRING_proc[-grep("intact", database),]
-# STRING_proc = STRING_proc[-grep("biogrid", database),]
-# STRING_proc = STRING_proc[-grep("reactome", database),]
-# STRING_proc = STRING_proc[-grep("hprd", database),]
-# STRING_proc = STRING_proc[-grep("mint", database),]
-# STRING_proc = STRING_proc[-grep("dip", database),]
-# STRING_proc = STRING_proc[-grep("bind", database),]
-
 ```
+
+##### Score threshold selection
+First I explore a bit the number of entries I get using the two different thresholds that I am considering: 0.4 as the default they propose one their website and 0.7 as the high confidence one that is also used by Íñigo on the OTAR-044 project. 
+
+```{r string.score.sel}
+string.hs <- string.map[combined_score>=700]
+string.ms <- string.map[combined_score>=400]
+```
+
+##### STRING evidence source selection
+Now I need to select different flavours of STRING from each of the confidence scores I have selected. 
+
+Briefly, the seven evidence channels in STRING are 
+
+   (i) The experiments channel: Here, evidence comes from actual experiments in the lab (including biochemical, biophysical, as well as genetic experiments). This channel is populated mainly from the primary interaction databases organized in the IMEx consortium, plus BioGRID. 
+
+   (ii) The database channel: In this channel, STRING collects evidence that has been asserted by a human expert curator; this information is imported from pathway databases. 
+
+   (iii) The textmining channel: Here, STRING searches for mentions of protein names in all PubMed abstracts, in an in-house collection of more than three million fulltext articles, and in other text collections . Pairs of proteins are given an association score when they are frequently mentioned together in the same paper, abstract or even sentence (relative to how often they are mentioned separately). This score is raised further when it has been possible to parse one or more sentences through Natural Language Processing, and a concept connecting the two proteins was encountered (such as ‘binding’ or ‘phosphorylation by’). 
+
+   (iv) The coexpression channel: For this channel, gene expression data originating from a variety of expression experiments are normalized, pruned and then correlated. Pairs of proteins that are consistently similar in their expression patterns, under a variety of conditions, will receive a high association score. 
+
+   (v) The neighborhood channel: This channel, and the next two, are genome-based prediction channels, whose functionality is generally most relevant for Bacteria and Archaea. In the neighborhood channel, genes are given an association score where they are consistently observed in each other's genome neighborhood (such as in the case of conserved, co-transcribed ‘operons’). 
+
+   (vi) The fusion channel: Pairs of proteins are given an association score when there is at least one organism where their respective orthologs have fused into a single, protein-coding gene. 
+
+   (vii) The co-occurrence channel: In this channel, STRING evaluates the phylogenetic distribution of orthologs of all proteins in a given organism. If two proteins show a high similarity in this distribution, i.e. if their orthologs tend to be observed as ‘present’ or ‘absent’ in the same subsets of organisms, then an association score is assigned.
+
+I have three groups: 
+   - STRING.textmining: Taken from pathway databases. It would include those that make the threshold AND have a non-zero value in the 'textmining' column.
+   - STRING.pathway: Taken from pathway databases. It would include those that make the threshold AND have a non-zero value in the 'database' column.
+   - STRING.phylo: Interactions defiend via genome-based prediction. It would include those that make the threshold AND have a non-zero value in the columns 'fusion', 'neighborhood' or 'cooccurence'. 
+
 
 
 ```{r , results= 'hide',message=FALSE, warning=FALSE}
-
 # saving STRING_textmining table with standard columns
-STRING_textmining = STRING_textmining[,.(pair_id_clean, ida_clean = ida_up, idb_clean = idb_up, taxon = "9606", STRING_score = score, database, STRING_textmining = 1)]
+STRING_textmining = string.hs[textmining!=0,.(pair_id_clean=pair_id, ida_clean = id.a, idb_clean = id.b, taxon = "9606", STRING_score = combined_score, STRING_textmining = 1)]
 fwrite(x = unique(STRING_textmining), 
        file = "./results/pairs_STRING_textmining.txt", sep = "\t")
-# saving STRING_textmining_pmid table with standard columns
-STRING_textmining_pmid = STRING_textmining_pmid[,.(pair_id_clean, ida_clean = ida_up, idb_clean = idb_up, taxon = "9606", pmid = pmids, STRING_score = score, database, STRING_textmining = 1)]
-fwrite(x = unique(STRING_textmining_pmid), 
-       file = "./results/pairs_STRING_textmining_pmid.txt", sep = "\t")
-system("zip -rm ./results/pairs_STRING_textmining_pmid.txt.zip ./results/pairs_STRING_textmining_pmid.txt")
+
 # saving STRING_pathway_inference table with standard columns
-STRING_pathway_inference = STRING_pathway_inference[,.(pair_id_clean, ida_clean = ida_up, idb_clean = idb_up, taxon = "9606", STRING_score = score, database, STRING_pathway_inference = 1)]
+STRING_pathway_inference = string.hs[database!=0,.(pair_id_clean=pair_id, ida_clean = id.a, idb_clean = id.b, taxon = "9606", STRING_score = combined_score, STRING_pathway_inference = 1)]
 fwrite(x = unique(STRING_pathway_inference), 
        file = "./results/pairs_STRING_pathway_inference.txt", sep = "\t")
+
 # saving STRING_phylo_predictions table with standard columns
-STRING_phylo_predictions = STRING_phylo_predictions[,.(pair_id_clean, ida_clean = ida_up, idb_clean = idb_up, taxon = "9606", STRING_score = score, database, STRING_phylo_predictions = 1)]
+STRING_phylo_predictions = string.hs[fusion!=0 | neighborhood!=0 | cooccurence!=0,.(pair_id_clean=pair_id, ida_clean = id.a, idb_clean = id.b, taxon = "9606", STRING_score = combined_score, STRING_phylo_predictions = 1)]
 fwrite(x = unique(STRING_phylo_predictions), 
        file = "./results/pairs_STRING_phylo_predictions.txt", sep = "\t")
 ```
@@ -269,3 +230,25 @@ venn_Interactions_1 = draw.quad.venn(area1, area2, area3, area4, n12, n13, n14, 
 )
 
 ```
+
+
+*****************************************
+
+<!-- # Discarded code -->
+
+<!-- ### Interaction types -->
+<!-- To do this I need the interaction types as defiend by STRING, which can be downloaded at https://stringdb-static.org/download/protein.actions.v11.0/9606.protein.actions.v11.0.txt.gz.  -->
+
+<!-- ###### Download STRING interaction types -->
+<!-- ```{r type.dl} -->
+<!-- type.url = "https://stringdb-static.org/download/protein.actions.v11.0/9606.protein.actions.v11.0.txt.gz" -->
+<!-- type.file.gz = "./source_files/9606.protein.actions.v11.0.txt.gz" -->
+<!-- type.file = "./source_files/9606.protein.actions.v11.0.txt" -->
+
+<!-- if(!file.exists(type.file.gz)) download(type.url,type.file.gz) -->
+<!-- gunzip(type.file.gz, remove = F, overwrite = T) -->
+<!-- # Reading the table, cleaning -->
+<!-- type.string = fread(type.file, colClasses = "character", header = T) -->
+<!-- unlink(type.file) -->
+<!-- table(type.string$mode,useNA = "ifany") -->
+<!-- ``` -->

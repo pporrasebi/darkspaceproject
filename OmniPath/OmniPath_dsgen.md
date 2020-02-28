@@ -1,3 +1,8 @@
+---
+output: 
+  html_document: 
+    keep_md: yes
+---
 OmniPath dataset generator
 ========================================================
 
@@ -5,7 +10,7 @@ OmniPath dataset generator
 
 
 
-I download the latest version of the OmniPath data from OmniPath website: interaction table (source-target) and post-translational modifications table (enzyme-substrate). Current file was downloaded on Thu Mar  9 14:20:21 2017. PMID: 27898060
+I download the latest version of the OmniPath data from OmniPath website: interaction table (source-target) and post-translational modifications table (enzyme-substrate). Current file was downloaded on Thu Feb 27 13:34:24 2020. PMID: 27898060
 
 
 ```r
@@ -47,22 +52,19 @@ Interaction data comes from these sources:
 
 
 ```r
-unique(as.character(interactions[, melt(tstrsplit(sources, ";"), na.rm = T)]$value))
+unique(as.character(interactions[, reshape2::melt(tstrsplit(sources, ";"), na.rm = T)]$value))
 ```
 
 ```
-##  [1] "PhosphoPoint"     "Laudanna_effects" "Signor"          
-##  [4] "BioGRID"          "STRING"           "InnateDB"        
-##  [7] "DEPOD"            "phosphoELM"       "PhosphoSite_dir" 
-## [10] "HPRD-phos"        "SignaLink3"       "IntAct"          
-## [13] "HPRD"             "dbPTM"            "MIMP"            
-## [16] "PhosphoSite"      "TRIP"             "CA1"             
-## [19] "KEGG"             "SPIKE"            "CancerCellMap"   
-## [22] "Laudanna_sigflow" "MatrixDB"         "Macrophage"      
-## [25] "ACSN"             "DOMINO"           "ELM"             
-## [28] "MPPI"             "DeathDomain"      "NRF2ome"         
-## [31] "ARN"              "LMPID"            "PhosphoNetworks" 
-## [34] "Li2012"           "Wang"             "DIP"             
+##  [1] "PhosphoPoint"     "Laudanna_effects" "Signor"           "BioGRID"         
+##  [5] "STRING"           "InnateDB"         "DEPOD"            "phosphoELM"      
+##  [9] "PhosphoSite_dir"  "HPRD-phos"        "SignaLink3"       "IntAct"          
+## [13] "HPRD"             "dbPTM"            "MIMP"             "PhosphoSite"     
+## [17] "TRIP"             "CA1"              "KEGG"             "SPIKE"           
+## [21] "CancerCellMap"    "Laudanna_sigflow" "MatrixDB"         "Macrophage"      
+## [25] "ACSN"             "DOMINO"           "ELM"              "MPPI"            
+## [29] "DeathDomain"      "NRF2ome"          "ARN"              "LMPID"           
+## [33] "PhosphoNetworks"  "Li2012"           "Wang"             "DIP"             
 ## [37] "Guide2Pharma"     "PDZBase"
 ```
 
@@ -101,7 +103,7 @@ Post-translational modification data comes from these sources:
 
 ```r
 ptm = fread(ptm_file, colClasses = "character")
-unique(as.character(ptm[, melt(tstrsplit(sources, ";"), na.rm = T)]$value))
+unique(as.character(ptm[, reshape2::melt(tstrsplit(sources, ";"), na.rm = T)]$value))
 ```
 
 ```
@@ -149,12 +151,20 @@ ptm[,table(modification)]
 
 ```r
 # generating ptm pairs
-ptm[, pair_id_clean := apply(data.table(enzyme,substrate,stringsAsFactors = F), 1,
+ptm = ptm[, pair_id_clean := apply(data.table(enzyme,substrate,stringsAsFactors = F), 1,
                                                function(a) { z = sort(a)
                                                paste0(z[1],"_",z[2]) })]
 # extracting references
 ptm = unique(ptm)
-ptm = ptm[, .(pair_id_clean, enzyme, substrate, unlist(strsplit(references, ";")), sources, residue_type, residue_offset, modification, taxon = "9606", OmniPath_ptm = 1), by = paste0(enzyme, substrate, residue_offset, modification)]
+ptm = ptm[, .(pair_id_clean, enzyme, substrate, references, sources, residue_type, residue_offset, modification, taxon = "9606", OmniPath_ptm = 1), by = paste0(enzyme, substrate, residue_offset, modification)]
+ptm = cSplit(
+  ptm,
+  splitCols = "references",
+  sep = ";",
+  direction = "long",
+  drop = F
+)
+
 ptm[,paste0 := NULL]
 setnames(ptm, colnames(ptm)[4],"pubid")
 setnames(ptm, colnames(ptm)[c(2,3)],c("ida_clean","idb_clean"))
@@ -170,9 +180,9 @@ fwrite(x = unique(ptm_s),
        file = "./results/pairs_pmids_OmniPath_ptm_interactions_minimal.txt", sep = "\t")
 ```
 
-The total number of interacting pairs in the filtered by database interaction dataset: 5596  
+The total number of interacting pairs in the filtered by database interaction dataset: 2141  
 
-The total number of articles where evidence comes from (in the filtered by database interaction dataset): 2610    
+The total number of articles where evidence comes from (in the filtered by database interaction dataset): 2606    
 
 
 I create a list of PMIDs that serve as the evidence for the interaction dataset  
@@ -193,7 +203,7 @@ ptm_pmids <- data.frame(unique(ptm$pubid))
 write.table(ptm_pmids, "./results/OmniPath_ptm_interactions_pmids.txt", quote=F, sep ="\t", row.names = F, col.names = T)
 ```
 
-2610 publications serve as the evidence for the ptm dataset   
+2606 publications serve as the evidence for the ptm dataset   
 
 #### Compare interaction and ptm datasets
 
