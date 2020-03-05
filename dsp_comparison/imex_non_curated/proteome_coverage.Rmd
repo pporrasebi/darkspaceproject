@@ -1,0 +1,182 @@
+---
+title: "Proteome_coverage"
+author: "Pablo Porras"
+date: "05/03/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Synopsis
+
+Coverage of IntAct for human proteome. 
+
+#### Libraries
+```{r libraries,message=FALSE,warning=FALSE}
+library(data.table)
+library(VennDiagram)
+library(ggplot2)
+```
+
+#### Data upload
+```{r upload}
+# IntAct
+if (!file.exists("./source_data/intact.zip")){
+        download.file(url="ftp://ftp.ebi.ac.uk/pub/databases/intact/current/psimitab/intact.zip",destfile = "./source_data/intact.zip",method = "curl")
+}
+
+setwd("./source_data")
+system("unzip -j intact.zip")
+intact <- unique(fread(
+  "intact.txt",
+  header=T,
+  sep="\t",
+  colClasses="character",
+  check.names = T,
+  stringsAsFactors = F))
+system("rm intact.txt")
+system("rm intact_negative.txt")
+setwd("../")
+
+# UniProt
+## SwissProt
+swissprot <- paste("./source_data/",format(Sys.time(),format="%y%m"),"_hsapiens_sp.txt",sep="")
+if(!file.exists(swissprot)){
+        download.file('https://www.uniprot.org/uniprot/?query=taxonomy%3A%22Homo+sapiens+(Human)+[9606]%22+AND+reviewed%3Ayes&compress=no&include=true&format=tab', destfile = paste(swissprot,sep=""), method= "curl",quiet=F)
+}
+sp <- unique(fread(
+  swissprot,
+  header=T,
+  sep="\t",
+  colClasses="character",
+  check.names = T,
+  stringsAsFactors = F))
+
+## TrEMBL
+trembl <- paste("./source_data/",format(Sys.time(),format="%y%m"),"_hsapiens_tr.txt",sep="")
+if(!file.exists(trembl)){
+        download.file("https://www.uniprot.org/uniprot/?query=taxonomy%3A%22Homo+sapiens+(Human)+[9606]%22+AND+reviewed%3Ano&compress=no&include=true&format=tab", destfile = paste(trembl,sep=""), method= "curl")
+}
+
+tr <- unique(fread(
+  trembl,
+  header=T,
+  sep="\t",
+  colClasses="character",
+  check.names = T,
+  stringsAsFactors = F))
+
+```
+
+### Pre-processing IntAct human data
+```{r intact_preproc}
+intact_human_prots <- unique(rbind(
+  intact[grepl("taxid:9606\\(Homo sapiens\\)",Taxid.interactor.A) &
+           grepl("uniprotkb:",X.ID.s..interactor.A),
+         .(upac=gsub("-[0-9]+","",gsub("uniprotkb:","",X.ID.s..interactor.A)),
+           upac_isof=gsub("uniprotkb:","",X.ID.s..interactor.A))],
+  intact[grepl("taxid:9606\\(Homo sapiens\\)",Taxid.interactor.B) & 
+           grepl("uniprotkb:",ID.s..interactor.B),
+         .(upac=gsub("-[0-9]+","",gsub("uniprotkb:","",ID.s..interactor.B)),
+           upac_isof=gsub("uniprotkb:","",ID.s..interactor.B))]
+))
+
+intact_up_generic <- unique(intact_human_prots[,.(upac,intact="yes")])
+# intact_up_isof <- unique(intact_human_prots[,.(upac_isof,intact="yes")])    # No isoform info downloaded from UniProt
+```
+
+### Pre-processing UniProt entries
+```{r uniprot_preproc}
+sp_lite <- unique(sp[,.(
+  upac = Entry,
+  Status
+)])
+
+tr_lite <- unique(tr[,.(
+  upac = Entry,
+  Status
+)])
+
+up_full_lite <- unique(rbind(
+  sp_lite,
+  tr_lite
+))
+```
+
+### Comparison datasets
+```{r comp}
+sp_comp <- unique(merge(
+  intact_up_generic,
+  sp_lite,
+  by = "upac",
+  all = T
+))
+
+up_full_comp <- unique(merge(
+  intact_up_generic,
+  up_full_lite,
+  by = "upac",
+  all = T
+))
+```
+
+### Saving SwissProt proteins not in IMEx
+```{r upnonimex}
+spnonimex <- unique(up_full_comp[Status=="reviewed" & is.na(intact),.(
+  upac
+)])
+
+fwrite(
+  spnonimex,
+  "./Swissprot_without_isoforms_missing_in_IntAct.txt",
+  col.names = F,
+  row.names = F,
+  quote = F,
+  sep = "\t"
+)
+
+upnonimex <- unique(up_full_comp[is.na(intact),.(
+  upac
+)])
+
+fwrite(
+  upnonimex,
+  "./UniprotKB_without_isoforms_missing_in_IntAct.txt",
+  col.names = F,
+  row.names = F,
+  quote = F,
+  sep = "\t"
+)
+```
+
+### Venn diagram overlap
+#### SwissProt overlap
+```{r venn_sp}
+draw.pairwise.venn(
+  area2 = nrow(sp_comp[is.na(Status)]) + nrow(sp_comp[!is.na(intact) & !is.na(Status)]), 
+  area1 = nrow(sp_comp[is.na(intact)]) + nrow(sp_comp[!is.na(intact) & !is.na(Status)]), 
+  cross.area = nrow(sp_comp[!is.na(intact) & !is.na(Status)]), 
+  category = c("SwissProt","IntAct / IMEx"),
+  fill = c("blue", "red"),
+  lty = rep("blank",2),
+  alpha = rep(0.5,2),
+  cat.pos = c(330,30),
+  cat.dist = rep(0.025,2))
+```
+
+#### Full UniProt overlap
+```{r venn_fu}
+draw.pairwise.venn(
+  area2 = nrow(up_full_comp[is.na(Status)]) + nrow(up_full_comp[!is.na(intact) & !is.na(Status)]), 
+  area1 = nrow(up_full_comp[is.na(intact)]) + nrow(up_full_comp[!is.na(intact) & !is.na(Status)]), 
+  cross.area = nrow(up_full_comp[!is.na(intact) & !is.na(Status)]), 
+  category = c("Full UniProtKB","IntAct / IMEx"),
+  fill = c("blue", "red"),
+  lty = rep("blank",2),
+  alpha = rep(0.5,2),
+  cat.pos = c(330,30),
+  cat.dist = rep(0.025,2))
+```
+

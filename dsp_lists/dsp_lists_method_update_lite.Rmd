@@ -23,19 +23,19 @@ library(googlesheets)
 #### DSP subset actively curated in Google docs
 As downloaded on `r date()`.
 ```{r tested,message=FALSE,warning=FALSE}
-# gs_auth()
-# key <- extract_key_from_url("https://docs.google.com/spreadsheets/d/1tL1HtVD3-BxHxKuXbIYhcFjmCptGVEOD5aFJCZw6CZk/edit#gid=989290982")
-# dsp_manual <- gs_key(key)
-# dsp_curation <- data.table(gs_read(ss=dsp_manual, ws = "dsp_priority",header=T))
-dsp_curation <- fread(
-        "./source_data/Evaluating DSP - dsp_priority_rev_pred.tsv",
-        check.names = T,
+# This code does not work due to some issue with the permissions given by the app used. 
+# dsp_manual <- gs_title("Evaluating DSP")
+# pmids_checked <- data.table(gs_read(ss=dsp_manual, ws = "All_PMIDs_checked",header=T))
+# pmids_checked$pmid <- as.character(pmids_checked$pmid)
+# I need to download the data manually and then upload it here
+pmids_checked <- unique(fread(
+        "./source_data/20200305.Evaluating DSP - All_PMIDs_checked.tsv",
         sep = "\t",
-        colClasses = "character",
-        stringsAsFactors = F
-)
-
-dsp_curation$pmid <- as.character(dsp_curation$pmid)
+        header = T,
+        check.names = T,
+        stringsAsFactors = F,
+        colClasses = "character"
+))
 ```
 
 #### Full DSP pair-publication list
