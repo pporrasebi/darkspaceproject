@@ -100,3 +100,33 @@ To read specific information about how each dataset has been handled and integra
  * Predictions:
  	* IID predictions dataset: https://github.com/pporrasebi/darkspaceproject/blob/master/iid_predictions/iid_vs_imex.md
 	* STRING phylogeny predictions: https://github.com/pporrasebi/darkspaceproject/blob/master/STRING/STRING_dsgen.md
+
+#### Ranking pipeline evaluation
+This project has been complemented with a ranking pipeline based on a random forest algorithm implementation and the definition of two different scoring systems  developed by Miguel Vázquez. Details about the ranking pipeline can be found here: https://github.com/Rbbt-Workflows/DarkSpace. 
+
+The two scores used were defined as follows: 
+
+	* Relevance: ranks by likelihood of publication containing interactions, uses TM datasets scores and RandomForest
+	* Interest: Ranks by representation of proteins in interaction datasets, uses weighted frequencies of protein occurrence
+
+Detailed evaluations of the pipeline performance were done and can be found under https://github.com/Rbbt-Workflows/DarkSpace/tree/master/manual_evaluation. 5 different rounds of manual evaluation were performed, concluding that the pipeline does a reasonable job of sorting out publications by likelihood of containing interaction data (relevance score), but a poor on at identifying relevant pairs of interacting proteins (interest score). Latest reports can be downloaded in html format from the folder mentioned above. Rounds 4 and 5 evaluate identical versions of the pipeline run in two separate instances and there is a report on stochastic effects on the scorings at https://github.com/Rbbt-Workflows/DarkSpace/blob/master/manual_evaluation/comp_rel_rd4_rd5.html. 
+
+The results of this pipeline are then manually uploaded on to Google docs for IMEx curator to use them. Details about the comparison and the production of the google file can be found in https://github.com/pporrasebi/darkspaceproject/blob/master/dsp_comparison/dsp_comparison_final_v3.md. 
+
+#### Manual evaluations
+This is the link to the Google Spreadsheet for all manual evaluations: https://docs.google.com/spreadsheets/d/1tL1HtVD3-BxHxKuXbIYhcFjmCptGVEOD5aFJCZw6CZk/edit#gid=343089856. It has the following sheets:
+
+	* *dsp_priority_updated*: The most up to date sheet to be used as input for manual curation. Features a number of columns with information about data sources, MeSH terms annotation for each publication and relevance and interest scores, plus predicted interacting pairs. 
+	 * *All_PMIDs_checked*: Full list of all PubMed IDs manually evaluated for presence of curatable interaction data. 
+	* *DSP manual requests*: Manually updated list of specific publication requests from users and colleagues. 
+	* *MeSH terms list*: Full list of MeSH terms used to annotate the *dsp_priority_updated* list. 
+	* *Low-hanging fruit*: List of publications and protein pairs absent from IMEx databases, but present in Reactome and detected by both IID predictions and EPMC text-mining pipeline. Produced for the first version of the dsp_comparison sheet. 
+	* *Eval_Reactome*: List of 100 random PMIDs found in Reactome for manual evaluation. 
+	* *Eval_TM_EPMC*,*Eval_TM_EPMC_it2*, *Eval_TM_EPMC_it3*, *Eval_TM_EPMC_it4*: Series of sheets with manual evaluation of PMIDs containing interaction data as derived from the EPMC text mining pipeline. Every version is a further iteration of the pipeline, it4 being the best and final one. 
+	* *Proteoglycan interactions*: Manually defined list of publications, proteins and glycans potentially containing proteoglycan interactions, produced by Sylvie Ricard-Blum. 
+	* *dsp_priority*, *dsp_priority_rev*, *dsp_priority_rev_pred*,  *dsp_priority_rev_noalzh*, *dsp_biogrid_go*: These are all hidden tables and can only be seen if unhidden. They are all previous versions of *dsp_priority_updated*, featuring a varying number of columns. The *dsp_priority_rev_noalzh* is a list where Alzheimer's Disease-related publications, as defined by MeSH term annotation, have been removed for a specific project, now already finalised. 
+
+#### Pending tasks
+	* The results from the last iteration of the evaluation pipeline, produced in January 2020, were never implemented in the *dsp_priority_updated* sheet. It is not critical to do this, given the minor differences in the ranking pipeline, but might be advisable in the future. 
+	* IMExCentral features afull list of publication checked for curatable information and found to be negative for that. This could potentially be added to the tables in the project and used for training new versions of the algorithm. Also, Lukasz and other members of DIP went through parts of the *dsp_priority_updated* list and recorded their evaluation in IMExCentral, so this needs to be brought up as well. 
+	* A variation of the ranking pipeline with updated scorings has been discussed with Miguel Vázquez, but never pursued. 
